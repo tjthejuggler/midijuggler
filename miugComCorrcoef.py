@@ -85,7 +85,12 @@ def run_camera():
     corrcoefList = []
     appends = 0
     canCorr = False
-    while True and frames < 1000:         
+    desiredLength = 60
+    while True and frames < 1000:
+
+
+        if time.time() - start > 10:
+            fps = frames/(time.time() - start)
         #(grabbed, frame) = camera.read()
         frame = vs.read()
         frames = frames + 1
@@ -144,7 +149,7 @@ def run_camera():
     print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
     print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
     end = time.time()
-    fps = 1200/(end-start)
+    
     print("fps: "+str(fps))
     cv2.destroyAllWindows()
     line1 = plt.plot(all_cx, label="x")
@@ -179,34 +184,10 @@ run_camera()
 
 
 
-'''if len(windowX) < 10:
-        windowX.append(cx)
-        else:
-        i=0
-        while i < 9:
-            windowX[i] = windowX[i+1]
-            i = i + 1
-        windowX[9] = cx
-
-        if len(windowY) < 10:
-        windowY.append(cy)
-        else:
-        z=0
-        while z < 9:
-            windowY[z] =windowY[z+1]
-            z = z + 1
-        windowY[9] = cy
-        canCorr = True                  
-
-        if len(windowX) > 9:
-        xa = np.array([windowX[0],windowX[1],windowX[2],windowX[3],windowX[4],windowX[5],windowX[6],windowX[7],windowX[8],windowX[9]])
-        ya = np.array([windowY[0],windowY[1],windowY[2],windowY[3],windowY[4],windowY[5],windowY[6],windowY[7],windowY[8],windowY[9]])
 
 
 
-
-
-                averageColor = 0
+       ''''averageColor = 0
         i=0
         k=0
         while i < 100:
