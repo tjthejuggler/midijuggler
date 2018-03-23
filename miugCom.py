@@ -32,6 +32,9 @@ import matplotlib.pyplot as plt
 import pygame as pg
 import librosa  
 import librosa.display
+from datetime import datetime
+from datetime import timedelta
+
 midiout = rtmidi.MidiOut()
 available_ports = midiout.get_ports()
 if available_ports:
@@ -40,6 +43,7 @@ else:
     midiout.open_virtual_port("My virtual output")
 root = Tk() 
 root.title("Miug")
+
 def run_camera():    
     pg.mixer.init()
     pg.init()
@@ -74,25 +78,29 @@ def run_camera():
     lastDifY = 0
     thisDifY = 0
     lastCy = 0
-    secondLastY = 0
+    lastDifX = 0
+    thisDifX = 0
+    lastCx = 0
+    lastDifTime = datetime.now()
+    timeBetweenDifs = 500000
+
+ 
+    all_difX = []
+    all_difY = []
     num_high = 0
 
-    windowLength = 20
+    windowLength = 100
     windowX = deque(maxlen=windowLength)
     windowY = deque(maxlen=windowLength)
+    print(len(windowY))
     corrcoefList = []
     appends = 0
     canCorr = False
-    desiredLength = 60
-    while True and frames < 1000:
+    duration = 25
 
-
-        #if time.time() - start > 10:
-        #    fps = frames/(time.time() - start)
-        #(grabbed, frame) = camera.read()
+    while True:
         frame = vs.read()
-        frames = frames + 1
-        #print("frame:" + str(frames))
+        frames = frames + 1#print("frame:" + str(frames))
         if args.get("video") and not grabbed:
             break                            
         frame = imutils.resize(frame, width=600)        
@@ -105,35 +113,48 @@ def run_camera():
         
         if contours:
             cnt = contours[0]
-            M = cv2.moments(cnt)
-            #print M
+            M = cv2.moments(cnt)    
             if M['m00'] > 0:
                 cx = int(M['m10']/M['m00'])
                 cy = int(M['m01']/M['m00'])
-                all_cx.append(float(cx))
-                all_cy.append(float(cy))
-                #print("cx : "+str(cx)+",cy :"+str(cy))
-                lastDifY = thisDifY
-                thisDifY = cy-lastCy
-                #secondLastY = lastCy 
-                lastCy = cy
-                appends = appends+1
-                windowX.append(cx)
-                windowY.append(cy)
-                if appends > windowLength:
-                    #print("windowX :"+str(windowX))
-                    #print("windowY :"+str(windowY))
-                    corrcoefList.append(np.corrcoef(windowX,windowY)[0,1])
+            else:#These elses are here to make something happen even if there is no contour
+                cx = lastCx
+                cy = lastCy
+        else:
+            cx = lastCx
+            cy = lastCy       
+        all_cx.append(float(cx))
+        all_cy.append(float(cy))
+        print("datetime.now().microsecond :"+str(datetime.now()))
+        print("lastDifTime :"+str(lastDifTime))
+        extra = 0
+        if datetime.now() > lastDifTime + timedelta(microseconds=500000):
+            print("inhere")
+            lastDifY = thisDifY
+            thisDifY = cy-lastCy
+            lastCy = cy
+            lastDifX = thisDifX
+            thisDifX = cx-lastCx
+            lastCx = cx
+            all_difX.append(thisDifX)
+            all_difY.append(thisDifY)
+            lastDifTime = datetime.now()
 
-                if (lastDifY < 0 and (thisDifY > 0 or abs(thisDifY) < .5)) and (abs(thisDifY) > 10 or abs(lastDifY) > 10):
-                    num_high = num_high + 1
-                    print("hi " + str(num_high))
-                    sounds[sound_num].play()
-                    sound_num = sound_num + 1
-                    if sound_num == 4:
-                        sound_num = 0
+        windowX.append(cx)
+        windowY.append(cy)
+        if len(windowX) == windowLength:
+            corrcoefList.append(np.corrcoef(windowX,windowY)[0,1])
+        if (lastDifY < 0 and (thisDifY > 0 or abs(thisDifY) < .5)) and (abs(thisDifY) > 10 or abs(lastDifY) > 10):
+            num_high = num_high + 1
+            print("hi " + str(num_high))
+            sounds[sound_num].play()
+            sound_num = sound_num + 1
+            if sound_num == 4:
+                sound_num = 0
 
 
+        if time.time() - start > duration:
+            break
         for i in xrange(1, len(pts)):
             if pts[i - 1] is None or pts[i] is None:
                 continue
@@ -147,30 +168,55 @@ def run_camera():
     print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
     print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
     end = time.time()
-    
-    print("fps: "+str(fps))
+    myfps = frames/(end-start)
+    print("fps: "+str(myfps))
     cv2.destroyAllWindows()
+    plt.subplot(211)
+    #print(corrcoefList)
+    tickLabel2 = []
+    tickIndex2 = []
+    tickLabel = []
+    tickIndex = []
+    interval = 5
+    s = 0
+    while s < duration + interval:
+        tickLabel2.append(s)
+        #tickIndex2.append(s*(myfps/len(all_difX)*2))
+        tickIndex2.append(s*(len(all_difX)/duration))
+        s = s + interval
+
+    line1a = plt.plot(all_difX, label="x")
+    line2a = plt.plot(all_difY, label="y")
+    plt.xticks(tickIndex2, tickLabel2, rotation='vertical')
+
+    interval = 5
+    s = 0
+    while s < duration + interval:
+        tickLabel.append(s)
+        tickIndex.append(s*myfps)
+        s = s + interval
+
+    plt.subplot(212)
     line1 = plt.plot(all_cx, label="x")
     line2 = plt.plot(all_cy, label="y")
-    plt.figure()
-    line1a = plt.plot(corrcoefList, label="c")
-    #print(corrcoefList)
-    plt.figure()
-    #print(corrcoefList)
-    #plt.legend([line1, line2],['X', 'Y'])
+
+    #print(tickLabel)
+    #print(tickIndex)
+    plt.xticks(tickIndex, tickLabel, rotation='vertical')
     plt.show()
     vs.stop()
-    
-    #cv2.destroyAllWindows()
     camera.release()
-    #spectrogram = np.abs(librosa.stft(np.array(all_cy)))
-    #plt.imshow(spectrogram)
-    #print(spectrogram)
-    #librosa.display.specshow(librosa.amplitude_to_db(spectrogram))
+
 run_camera()
 
-#change label of bottom plot line 
-#combine both plots with subplot
+#make increased fps toggleable with a variable
+#make various charts toggeable
+#figure out how to get rid of the little plot box
+#add record functionality
+#change dif to an amount of time as opposed to every frame
+#use pygame to make a volume slider hooked up to things like left right or up down movement
+#label the colors of both plots
+#reverse the Ys so that up is up and down is down
 
 #LEARNINGS:
 #   not having this line ' frame = imutils.resize(frame, width=600) '  gives us wildly different fps readings
