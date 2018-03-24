@@ -65,9 +65,9 @@ def show_subplot(duration,index_multiplier,lines,subplot_num):
 
     index = 0        
     for line in lines:        
-        labels = ["x","y","z","a","b","c"]
-        index = index + 1
+        labels = ["x","y","z","a","b","c"]        
         line1 = plt.plot(line, label=labels[index])
+        index = index + 1
     
     plt.xticks(tickIndex, tickLabel, rotation='horizontal')
     plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
@@ -151,8 +151,8 @@ def run_camera():
                 cx,cy = lastCx,lastCy                  
         else:
             cx,cy = lastCx,lastCy      
-        all_cx.append(-float(cx))
-        all_cy.append(-float(cy))
+        all_cx.append(float(cx))
+        all_cy.append(float(640-cy))
 
         if datetime.now() > lastDifTime + timedelta(microseconds=timeBetweenDifs):
             lastDifY,lastDifX = thisDifY,thisDifX
@@ -222,31 +222,33 @@ def run_camera():
     cv2.destroyAllWindows()  
 
     num_charts = sum([show_dif_plot,show_com_plot,show_corrcoef_plot])
-    subplot_num_used = -1
 
-    if num_charts == 1:
-        subplot_num=[111]
-        subplot_num_used = subplot_num_used+1
-    elif num_charts == 2:
-        subplot_num=[211,212]
-        subplot_num_used = subplot_num_used+1
-    elif num_charts == 3:
-        subplot_num=[311,312,313]
-        subplot_num_used = subplot_num_used+1
+    if num_charts > 0:
+        subplot_num_used = 0
 
-    if show_dif_plot:
-        show_subplot(duration,(len(all_difX)/duration),[all_difX,all_difY],subplot_num[subplot_num_used])
-        subplot_num_used = subplot_num_used - 1
-       
-    if show_com_plot:
-        show_subplot(duration,myfps,[all_cx,all_cy],subplot_num[subplot_num_used])
-        subplot_num_used = subplot_num_used - 1
-        
-    if show_corrcoef_plot:
-        show_subplot(duration,myfps,[corrcoefList],subplot_num[subplot_num_used])
-        subplot_num_used = subplot_num_used - 1
+        if num_charts == 1:
+            subplot_num=[111]
+            subplot_num_used = 0
+        elif num_charts == 2:
+            subplot_num=[212,211]
+            subplot_num_used = 1
+        elif num_charts == 3:
+            subplot_num=[313,312,311]
+            subplot_num_used = 2
 
-    if show_com_plot or show_dif_plot or show_corrcoef_plot:    
+        if show_dif_plot:
+            show_subplot(duration,(len(all_difX)/duration),[all_difX,all_difY],subplot_num[subplot_num_used])
+            subplot_num_used = subplot_num_used - 1
+           
+        if show_com_plot:
+            show_subplot(duration,myfps,[all_cx,all_cy],subplot_num[subplot_num_used])
+            subplot_num_used = subplot_num_used - 1
+            
+        if show_corrcoef_plot:
+            show_subplot(duration,myfps,[corrcoefList],subplot_num[subplot_num_used])
+            subplot_num_used = subplot_num_used - 1
+
+ 
         plt.show()
 
 
