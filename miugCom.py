@@ -76,26 +76,36 @@ def run_camera():
     global interval
     show_camera = True
     record_camera = False
+    show_mask = True
     video_name = "midijuggler.avi"
     increase_fps = True
     show_time = False
+    adjust_volume = False
     play_peak_notes = False
     using_midi = False    
-    duration = 10
+    duration = 30 #seconds
     corrcoefWindowSize = 100    
-    timeBetweenDifs = 500000           
+    timeBetweenDifs = 500000 #microseconds          
     show_corrcoef_plot = False
     show_dif_plot = True
     show_com_plot  = True
 
+
+
+    pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
     pg.mixer.init()
     pg.init()
     pg.mixer.set_num_channels(19)
     sounds = []
-    sounds.append(pg.mixer.Sound(pg.mixer.Sound("/Users/Thursday/..miugCom/notes01.wav")))
-    sounds.append(pg.mixer.Sound(pg.mixer.Sound("/Users/Thursday/..miugCom/notes02.wav")))
-    sounds.append(pg.mixer.Sound(pg.mixer.Sound("/Users/Thursday/..miugCom/notes03.wav")))
-    sounds.append(pg.mixer.Sound(pg.mixer.Sound("/Users/Thursday/..miugCom/notes04.wav")))
+    sounds.append(pg.mixer.Sound("notes01.wav"))
+    sounds.append(pg.mixer.Sound("notes02.wav"))
+    sounds.append(pg.mixer.Sound("notes03.wav"))
+    sounds.append(pg.mixer.Sound("notes04.wav"))
+
+    if adjust_volume:
+        song=pg.mixer.Sound("song.wav")
+        song.play()
+
 
     if using_midi:
         set_up_midi()
@@ -120,11 +130,17 @@ def run_camera():
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
 
-    start = time.time()
-    lastDifTime = datetime.now()
-    all_cx,all_cy,all_difX,all_difY,corrcoefList = [],[],[],[],[]
-    frames,num_high,lastDifY,thisDifY,lastCy,lastDifX,thisDifX,lastCx = 0,0,0,0,0,0,0,0
 
+    #fgbg = cv2.bgsegm.createBackgroundSubtractorMOG()
+    #kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+
+    start = time.time()
+    lastTimeDifTime = datetime.now()
+    all_cx,all_cy,all_time_difX,all_time_difY,all_frame_difX,all_frame_difY,corrcoefList = [],[],[],[],[],[],[]
+    frames,num_high = 0,0
+    lastTimeDifY,thisTimeDifY,lastTimeCy,lastTimeDifX,thisTimeDifX,lastTimeCx = 0,0,0,0,0,0
+    lastFrameDifY,thisFrameDifY,lastFrameDifX,thisFrameDifX,lastFrameCy,lastFrameCx = 0,0,0,0,0,0
+    lastCx,lastCy = 0,0
     if show_corrcoef_plot:
         windowX,windowY = deque(maxlen=corrcoefWindowSize),deque(maxlen=corrcoefWindowSize)
    
@@ -135,32 +151,79 @@ def run_camera():
             (grabbed, frame) = camera.read()
         frames = frames + 1#print("frame:" + str(frames))
         if args.get("video") and not grabbed:
-            break                            
-        #frame = imutils.resize(frame, width=600)        
-        framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        ret,thresh = cv2.threshold(framegray,127,255,0)
-        im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-   
+            break 
+
+        #mask = fgbg.apply(frame)
+        
+
+
+        
+
+
+        # Threshold the HSV image to get only blue colors
+        #mask = cv2.inRange(frame, lower_blue, upper_blue)
+    
+        #get window of counted contours
+        #plot x and ys of each contour
+        #apply same peak filter to individual contours
+        #look at last frame and get distances between all contours in this frame and it
+        #find an average position of all centers of mass
+        #   it may also be interesting to find an actualy center of mass as well. This can also be done hemispherically if we 
+        #       can find out exactly which pixels are on/off.
+
+        #frame = imutils.resize(frame, width=600)
+
+        #framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        #ret,thresh = cv2.threshold(framegray,127,255,0)
+        framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower_range = np.array([0, 0, 197])
+        upper_range = np.array([146, 26, 255])     
+        mask = cv2.inRange(framehsv, lower_range, upper_range)
+        mask = cv2.erode(mask, None, iterations=1)
+        mask = cv2.dilate(mask, None, iterations=10)
+        im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        if show_mask:
+            cv2.imshow('mask',mask)
         if contours:
-            cnt = contours[0]
-            M = cv2.moments(cnt)    
-            if M['m00'] > 0:
-                cx = int(M['m10']/M['m00'])
-                cy = int(M['m01']/M['m00'])
-            else:#These elses are here to make something happen even if there is no contour
-                cx,cy = lastCx,lastCy                  
+            #print(frames)
+            #print(len(contours))
+            for i in range(0,len(contours)):
+                cnt = contours[i]
+                #print("contours[i] :"+str(contours[i]))
+                M = cv2.moments(cnt)    
+                if M['m00'] > 0:
+                    cx = int(M['m10']/M['m00'])
+                    cy = int(M['m01']/M['m00'])
+                    print( str(cx) + " y " + str(cy))
+                else:#These elses are here to make something happen even if there is no contour
+                    cx,cy = lastCx,lastCy                  
         else:
             cx,cy = lastCx,lastCy      
         all_cx.append(float(cx))
         all_cy.append(float(640-cy))
 
-        if datetime.now() > lastDifTime + timedelta(microseconds=timeBetweenDifs):
-            lastDifY,lastDifX = thisDifY,thisDifX
-            thisDifY,thisDifX = cy-lastCy,cx-lastCx
-            lastCy,lastCx = cy,cx
-            all_difX.append(thisDifX)
-            all_difY.append(thisDifY)
-            lastDifTime = datetime.now()
+        lastCy,lastCx = cy,cx
+
+        if adjust_volume:
+           #print("cx :"+str(cx))
+            song.set_volume(cx/640)
+
+            #use the logic in cv2track to make good color tracking
+            #this should done differently, it shuld be done down where the charts are made
+            #   and it should just be done off of 1 list that is full of our cxs and cys
+            #we dont need to keep a list of all frameDifs, we can just figure it out from lists of cx and cy
+            #implement tempo detection(peaks per second), this could be hooked up via midi with virtualdj bpm
+            #make a big 2d array that holds all the cxs and another that holds the cys of all 
+            #modularize as much as possible, shoot for just 1 or 2 inputs/outputsm, try to line it up with the conditionals
+        if datetime.now() > lastTimeDifTime + timedelta(microseconds=timeBetweenDifs):
+            lastTimeDifY,lastTimeDifX = thisTimeDifY,thisTimeDifX
+            thisTimeDifY,thisTimeDifX = cy-lastTimeCy,cx-lastTimeCx
+            lastTimeCy,lastTimeCx = cy,cx
+            all_time_difX.append(thisTimeDifX)
+            all_time_difY.append(thisTimeDifY)
+            lastTimeDifTime = datetime.now()
+
+
 
         if show_corrcoef_plot:
             windowX.append(cx)
@@ -170,10 +233,14 @@ def run_camera():
             else:
                 corrcoefList.append(0)
 
-        if play_peak_notes:    
-            if (lastDifY < 0 and (thisDifY > 0 or abs(thisDifY) < .5)) and (abs(thisDifY) > 10 or abs(lastDifY) > 10):
+
+
+        if play_peak_notes:
+                          
+            if (lastFrameDifY < 0 and (thisFrameDifY > 0 or abs(thisFrameDifY) < .5)) and (abs(thisFrameDifY) > 10 or abs(lastFrameDifY) > 10):
                 num_high = num_high + 1
-                #print("Peak " + str(num_high))
+                print("Peak " + str(num_high))
+                sounds[sound_num].set_volume(640-cy/640)
                 sounds[sound_num].play()
                 sound_num = sound_num + 1
                 if sound_num == 4:
@@ -237,7 +304,7 @@ def run_camera():
             subplot_num_used = 2
 
         if show_dif_plot:
-            show_subplot(duration,(len(all_difX)/duration),[all_difX,all_difY],subplot_num[subplot_num_used])
+            show_subplot(duration,(len(all_time_difX)/duration),[all_time_difX,all_time_difY],subplot_num[subplot_num_used])
             subplot_num_used = subplot_num_used - 1
            
         if show_com_plot:
@@ -260,6 +327,7 @@ run_camera()
 #make peak print out toggleable
 #try different window sizes
 #make a corrcoef for the diffs
+#instead of just playing notes on peaks, notes could be played on the left/rights so they happen on throws
 
 #THE PLAN:(might not be doing this stuff now)
 #   get the numpy corrcoef between my 2 windows, it should give me a list of %s as long as the number of frames
