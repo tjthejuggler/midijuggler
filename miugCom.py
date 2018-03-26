@@ -186,64 +186,83 @@ def record_frame(frame, frames, out, start):
             out.write(frame)
         if randint(0, 100)<((20/myfps)-math.floor(20/myfps)*100):
             out.write(frame)
+def create_subplot_grid(num_charts):
+    subplot_num_used = 0
+    if num_charts == 1:
+        subplot_num=[111]
+        subplot_num_used = 0
+    elif num_charts == 2:
+        subplot_num=[212,211]
+        subplot_num_used = 1
+    elif num_charts == 3:
+        subplot_num=[313,312,311]
+        subplot_num_used = 2
+    return subplot_num, subplot_num_used
+def make_dif_plot(duration, frames, all_cx, all_cy, subplot_num, subplot_num_used, time_between_difs):
+    lines = []
+    number_of_points = duration/time_between_difs
+    print("number_of_points :"+str(number_of_points))
+    for i in range(0,len(all_cx)): 
+        frames_to_use_x = []
+        frames_to_use_y = []
+        all_time_dif_x = []
+        all_time_dif_y = []
+        for j in range(0,int(number_of_points)):
+            index_to_use = int(max(0, min(len(all_cx[i])-1,(frames/number_of_points)*j)))            
+            frames_to_use_x.append(all_cx[i][index_to_use])
+            frames_to_use_y.append(all_cy[i][index_to_use])                               
+            all_time_dif_x.append(frames_to_use_x[j]-frames_to_use_x[min(0,j-1)])
+            all_time_dif_y.append(frames_to_use_y[j]-frames_to_use_y[min(0,j-1)])
+        lines.append(all_time_dif_x)
+        lines.append(all_time_dif_y)
+    show_subplot(duration,int((len(all_time_dif_x)/duration)),lines,subplot_num[subplot_num_used])
+def make_com_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used):
+    lines = []
+    for i in range(0,len(all_cx)):
+        lines.append(all_cx[i])
+        for a in range(0,len(all_cy[i])):
+            all_cy[i][a] = 480-all_cy[i][a]
+        lines.append(all_cy[i])            
+    show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
+def make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size):
+    lines = []
+    window_x,window_y = deque(maxlen=corrcoef_window_size),deque(maxlen=corrcoef_window_size)
+    #print("create_plots len(all_cx) :"+str(len(all_cx)))
+    for i in range(0,len(all_cx)):
+        corrcoef_list = []
+        for j in range(0,len(all_cx[i])):
+            window_x.append(all_cx[i][j])
+            window_y.append(all_cy[i][j])            
+            if len(window_x) == corrcoef_window_size:            
+                corrcoef_list.append(np.corrcoef(window_x,window_y)[0,1])
+            else:
+                corrcoef_list.append(0)
+        lines.append(corrcoef_list)
+    show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
 def create_plots(duration,frames,start,end,all_cx,all_cy,):
-    show_corrcoef_plot = False
-    show_dif_plot = False
+    show_corrcoef_plot = True
+    show_dif_plot = True
     show_com_plot  = True
-    corrcoef_window_size = 100    
-    time_between_difs = 500000 #microseconds
+    corrcoef_window_size = 30    
+    time_between_difs = .5 #microseconds
     tick_label3,tick_index3,tick_label2,tick_index2,tick_label,tick_index = [],[],[],[],[],[]
     myfps = frames/(end-start)    
     num_charts = sum([show_dif_plot,show_com_plot,show_corrcoef_plot])
     if num_charts > 0:
-        subplot_num_used = 0
-        if num_charts == 1:
-            subplot_num=[111]
-            subplot_num_used = 0
-        elif num_charts == 2:
-            subplot_num=[212,211]
-            subplot_num_used = 1
-        elif num_charts == 3:
-            subplot_num=[313,312,311]
-            subplot_num_used = 2
+        subplot_num, subplot_num_used = create_subplot_grid(num_charts)
         if show_dif_plot:
-            all_time_dif = []
-            number_of_points = (end-start)/time_between_difs
-            for i in range(0,len(all_cx)):
-                for j in range(0,number_of_points):
-                    all_time_dif[i].append(all_cx[i][int((frames/number_of_points)*j)])
-                all_time_dif.append([])
-                for k in range(0,number_of_points):
-                    all_time_dif[i+1].append(all_cy[i][int((frames/number_of_points)*j)])
-            show_subplot(duration,(len(all_timeX)/duration),[all_time_dif],subplot_num[subplot_num_used])
+            make_dif_plot(duration, frames, all_cx, all_cy, subplot_num, subplot_num_used, time_between_difs)
             subplot_num_used = subplot_num_used - 1               
         if show_com_plot:
-            lines = []
-            #print("create_plots len(all_cx) :"+str(len(all_cx)))
-            for i in range(0,len(all_cx)):
-                lines.append(all_cx[i])
-                for a in range(0,len(all_cy[i])):
-                    all_cy[i][a] = 480-all_cy[i][a]
-                lines.append(all_cy[i])
-            #print("create_plots len(lines) :"+str(len(lines)))
-            show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
+            make_com_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used)
             subplot_num_used = subplot_num_used - 1                
-        #if show_corrcoef_plot:
-            #this will probably be useful
-            #if show_corrcoef_plot:
-                    #windowX.append(all_cx[mincol])
-                    #windowY.append(all_cy[mincol])            
-                    #if len(windowX) == corrcoef_window_size:            
-                    #    corrcoef_list.append(np.corrcoef(windowX,windowY)[0,1])
-                    #else:
-                    #    corrcoef_list.append(0)
-        #windowX,windowY = deque(maxlen=corrcoef_window_size),deque(maxlen=corrcoef_window_size)
-            #show_subplot(duration,myfps,[corrcoef_list],subplot_num[subplot_num_used])
-            #subplot_num_used = subplot_num_used - 1
+        if show_corrcoef_plot:
+            make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size)
+            subplot_num_used = subplot_num_used - 1
         plt.show()
 def run_camera():
     show_camera = True
-    record_video = True
+    record_video = False
     show_mask = False
     video_name = "3Bshower.avi"
     increase_fps = False
@@ -251,7 +270,7 @@ def run_camera():
     use_adjust_volume = False
     play_peak_notes = True
     using_midi = False    
-    duration = 30 #seconds
+    duration = 10 #seconds
     camera = cv2.VideoCapture(0)    
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
@@ -261,7 +280,7 @@ def run_camera():
         set_up_adjust_volume()
     if using_midi:
         set_up_midi()
-    args = do_arguments_stuff()
+    args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
     out = None
     if record_video:
         out = set_up_record_camera(video_name)     
@@ -289,11 +308,6 @@ def run_camera():
                     all_cx.append([])
                     all_cy.append([])
                 for i in range(0,len(matched_indices)):
-                    #print("i :"+str(i))
-                    #print("matched_indices :"+str(matched_indices))
-                    #print("cx :"+str(cx))
-                    #print("i :"+str(i))
-                    #print("len(all_cx)"+str(len(all_cx)))
                     all_cx[i].append(cx[matched_indices[i]])
                     all_cy[i].append(cy[matched_indices[i]])           
                     if play_peak_notes:
@@ -301,7 +315,7 @@ def run_camera():
                             if peak_checker(all_cy[i][-3],all_cy[i][-2],all_cy[i][-1]):                            
                                 sound_num = play_rotating_sound(sound_num, sounds)
                 if use_adjust_volume:
-                    adjust_volume(position, axis)
+                    adjust_volume(average_position()[1]/480)
         else:
             contour_count_window.append(0)                
         if record_video:
