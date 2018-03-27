@@ -58,8 +58,13 @@ def set_up_record_camera(video_name):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     return cv2.VideoWriter(video_name,fourcc, 20.0, (640,480))
 def set_up_adjust_volume():
+    pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
+    pg.mixer.init()
+    pg.init()
+    pg.mixer.set_num_channels(19)
     song=pg.mixer.Sound("song.wav")
     song.play()
+    return song
 def do_arguments_stuff():
     PY3 = sys.version_info[0] == 3
     if PY3:#find out if this stuff is needed or not
@@ -76,11 +81,11 @@ def get_contours(frame):
     framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_range = np.array([0, 0, 197])
     upper_range = np.array([146, 26, 255])     
-    mask = cv2.inRange(framehsv, lower_range, upper_range)
-    mask = cv2.erode(mask, None, iterations=1)
+    original_mask = cv2.inRange(framehsv, lower_range, upper_range)
+    mask = cv2.erode(original_mask, None, iterations=1)
     mask = cv2.dilate(mask, None, iterations=10)
     im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    return contours, mask
+    return contours, mask, original_mask
 def get_contour_centers(contours):
     cx = []
     cy = []
@@ -94,9 +99,6 @@ def get_contour_centers(contours):
             print("M['m00'] issue")
     return cx,cy
 def find_distances(cx,cy,all_cx,all_cy):
-    #print("find_distances")
-    #print("len(cx) :"+str(len(cx)))
-    #print("len(all_cx) :"+str(len(all_cx)))
     if len(all_cx) == 0:
         all_cx.append([0])
         all_cy.append([0])
@@ -104,16 +106,10 @@ def find_distances(cx,cy,all_cx,all_cy):
     for i in range(0,len(all_cx)):
         distances.append([])
         for j in range(0,len(cx)):
-            #print("cx[i]"+str(cx[i]))
-            #print("all_cx[j][-1]"+str(all_cx[j][-1])) 
-            #print("cy[i]"+str(cy[i]))
-            #print("all_cy[j][-1]"+str(all_cy[j][-1]))                     
             dist = math.sqrt( (cx[j] - all_cx[i][-1])**2 + (cy[j] - all_cy[i][-1])**2 )
             distances[i].append(dist)
-            #print("distances1"+str(distances))
     return distances
 def get_contour_matchings(distances,average_contour_count): 
-    #print("average_contour_count :"+str(average_contour_count))   
     min_dist_row = 0
     min_dist_col = 0
     indices_to_return = [0]
@@ -121,46 +117,65 @@ def get_contour_matchings(distances,average_contour_count):
         indices_to_return.append(i)
     min_dist = 100000
     for t in range(0,average_contour_count):
-        #print("distances5:"+str(distances))
         for i in range(0,len(distances)):
             for j in range(0,len(distances[0])):                
                 if distances[i][j] <= min_dist:
                     min_dist = distances[i][j]
                     min_dist_row = i
                     min_dist_col = j
-        #print("len(indices_to_return) :"+str(len(indices_to_return)))
-        #print("min_dist_row"+str(min_dist_row))
-        #print("min_dist_col"+str(min_dist_col))
         if min_dist_row < len(indices_to_return):
             indices_to_return[min_dist_row] = min_dist_col
         min_dist = 100000
         for i in range(len(distances[min_dist_row])):
             distances[min_dist_row][i] = 100000
         for d in range(0,len(distances)):
-            #print("d :"+str(d))
-            #print("min_dist_col :"+str(min_dist_col))
-            #print("distances3"+str(distances))
-            distances[d][min_dist_col] = 100000
-    #print ("indices_to_return :"+str(indices_to_return))        
+            distances[d][min_dist_col] = 100000  
     return indices_to_return
-def adjust_volume(axis):
-    song.set_volume((sum(axis)/len(cx))/640)
-def peak_checker(second,last,this):
-    last_frame_dif = second - last
-    this_frame_dif = last - this
-    if (last_frame_dif < 0 and (this_frame_dif > 0 or abs(this_frame_dif) < .5)) and (abs(this_frame_dif) > 10 or abs(this_frame_dif) > 10):
-        return True
-    else:
-        return False
+def average_position(all_axis, window_length, window_end_frame):
+    average_pos = 0
+    count = 0
+    average_duration = min(len(all_axis[0]), window_length)
+    #print("average_duration :"+str(average_duration)) 
+    for i in range(0, len(all_axis)):
+        for j in range(0, average_duration):
+            print("window_end_frame :"+str(window_end_frame)) 
+            print("j :"+str(j)) 
+            index = window_end_frame-j
+            if(abs(index)<len(all_axis[i])):
+                if all_axis[i][0-index] > 0:
+                    count = count+1
+                    print("index*-1 :"+str(index)) 
+                    print("all_axis[i][-index] :"+str(all_axis[i][-index]))
+                    print("average_pos :"+str(average_pos))                    
+                    average_pos = average_pos + all_axis[i][index]
+    if count > 0:
+        average_pos = average_pos/count
+        print("average_posAve :"+str(average_pos)) 
+    #print("average_pos :"+str(average_pos))      
+    return average_pos
+def adjust_volume(axis,buffer,position,song):
+    if axis == "y":
+        size = 480        
+    if axis == "x":
+        size = 640
+    print("position :"+str(position))
+    print("set_volume :"+str((position-buffer)/(size - buffer*2)))          
+    song.set_volume((position-buffer)/(size - buffer*2))
+def peak_checker(all_cy, average_position):
+    last_frame_dif = all_cy[-3] - all_cy[-2]
+    this_frame_dif = all_cy[-2] - all_cy[-1]
+    if all_cy[-1] <= average_position:
+        if (last_frame_dif < 0 and (this_frame_dif > 0 or abs(this_frame_dif) < .5)) and (abs(this_frame_dif) > 10 or abs(this_frame_dif) > 10):
+            return True
+        else:
+            return False
 def play_rotating_sound(sound_num, sounds):
-    #sounds[sound_num].set_volume(640-cy/640)
     sounds[sound_num].play()
     sound_num = sound_num + 1
     if sound_num == 4:
         sound_num = 0
     return sound_num
 def show_subplot(duration,index_multiplier,lines,subplot_num):
-    #print("len(lines) :"+len(lines))
     interval = 5 #sets the plot ticks and the timer markers    
     tick_label,tick_index = [],[]
     plt.subplot(subplot_num)  
@@ -222,7 +237,14 @@ def make_com_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used):
         lines.append(all_cx[i])
         for a in range(0,len(all_cy[i])):
             all_cy[i][a] = 480-all_cy[i][a]
-        lines.append(all_cy[i])            
+        lines.append(all_cy[i])
+    average_x = []
+    average_y = []
+    for k in range(len(all_cx[0])):
+        average_x.append(average_position(all_cx, 1, k))
+        average_y.append(average_position(all_cy, 1, k))
+    lines.append(average_x)
+    lines.append(average_y)
     show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
 def make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size):
     lines = []
@@ -240,8 +262,8 @@ def make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_us
         lines.append(corrcoef_list)
     show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
 def create_plots(duration,frames,start,end,all_cx,all_cy,):
-    show_corrcoef_plot = True
-    show_dif_plot = True
+    show_corrcoef_plot = False
+    show_dif_plot = False
     show_com_plot  = True
     corrcoef_window_size = 30    
     time_between_difs = .5 #microseconds
@@ -264,20 +286,23 @@ def run_camera():
     show_camera = True
     record_video = False
     show_mask = False
+    show_overlay = False
+    all_mask = []
     video_name = "3Bshower.avi"
     increase_fps = False
     show_time = False
     use_adjust_volume = False
-    play_peak_notes = True
+    play_peak_notes = False
     using_midi = False    
-    duration = 10 #seconds
-    camera = cv2.VideoCapture(0)    
+    duration = 20 #seconds
+    camera = cv2.VideoCapture(0)        
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     if play_peak_notes:
        sounds = set_up_peak_notes()
+    song = None
     if use_adjust_volume:
-        set_up_adjust_volume()
+        song = set_up_adjust_volume()
     if using_midi:
         set_up_midi()
     args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
@@ -294,9 +319,11 @@ def run_camera():
         frames = frames + 1
         if args.get("video") and not grabbed:
             break 
-        contours, mask = get_contours(frame)
+        contours, mask, original_mask = get_contours(frame)
         if show_mask:
-            cv2.imshow('mask',mask)  
+            cv2.imshow('mask',mask)
+        if show_overlay:
+            all_mask.append(original_mask)
         if contours: #print("len(contours) :"+str(len(contours)))
             contour_count_window.append(len(contours))            
             if frames > 10:
@@ -305,17 +332,18 @@ def run_camera():
                 average_contour_count = round(sum(contour_count_window)/len(contour_count_window))                
                 matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
                 while len(all_cx) < len(matched_indices):
-                    all_cx.append([])
-                    all_cy.append([])
+                    all_cx.append([0]*len(all_cx[0]))
+                    all_cy.append([0]*len(all_cx[0]))
                 for i in range(0,len(matched_indices)):
                     all_cx[i].append(cx[matched_indices[i]])
                     all_cy[i].append(cy[matched_indices[i]])           
                     if play_peak_notes:
                         if len(all_cy[i]) > 2:
-                            if peak_checker(all_cy[i][-3],all_cy[i][-2],all_cy[i][-1]):                            
+                            if peak_checker(all_cy[i],average_position(all_cy, 10,-1)):                            
                                 sound_num = play_rotating_sound(sound_num, sounds)
                 if use_adjust_volume:
-                    adjust_volume(average_position()[1]/480)
+                    print("average_position(all_cy, 10, -1) :" + str(average_position(all_cy, 10, -1)))
+                    adjust_volume("y",100,average_position(all_cy, 10, -1),song)
         else:
             contour_count_window.append(0)                
         if record_video:
@@ -329,13 +357,15 @@ def run_camera():
             break
     end = time.time()    
     myfps = frames/(end-start)
-    print("fps: "+str(myfps))
+    print("myfps: "+str(myfps))
     if increase_fps:
         vs.stop()
     camera.release()
     if record_video:
         out.release()
     cv2.destroyAllWindows()
+    if show_overlay:        
+        cv2.imshow('overlay',sum(all_mask))        
     create_plots(duration,frames,start,end,all_cx,all_cy)    
 
 run_camera()
