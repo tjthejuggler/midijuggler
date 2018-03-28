@@ -21,13 +21,11 @@ import imutils # for tracking balls
 import sys # for tracking balls
 from tkinter import messagebox
 import pyautogui
-import time
 import pyHook
 import pythoncom
 import win32com.client
 from tkinter.filedialog import askopenfilename
 from scipy import ndimage
-import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import pygame as pg
@@ -82,26 +80,45 @@ def get_contours(frame):
     lower_range = np.array([0, 0, 197])
     upper_range = np.array([146, 26, 255])     
     original_mask = cv2.inRange(framehsv, lower_range, upper_range)
-    mask = cv2.erode(original_mask, None, iterations=1)
-    mask = cv2.dilate(mask, None, iterations=10)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+    mask = cv2.erode(original_mask, kernel, iterations=2)
+    mask = cv2.dilate(mask, kernel, iterations=4)
     im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     return contours, mask, original_mask
-def get_contour_centers(contours):
+def get_contour_centers(contours, average_contour_count):
     cx = []
     cy = []
+    moments = []
+    widths = []
+    heights = []
+    maxM00 = 0
+    maxIndex = -1
     for i in range(0,len(contours)):
         cnt = contours[i]
         M = cv2.moments(cnt) 
         if M['m00'] > 0:
             cx.append(int(M['m10']/M['m00']))
             cy.append(int(M['m01']/M['m00']))
-        else:
-            print("M['m00'] issue")
-    return cx,cy
+            if M['m00'] > maxM00:
+                maxM00 = M['m00']
+                maxIndex = i
+    '''print("centers")
+    print(cx)
+    print(cy)
+    print(maxIndex)'''
+    return cx,cy, maxIndex
+def calculate_velocity(last_two_positions):
+    print("calculating velocity")
+    print(last_two_positions)
+    return last_two_positions[0] - last_two_positions[1]
+def calculate_acceleration(last_two_velocities):    
+    return last_two_velocities[0] - last_two_velocities[1]
 def find_distances(cx,cy,all_cx,all_cy):
-    if len(all_cx) == 0:
-        all_cx.append([0])
-        all_cy.append([0])
+    '''print("finding distances")
+    print(cx)
+    print(cy)
+    print(all_cx)
+    print(all_cy)'''
     distances = []
     for i in range(0,len(all_cx)):
         distances.append([])
@@ -135,37 +152,30 @@ def average_position(all_axis, window_length, window_end_frame):
     average_pos = 0
     count = 0
     average_duration = min(len(all_axis[0]), window_length)
-    #print("average_duration :"+str(average_duration)) 
     for i in range(0, len(all_axis)):
         for j in range(0, average_duration):
-            print("window_end_frame :"+str(window_end_frame)) 
-            print("j :"+str(j)) 
             index = window_end_frame-j
-            if(abs(index)<len(all_axis[i])):
-                if all_axis[i][0-index] > 0:
+            if abs(index)<len(all_axis[i]):
+                if all_axis[i][-index] > 0:
                     count = count+1
-                    print("index*-1 :"+str(index)) 
-                    print("all_axis[i][-index] :"+str(all_axis[i][-index]))
-                    print("average_pos :"+str(average_pos))                    
                     average_pos = average_pos + all_axis[i][index]
     if count > 0:
         average_pos = average_pos/count
-        print("average_posAve :"+str(average_pos)) 
-    #print("average_pos :"+str(average_pos))      
+        #print("average_posAve :"+str(average_pos)) 
     return average_pos
 def adjust_volume(axis,buffer,position,song):
     if axis == "y":
         size = 480        
     if axis == "x":
         size = 640
-    print("position :"+str(position))
-    print("set_volume :"+str((position-buffer)/(size - buffer*2)))          
+    #print("position :"+str(position))
+    #print("set_volume :"+str((position-buffer)/(size - buffer*2)))          
     song.set_volume((position-buffer)/(size - buffer*2))
 def peak_checker(all_cy, average_position):
     last_frame_dif = all_cy[-3] - all_cy[-2]
     this_frame_dif = all_cy[-2] - all_cy[-1]
     if all_cy[-1] <= average_position:
-        if (last_frame_dif < 0 and (this_frame_dif > 0 or abs(this_frame_dif) < .5)) and (abs(this_frame_dif) > 10 or abs(this_frame_dif) > 10):
+        if (last_frame_dif < 0 and (this_frame_dif > 0 or abs(this_frame_dif) < .5)):
             return True
         else:
             return False
@@ -176,6 +186,7 @@ def play_rotating_sound(sound_num, sounds):
         sound_num = 0
     return sound_num
 def show_subplot(duration,index_multiplier,lines,subplot_num):
+    print("len(lines) :"+str(len(lines)))
     interval = 5 #sets the plot ticks and the timer markers    
     tick_label,tick_index = [],[]
     plt.subplot(subplot_num)  
@@ -185,7 +196,8 @@ def show_subplot(duration,index_multiplier,lines,subplot_num):
             tick_index.append(s*index_multiplier)
     index = 0        
     for line in lines:        
-        labels = ["x0","y0","x1","y1","x2","y2","x3","y3","x4","y4"]        
+        labels = ["x0","y0","x1","y1","x2","y2","x3","y3","x4","y4","x5","y5","x6","y6","x7","y7","x8","y8","x9"]
+                
         line1 = plt.plot(line, label=labels[index])
         index = index + 1    
     plt.xticks(tick_index, tick_label, rotation='horizontal')
@@ -241,11 +253,22 @@ def make_com_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used):
     average_x = []
     average_y = []
     for k in range(len(all_cx[0])):
-        average_x.append(average_position(all_cx, 1, k))
-        average_y.append(average_position(all_cy, 1, k))
+        average_x.append(average_position(all_cx, 50, k))
+        average_y.append(average_position(all_cy, 50, k))
     lines.append(average_x)
     lines.append(average_y)
     show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
+def make_indiv_com_plot(duration,myfps,all_cx, all_cy):
+    subplot_num,subplot_num_used = create_subplot_grid(3)
+    for i in range(0,len(all_cx)):
+        lines = []
+        lines.append(all_cx[i])
+        for a in range(0,len(all_cy[i])):
+            all_cy[i][a] = 480-all_cy[i][a]
+        lines.append(all_cy[i])
+        show_subplot(duration,myfps,lines,subplot_num[subplot_num_used])
+        subplot_num_used = subplot_num_used - 1 
+    plt.show() 
 def make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size):
     lines = []
     window_x,window_y = deque(maxlen=corrcoef_window_size),deque(maxlen=corrcoef_window_size)
@@ -264,12 +287,15 @@ def make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_us
 def create_plots(duration,frames,start,end,all_cx,all_cy,):
     show_corrcoef_plot = False
     show_dif_plot = False
-    show_com_plot  = True
+    show_com_plot  = False
+    show_indiv_com_plot = True
     corrcoef_window_size = 30    
     time_between_difs = .5 #microseconds
     tick_label3,tick_index3,tick_label2,tick_index2,tick_label,tick_index = [],[],[],[],[],[]
-    myfps = frames/(end-start)    
-    num_charts = sum([show_dif_plot,show_com_plot,show_corrcoef_plot])
+    myfps = frames/(end-start)
+    if show_indiv_com_plot:
+        make_indiv_com_plot(duration,myfps,all_cx, all_cy) 
+    num_charts = sum([show_dif_plot,show_com_plot,show_corrcoef_plot])    
     if num_charts > 0:
         subplot_num, subplot_num_used = create_subplot_grid(num_charts)
         if show_dif_plot:
@@ -277,22 +303,23 @@ def create_plots(duration,frames,start,end,all_cx,all_cy,):
             subplot_num_used = subplot_num_used - 1               
         if show_com_plot:
             make_com_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used)
-            subplot_num_used = subplot_num_used - 1                
+            subplot_num_used = subplot_num_used - 1                             
         if show_corrcoef_plot:
             make_corrcoef_plot(duration,myfps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size)
             subplot_num_used = subplot_num_used - 1
         plt.show()
 def run_camera():
-    show_camera = True
+    show_camera = False
     record_video = False
-    show_mask = False
+    show_mask = True
     show_overlay = False
     all_mask = []
     video_name = "3Bshower.avi"
-    increase_fps = False
+    increase_fps = True
     show_time = False
     use_adjust_volume = False
-    play_peak_notes = False
+    play_peak_notes = True
+    print_peaks = True                                    
     using_midi = False    
     duration = 20 #seconds
     camera = cv2.VideoCapture(0)        
@@ -309,8 +336,8 @@ def run_camera():
     out = None
     if record_video:
         out = set_up_record_camera(video_name)     
-    start, all_cx, all_cy,frames,num_high,sound_num = time.time(),[],[],0,0,0
-    contour_count_window = deque(maxlen=10)
+    start,all_cx,all_cy,all_vx,all_vy,all_ay,frames,num_high,sound_num,peak_count = time.time(),[[0]],[[0]],[[0]],[[0]],[[0]],0,0,0,0
+    contour_count_window = deque(maxlen=30)
     while True:
         if increase_fps:
             frame = vs.read()
@@ -322,27 +349,75 @@ def run_camera():
         contours, mask, original_mask = get_contours(frame)
         if show_mask:
             cv2.imshow('mask',mask)
-        if show_overlay:
+        if show_overlay: #if less contours than average then we take the largest contour and split 
             all_mask.append(original_mask)
         if contours: #print("len(contours) :"+str(len(contours)))
             contour_count_window.append(len(contours))            
             if frames > 10:
-                cx, cy = get_contour_centers(contours)
-                distances = find_distances(cx,cy,all_cx,all_cy)
-                average_contour_count = round(sum(contour_count_window)/len(contour_count_window))                
+                average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
+                cx, cy, max_contour_index = get_contour_centers(contours, average_contour_count)             
+                print("calculating kinematics")
+                print(cx)
+                print(cy)   
+                for i in range(0,len(all_cx)):
+                    print(i)
+                    if len(all_cx[i]) > 1:
+                        all_vx[i].append(calculate_velocity([all_cx[i][-2],all_cx[i][-1]]))
+                        all_vy[i].append(calculate_velocity([all_cy[i][-2],all_cy[i][-1]]))
+                        if len(all_cx) > 2:
+                            all_ay[i].append(calculate_acceleration([all_vy[i][-2],all_vy[i][-1]]))
+                        else:
+                            all_ay[i].append(0)
+                    else:
+                        all_vx[i].append(0)
+                        all_vy[i].append(0)
+                '''if len(cx) < average_contour_count:
+                    print("blob")
+
+                    temp_distances_to_max_contour = find_distances([cx[max_contour_index]],[cy[max_contour_index]],all_cx,all_cy)
+                    distances_to_max_contour = []
+                    for i in range(0, len(temp_distances_to_max_contour)):
+                        distances_to_max_contour.append(temp_distances_to_max_contour[i][0])
+                    distances_to_max_contour = np.asarray(distances_to_max_contour)
+                    blob_contour_indices = distances_to_max_contour.argsort()[:2]
+                    predicted_cx_1 = all_vx[blob_contour_indices[0]][-1] + all_cx[blob_contour_indices[0]][-1]
+                    predicted_cx_2 = all_vx[blob_contour_indices[1]][-1] + all_cx[blob_contour_indices[1]][-1]
+                    predicted_cy_1 = all_vy[blob_contour_indices[0]][-1] + .5*all_ay[blob_contour_indices[0]][-1]**2 + all_cx[blob_contour_indices[0]][-1]
+                    predicted_cy_2 = all_vy[blob_contour_indices[1]][-1] + .5*all_ay[blob_contour_indices[1]][-1]**2 + all_cx[blob_contour_indices[1]][-1]
+                    last_min_1 = min(all_cy[blob_contour_indices[0]][min(100, -len(all_cy[blob_contour_indices[0]])):])
+                    last_min_2 = min(all_cy[blob_contour_indices[1]][min(100, -len(all_cy[blob_contour_indices[1]])):])
+
+                    print(last_min_1)
+                    print(last_min_2)
+                    predicted_cy_1 = min(last_min_1, predicted_cy_1)
+                    predicted_cy_2 = min(last_min_2, predicted_cy_2)
+
+                    cx[max_contour_index],cy[max_contour_index] = predicted_cx_1,predicted_cy_1
+                    cx.append(predicted_cx_2)
+                    cy.append(predicted_cy_2)
+                    print("done predicting")
+                    print(cx)
+                    print(cy)'''
+                distances = find_distances(cx,cy,all_cx,all_cy)               
                 matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
                 while len(all_cx) < len(matched_indices):
-                    all_cx.append([0]*len(all_cx[0]))
-                    all_cy.append([0]*len(all_cx[0]))
+                    all_cx.append([]*len(all_cx[0]))
+                    all_cy.append([]*len(all_cx[0]))
+                    all_vx.append([]*len(all_cx[0]))
+                    all_vy.append([]*len(all_cx[0]))
+                    all_ay.append([]*len(all_cx[0]))
                 for i in range(0,len(matched_indices)):
                     all_cx[i].append(cx[matched_indices[i]])
                     all_cy[i].append(cy[matched_indices[i]])           
-                    if play_peak_notes:
+                    if play_peak_notes or print_peaks:
                         if len(all_cy[i]) > 2:
-                            if peak_checker(all_cy[i],average_position(all_cy, 10,-1)):                            
-                                sound_num = play_rotating_sound(sound_num, sounds)
+                            if peak_checker(all_cy[i],average_position(all_cy, 10,-1)):
+                                if play_peak_notes:                            
+                                    sound_num = play_rotating_sound(sound_num, sounds)
+                                if print_peaks:
+                                    peak_count = peak_count + 1
+                                    print("peak_count: "+str(peak_count))
                 if use_adjust_volume:
-                    print("average_position(all_cy, 10, -1) :" + str(average_position(all_cy, 10, -1)))
                     adjust_volume("y",100,average_position(all_cy, 10, -1),song)
         else:
             contour_count_window.append(0)                
@@ -367,20 +442,17 @@ def run_camera():
     if show_overlay:        
         cv2.imshow('overlay',sum(all_mask))        
     create_plots(duration,frames,start,end,all_cx,all_cy)    
-
 run_camera()
 
 #todo
-#make peak ignore the minor peaks in the hands
-#make a buffer for volume and have it be based on average position of all balls
-#make peak print out toggleable
-#instead of just playing notes on peaks, notes could be played on the left/rights so they happen on throws
+#could be dealt with dynamicly: contour_count_window, it needs to be a different length when the fps is 
+#                                       high so that blurs dont get seen as new balls
 #get the record feature to start working again
 #   wait 5 seconds to start recording, use those 5 seconds to determine the fps and set it that way
 #   try and record with increased fps in an empty project
+#get hooked up to midi
 #implement tempo detection(peaks per second), this could be hooked up via midi with virtualdj bpm
-#find an average position of all centers of mass
-#   it may also be interesting to find an actualy center of mass as well. This can also be done hemispherically if we 
+#it may also be interesting to find an actual center of mass as well. This can also be done hemispherically if we 
 #       can find out exactly which pixels are on/off.
 #PLOTS:
 #   try different window sizes for dif
@@ -392,54 +464,11 @@ run_camera()
 #predicting drops by detecting patterns that often come before them could be really interseting,
 #   we could play around with showing a % likelihood that you are going to drop based on how stable the pattern is
 
-
-
-'''
-    if record_camera:
-        cap = cv2.VideoCapture(video_name)
-        while(cap.isOpened()):
-            ret, frame = cap.read()
-            if ret == True:
-                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                cv2.namedWindow('testT')
-                cv2.createTrackbar('thrs1', 'testT', interval, duration, lambda x:x)
-                cv2.imshow('frame', gray)                
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
-            else:
-                break
-        cap.release()
+#instead of just playing notes on peaks, notes could be played on the left/rights so they happen on throws
 
 
 
-averageColor = 0
-        i=0
-        k=0
-        while i < 100:
-            while k < 100:
-                averageColor= averageColor+frame[i+250][k+190][2]                
-                k=k+1
-            i=i+1
-
-        averageColor = averageColor/1000
-
-
-        print(frame[i+250][k+190][2])
-
-
-        greenLower = (20, 30, 6)
-        greenUpper = (64, 200, 200)
-        
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-        mask = cv2.inRange(hsv, greenLower, greenUpper)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
-
-        cv2.rectangle(frame, (240,180) , (360,300), (255,255,255), 2)
-
-
-            font                   = cv2.FONT_HERSHEY_SIMPLEX
+'''font                   = cv2.FONT_HERSHEY_SIMPLEX
     bottomLeftCornerOfText = (30,370)
     fontScale              = 6
     fontColor              = (0,125,255)
