@@ -36,12 +36,27 @@ from datetime import timedelta
 from random import randint
 import peakutils
 import random
+import scipy.stats as ss
 pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
 pg.mixer.set_num_channels(19)
 column_sounds = [pg.mixer.Sound("hhat2.wav"), pg.mixer.Sound("snare.wav")]
-print(column_sounds)
+show_camera = False
+record_video = False
+show_mask = True
+show_overlay = True
+all_mask = []
+video_name = "3Bshower.avi"
+increase_fps = True
+show_time = False
+use_adjust_volume = False
+play_peak_notes = True
+print_peaks = True                                    
+using_midi = False    
+duration = 45 #seconds
+average_min_height = 30
+peak_count = 0
 def set_up_midi():
     midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
@@ -79,7 +94,7 @@ def do_arguments_stuff():
     args = vars(ap.parse_args())
     pts = deque(maxlen=args["buffer"])   
     return args
-def set_up_camera(increase_fps,play_peak_notes,use_adjust_volume,using_midi,record_video):
+def set_up_camera():
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     if play_peak_notes:
@@ -98,7 +113,7 @@ def set_up_camera(increase_fps,play_peak_notes,use_adjust_volume,using_midi,reco
     else:
         out = None
     return vs, sounds, song, args, out
-def analyze_video(start,frames,increase_fps,vs,camera,args):
+def analyze_video(start,frames,vs,camera,args):
     if time.time()-start > 0:
         fps = frames/(time.time()-start)
     else:
@@ -121,7 +136,7 @@ def get_contours(frame, contour_count_window, fps):
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(1,1))
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
     mask = cv2.erode(original_mask, erode_kernel, iterations=1)
-    mask = cv2.dilate(mask, dilate_kernel, iterations=2)
+    mask = cv2.dilate(mask, dilate_kernel, iterations=3)
     im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         #if len(contour_count_window) < int(fps-5):
@@ -131,13 +146,8 @@ def get_contours(frame, contour_count_window, fps):
     else:
         contour_count_window.append(0)
     return contours, mask, original_mask, contour_count_window
-def get_contour_centers(contours, average_contour_count):
-    cx = []
-    cy = []
-    moments = []
-    min_height = 100000
-    maxM00 = 0
-    maxIndex = -1
+def get_contour_centers(contours, average_contour_count,min_height_window):
+    cx,cy,moments,min_height,maxM00,maxIndex = [],[],[],100000,0,-1
     for i in range(0,len(contours)):
         contour = contours[i]
         M = cv2.moments(contour) 
@@ -149,8 +159,10 @@ def get_contour_centers(contours, average_contour_count):
                 maxIndex = i
             x,y,w,height = cv2.boundingRect(contour)
             if height < min_height:
-                min_height = height                
-    return cx,cy, maxIndex, min_height
+                min_height = height
+    min_height_window.append(min_height)
+    average_min_height = sum(min_height_window)/len(min_height_window)            
+    return cx,cy, maxIndex, min_height_window
 def calculate_velocity(last_two_positions):
     return last_two_positions[0] - last_two_positions[1]
 def calculate_acceleration(last_two_velocities):    
@@ -271,23 +283,33 @@ def average_position(all_axis, window_length, window_end_frame):
     if count > 0:
         average_pos = average_pos/count
     return average_pos
-def ball_at_peak(vy_window, min_height):
+def determine_relative_positions(last_cx,last_cy):
+    relative_positions = []
+    relative_positions.append(ss.rankdata(last_cx))
+    relative_positions.append(ss.rankdata(last_cy))
+    return relative_positions
+def analyze_trajectory(last_cy,all_vy,last_peak_time,sound_num,sounds,all_vx,path_type):
+    if play_peak_notes or print_peaks:
+        last_peak_time, sound_num, at_peak = peak_checker(last_cy,all_vy,last_peak_time,sound_num,sounds)                        
+    if len(all_vx) > 0:
+        path_type = determine_path_type(all_vx[-1])   
+    return last_peak_time,sound_num,at_peak,path_type     
+def ball_at_peak(vy_window):
     max_value = 0
     number_of_frames_up = 2
     vy_window = list(filter(lambda a: a != 0, vy_window))
     vy_window = [v for i, v in enumerate(vy_window) if i == 0 or v != vy_window[i-1]]
     frames_up = vy_window[-(number_of_frames_up):]
     frames_up.reverse()
-    if abs(sum(frames_up))>min_height and len(vy_window)>len(frames_up):
-        if all(j >= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] < min_height:
+    if abs(sum(frames_up))>average_min_height and len(vy_window)>len(frames_up):
+        if all(j >= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] < average_min_height:
             print("You've peaked!")
             return True
         else:
             return False
     else:
         return False
-
-def play_rotating_sound(last_y,sound_num, sounds):
+def play_rotating_notes(last_y,sound_num, sounds):
     buffer = 50
     sounds[sound_num].set_volume(1-((last_y-buffer)/(480 - buffer*2)))
     sounds[sound_num].play()
@@ -295,21 +317,35 @@ def play_rotating_sound(last_y,sound_num, sounds):
     if sound_num == 4:
         sound_num = 0
     return sound_num
-def peak_checker(last_y,all_vy,last_peak_time,min_height,sound_num,sounds,peak_count,play_peak_notes,print_peaks):
+def peak_checker(last_y,all_vy,last_peak_time,sound_num,sounds):
     at_peak = False
     min_peak_period = .6 
     if len(all_vy) > 2:
         if time.time()-last_peak_time > min_peak_period:
             vy_window_size = int(len(all_vy))
-            if ball_at_peak(all_vy[-vy_window_size:], min_height):
+            if ball_at_peak(all_vy[-vy_window_size:]):
                 last_peak_time = time.time()
                 at_peak = True
-    return last_peak_time, sound_num, peak_count, at_peak
-def determine_path_type(xv,min_height):
+    return last_peak_time, sound_num, at_peak
+def determine_path_type(xv):
     path_type = "column"
-    if abs(xv) > min_height/4:
+    if abs(xv) > average_min_height/4:
         path_type = "cross"
     return path_type 
+def peak_response_system(at_peak,path_type,last_cy,sound_num, sounds,relative_position,column_sounds):
+    global peak_count
+    if at_peak:
+        if play_peak_notes:                            
+            if path_type == 'cross':
+                sound_num = play_rotating_notes(last_cy,sound_num, sounds)
+            else:                
+                if int(relative_position) == 1:                                
+                    column_sounds[0].play()
+                else:
+                    column_sounds[1].play()
+        if print_peaks:
+            peak_count = peak_count + 1
+    return sound_num
 def adjust_volume(axis,buffer,position,song):
     if axis == "y":
         size = 480        
@@ -465,30 +501,18 @@ def create_plots(duration,frames,start,end,all_cx,all_cy,):
             subplot_num_used = subplot_num_used - 1
         plt.show()
 def run_camera():
-    show_camera = False
-    record_video = False
-    show_mask = True
-    show_overlay = True
-    all_mask = []
-    video_name = "3Bshower.avi"
-    increase_fps = True
-    show_time = False
-    use_adjust_volume = False
-    play_peak_notes = True
-    print_peaks = True                                    
-    using_midi = False    
-    duration = 10 #seconds
-    camera = cv2.VideoCapture(0)   
-    vs, sounds, song, args, out = set_up_camera(increase_fps,play_peak_notes,use_adjust_volume,using_midi,record_video)
-    start,all_cx,all_cy,all_vx,all_vy,all_ay,frames,num_high,sound_num,peak_count = time.time(),[[0]],[[0]],[[0]],[[0]],[[0]],0,0,0,0
-    last_peak_time, at_peak, path_type, min_height,break_for_no_video = [-.25]*20,[-.25]*20,["cross"]*20,0,False
-    contour_count_window = deque(maxlen=30)
+    global all_mask
+    camera = cv2.VideoCapture(0)
+    vs, sounds, song, args, out = set_up_camera()
+    start,all_cx,all_cy,all_vx,all_vy,all_ay,frames,num_high,sound_num = time.time(),[[0]],[[0]],[[0]],[[0]],[[0]],0,0,0
+    last_peak_time, at_peak, path_type, break_for_no_video = [-.25]*20,[-.25]*20,["cross"]*20,False
+    contour_count_window, min_height_window = deque(maxlen=30), deque(maxlen=30)
     while True:
-        fps, grabbed, frame, frames, break_for_no_video = analyze_video(start,frames,increase_fps,vs,camera,args)
-        contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window, fps)
+        fps, grabbed, frame, frames, break_for_no_video = analyze_video(start,frames,vs,camera,args)
+        contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
         if contours and frames > 10:
             average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
-            cx, cy, max_contour_index, min_height = get_contour_centers(contours, average_contour_count)
+            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,average_contour_count,min_height_window)
             last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]
             all_vx,all_vy,all_ay = calculate_kinematics(len(all_cx),all_vx,last_two_cx,all_vy,last_two_cy,all_ay)             
             missing_ball_count = average_contour_count - len(cx)
@@ -497,23 +521,12 @@ def run_camera():
             distances = find_distances(cx,cy,all_cx,all_cy)               
             matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
             all_cx,all_cy,all_vx,all_vy,all_ay=connect_contours_to_histories(matched_indices,all_cx,all_cy,all_vx,all_vy,all_ay,cx,cy)
+            last_cx,last_cy = [j for i in [t[-1:] for t in all_cx] for j in i],[j for i in [t[-1:] for t in all_cy] for j in i]              
+            relative_positions = determine_relative_positions(last_cx[0:len(matched_indices)],last_cy[0:len(matched_indices)])
             for i in range(0,len(matched_indices)):
-                if play_peak_notes or print_peaks:
-                    last_peak_time[i], sound_num, peak_count, at_peak[i] = peak_checker(all_cy[i][-1],all_vy[i],last_peak_time[i],min_height,sound_num,sounds,peak_count,play_peak_notes,print_peaks)                        
-                if len(all_vx[i]) > 0:
-                    path_type[i] = determine_path_type(all_vx[i][-1],min_height)
-                if at_peak[i]:
-                    print(path_type[i])
-                    if play_peak_notes:                            
-                        if path_type[i] == 'cross':
-                            sound_num = play_rotating_sound(all_cy[i][-1],sound_num, sounds)
-                        else:
-                            column_sounds[random.getrandbits(1)].play()
-                    if print_peaks:
-                        peak_count = peak_count + 1
+                last_peak_time[i],sound_num,at_peak[i],path_type[i]=analyze_trajectory(all_cy[i][-1],all_vy[i],last_peak_time[i],sound_num,sounds,all_vx[i],path_type[i])
+                sound_num = peak_response_system(at_peak[i],path_type[i],all_cy[i][-1],sound_num, sounds,relative_positions[0][i],column_sounds)
             if use_adjust_volume:
-                print("use_adjust_volume")
-                print(average_position(all_cy, 10, -1))
                 adjust_volume("y",120,average_position(all_cy, 10, -1),song)
         all_mask = show_and_record_video(record_video,frame,frames,out,start,fps,show_camera,show_mask,mask,show_overlay,all_mask,original_mask)               
         if should_break(start, duration,break_for_no_video):
@@ -525,21 +538,21 @@ def run_camera():
 run_camera()
 
 #next steps
-        #turn some things into global variables
-        #with calculating fps 
+        #there are 2 hardcoded 'deque(maxlen=30), their maxlen should be changed to being dynamically set from fps
+        #   figure out what 'contour_count_window.extend' does exactly, maybe the commented out stuff we have on this 
+        #   would solve this issue, so long as we are low, we keep adding 5 to the maxlen each frame
         #if 2 peaking together, make them play a new sound altogher
-        #average min_height instead of just min_height
-        #lowest, mid, 
         #find other dancing/music software
         #look into midi latency issue
-        #left/right detection, play a different wav based on side
         #hook up volume to all sounds are played at the volume
-        #enhance volume calculation in terms of height, using the average juggling height as a good volume, as well
-        #   'scaling' another way to say you are changing the measurement of how you do the volume and log scale would also change the 
-        #   rep of eh height, trying to scale height to volume
-        #hook up tempo for preexisting music to eventually be used with mide, maybe check to see if pygame has a speed changer
+            #enhance volume calculation in terms of height, using the average juggling height as a good volume, as well
+            #   'scaling' another way to say you are changing the measurement of how you do the volume and log scale would also change the 
+            #   rep of eh height, trying to scale height to volume
+        #hook up tempo for preexisting music to eventually be used with midi, maybe check to see if pygame has a speed changer
+        #having issues with pygame notes not triggering in patterns, maybe because it thinks the same ball is peaking to soon
+        #   and so it is not allowed to make the sound because it is too soon. sometimes sounds seem to bunch up as well, maybe this is a pygame issue.
 
-
+#column_sounds[random.getrandbits(1)].play() <-- gives a random 1 or 0
 #todo
 #could be dealt with dynamicly: contour_count_window, it needs to be a different length when the fps is 
 #                                       high so that blurs dont get seen as new balls
