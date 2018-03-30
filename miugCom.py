@@ -163,17 +163,30 @@ def calculate_kinematics(number_of_contours,all_vx,last_two_cx,all_vy,last_two_c
             all_vx[i].append(0)
             all_vy[i].append(0)
     return all_vx,all_vy,all_ay
-def high_throw_or_drop_seen(cx, cy,average_contour_count,last_second_of_all_cx,last_second_of_all_cy,missing_ball_count):
+#def predicted_point():
+
+#def high_throw_or_drop_seen(cx, cy,average_contour_count,last_second_of_all_cx,last_second_of_all_cy,missing_ball_count):
     #for i in range(0,len(last_second_of_all_cx)):
+        #if predicted_point(last_second_of_all_cx[i][-3:]) < 0 or predicted_point(last_second_of_all_cx[i][-3:]) > width
         #we want check to see if each ball was heading towards a drop edge, or the top edge,
-        #   we want to deal with those 2 things differently, and if neither is happening then we want to move on to splitting the contour/s
-    return cx, cy, average_contour_count, missing_ball_count 
-def split_contour():
-    nothing = "everything"
+        #   we want to deal with those 2 things differently, and if neither is happening then we want to just return our
+        #   variables as we got them.
+        #However, if a ball was heading toward an edge then we want to deal with it accordingly:
+        #   top edge:
+        #       predict when it will peak, or maybe set up a loop that lasts through several frames that
+        #       tells where the contour would have been if the camera could see it and sets a cx/cy based on it until
+        #       it gets back on the screen and reduces the missing_ball_count by 1
+        #   drop edge:
+        #       it drops the average number of balls down 1 and reduces the missing_ball_count by 1
+    #return cx, cy, average_contour_count, missing_ball_count 
+#def split_contour():
+    #nothing = "everything"
+    #this is what we do once we know that no ball has left the screen, but we still have too few balls,
+
 def split_contours_if_needed(cx, cy,average_contour_count,last_second_of_all_cx,last_second_of_all_cy,missing_ball_count):
-    cx,cy,average_contour_count,missing_ball_count=high_throw_or_drop_seen(cx,cy,average_contour_count,last_second_of_all_cx,last_second_of_all_cy,missing_ball_count)
-    for i in range(0,missing_ball_count):
-        split_contour()        
+    #cx,cy,average_contour_count,missing_ball_count=high_throw_or_drop_seen(cx,cy,average_contour_count,last_second_of_all_cx,last_second_of_all_cy,missing_ball_count)
+    #for i in range(0,missing_ball_count):
+        #split_contour()        
     '''temp_distances_to_max_contour = find_distances([cx[max_contour_index]],[cy[max_contour_index]],all_cx,all_cy)
     distances_to_max_contour = []
     for i in range(0, len(temp_distances_to_max_contour)):
@@ -336,7 +349,7 @@ def should_break(start,duration,break_for_no_video):
     if key == ord("q"):            
         what_to_return = True
     return what_to_return
-def closing_operations(fps,increase_fps,vs,camera,record_video,out,all_mask):
+def closing_operations(fps,increase_fps,vs,camera,record_video,out,show_overlay,all_mask):
     print("fps: "+str(fps))
     if increase_fps:
         vs.stop()
@@ -420,8 +433,8 @@ def make_corrcoef_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used
 def create_plots(duration,frames,start,end,all_cx,all_cy,):
     show_corrcoef_plot = False
     show_dif_plot = False
-    show_com_plot  = True
-    show_indiv_com_plot = False
+    show_com_plot  = False
+    show_indiv_com_plot = True
     corrcoef_window_size = 30    
     time_between_difs = .5 #microseconds
     tick_label3,tick_index3,tick_label2,tick_index2,tick_label,tick_index = [],[],[],[],[],[]
@@ -466,10 +479,11 @@ def run_camera():
         if contours and frames > 10:
             average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
             cx, cy, max_contour_index, min_height = get_contour_centers(contours, average_contour_count)
+            #name complex things in the next line
             all_vx,all_vy,all_ay = calculate_kinematics(len(all_cx),all_vx,[t[-2:] for t in all_cx],all_vy,[t[-2:] for t in all_cy],all_ay)             
             missing_ball_count = average_contour_count - len(cx)
-            if missing_ball_count > 0:
-                cx, cy = split_contours_if_needed(cx, cy,average_contour_count,[t[-int(fps):] for t in all_cx],[t[-int(fps):] for t in all_cy],missing_ball_count)
+            #if missing_ball_count > 0:
+            #    cx, cy = split_contours_if_needed(cx, cy,average_contour_count,[t[-int(fps):] for t in all_cx],[t[-int(fps):] for t in all_cy],missing_ball_count)
             distances = find_distances(cx,cy,all_cx,all_cy)               
             matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
             all_cx,all_cy,all_vx,all_vy,all_ay=connect_contours_to_histories(matched_indices,all_cx,all_cy,all_vx,all_vy,all_ay,cx,cy)
@@ -481,9 +495,8 @@ def run_camera():
         all_mask = show_and_record_video(record_video,frame,frames,out,start,fps,show_camera,show_mask,mask,show_overlay,all_mask,original_mask)               
         if should_break(start, duration,break_for_no_video):
             break
-    end = closing_operations(fps,increase_fps,vs,camera,record_video,out,all_mask)
-    create_plots(duration,frames,start,end,all_cx,all_cy)    
-
+    end = closing_operations(fps,increase_fps,vs,camera,record_video,out,show_overlay,all_mask)
+    create_plots(duration,frames,start,end,all_cx,all_cy)
 
 
 run_camera()
