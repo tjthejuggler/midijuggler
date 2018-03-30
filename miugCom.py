@@ -37,6 +37,7 @@ from random import randint
 import peakutils
 import random
 import scipy.stats as ss
+import threading as th
 pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
@@ -53,12 +54,12 @@ show_time = False
 use_adjust_volume = False
 play_peak_notes = True
 print_peaks = True                                    
-using_midi = False    
+using_midi = True    
 duration = 45 #seconds
 average_min_height = 30
-peak_count = 0
+peak_count,midiout = 0,rtmidi.MidiOut()
 def set_up_midi():
-    midiout = rtmidi.MidiOut()
+    #midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
     if available_ports:
         midiout.open_port(1)
@@ -303,23 +304,43 @@ def ball_at_peak(vy_window):
     frames_up.reverse()
     if abs(sum(frames_up))>average_min_height and len(vy_window)>len(frames_up):
         if all(j >= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] < average_min_height:
-            print("You've peaked!")
+            #print("You've peaked!")
             return True
         else:
             return False
     else:
         return False
+def midi_hex(channel):
+    i = int('0x90', 16)     
+    i += int(channel)
+    return i
+midi_channel_to_off = 0
+midi_note_to_off = 0
+def turn_midi_note_off():
+    global midi_channel_to_off, midi_note_to_off
+    note_off = [midi_hex(midi_channel_to_off), midi_note_to_off, 0]    
+    midiout.send_message(note_off)
+def send_midi_note(channel,note,volume):      
+    global midi_channel_to_off, midi_note_to_off                             
+    note_on = [midi_hex(channel), note, volume]
+    midiout.send_message(note_on)
+    midi_channel_to_off = channel
+    midi_note_to_off = note
+    off = th.Timer(0.2,turn_midi_note_off) 
+    off.start()
 def play_rotating_notes(last_y,sound_num, sounds):
     buffer = 50
-    sounds[sound_num].set_volume(1-((last_y-buffer)/(480 - buffer*2)))
-    sounds[sound_num].play()
+    #sounds[sound_num].set_volume(1-((last_y-buffer)/(480 - buffer*2)))
+    #sounds[sound_num].play()
+    if using_midi:
+        send_midi_note(1,60+(sound_num*10),112)
     sound_num = sound_num + 1
     if sound_num == 4:
         sound_num = 0
     return sound_num
 def peak_checker(last_y,all_vy,last_peak_time,sound_num,sounds):
     at_peak = False
-    min_peak_period = .6 
+    min_peak_period = .6
     if len(all_vy) > 2:
         if time.time()-last_peak_time > min_peak_period:
             vy_window_size = int(len(all_vy))
@@ -337,12 +358,14 @@ def peak_response_system(at_peak,path_type,last_cy,sound_num, sounds,relative_po
     if at_peak:
         if play_peak_notes:                            
             if path_type == 'cross':
-                sound_num = play_rotating_notes(last_cy,sound_num, sounds)
+                sound_num = play_rotating_notes(last_cy,sound_num,sounds)
             else:                
-                if int(relative_position) == 1:                                
-                    column_sounds[0].play()
+                if int(relative_position) == 1: 
+                    send_midi_note(0,50,112)                               
+                    #column_sounds[0].play()
                 else:
-                    column_sounds[1].play()
+                    send_midi_note(0,50,112)
+                    #column_sounds[1].play()
         if print_peaks:
             peak_count = peak_count + 1
     return sound_num
@@ -352,7 +375,7 @@ def adjust_volume(axis,buffer,position,song):
     if axis == "x":
         size = 640
     song.set_volume((position-buffer)/(size - buffer*2))
-def show_and_record_video(record_video,frame,frames,out,start,fps,show_camera,show_mask,mask,show_overlay,all_mask,original_mask):                
+def show_and_record_video(frame,frames,out,start,fps,show_mask,mask,all_mask,original_mask):                
     if record_video:
         record_frame(frame, frames, out, start, fps)
     if show_camera:
@@ -395,8 +418,11 @@ def should_break(start,duration,break_for_no_video):
     if key == ord("q"):            
         what_to_return = True
     return what_to_return
-def closing_operations(fps,increase_fps,vs,camera,record_video,out,show_overlay,all_mask):
+def closing_operations(fps,vs,camera,out,all_mask):
+    global midiout
     print("fps: "+str(fps))
+    if using_midi:
+        del midiout
     if increase_fps:
         vs.stop()
     camera.release()
@@ -528,16 +554,17 @@ def run_camera():
                 sound_num = peak_response_system(at_peak[i],path_type[i],all_cy[i][-1],sound_num, sounds,relative_positions[0][i],column_sounds)
             if use_adjust_volume:
                 adjust_volume("y",120,average_position(all_cy, 10, -1),song)
-        all_mask = show_and_record_video(record_video,frame,frames,out,start,fps,show_camera,show_mask,mask,show_overlay,all_mask,original_mask)               
+        all_mask = show_and_record_video(frame,frames,out,start,fps,show_mask,mask,all_mask,original_mask)               
         if should_break(start, duration,break_for_no_video):
             break
-    end = closing_operations(fps,increase_fps,vs,camera,record_video,out,show_overlay,all_mask)
+    end = closing_operations(fps,vs,camera,out,all_mask)
     create_plots(duration,frames,start,end,all_cx,all_cy)
 
 
 run_camera()
 
 #next steps
+        #hook ball velocity up to pitch in ableton
         #there are 2 hardcoded 'deque(maxlen=30), their maxlen should be changed to being dynamically set from fps
         #   figure out what 'contour_count_window.extend' does exactly, maybe the commented out stuff we have on this 
         #   would solve this issue, so long as we are low, we keep adding 5 to the maxlen each frame
