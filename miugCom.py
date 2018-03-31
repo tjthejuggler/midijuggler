@@ -55,7 +55,7 @@ use_adjust_volume = False
 play_peak_notes = True
 print_peaks = True                                    
 using_midi = True    
-duration = 45 #seconds
+duration = 40 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 def set_up_midi():
@@ -148,6 +148,7 @@ def get_contours(frame, contour_count_window, fps):
         contour_count_window.append(0)
     return contours, mask, original_mask, contour_count_window
 def get_contour_centers(contours, average_contour_count,min_height_window):
+    global average_min_height
     cx,cy,moments,min_height,maxM00,maxIndex = [],[],[],100000,0,-1
     for i in range(0,len(contours)):
         contour = contours[i]
@@ -165,9 +166,9 @@ def get_contour_centers(contours, average_contour_count,min_height_window):
     average_min_height = sum(min_height_window)/len(min_height_window)            
     return cx,cy, maxIndex, min_height_window
 def calculate_velocity(last_two_positions):
-    return last_two_positions[0] - last_two_positions[1]
+    return last_two_positions[1] - last_two_positions[0]
 def calculate_acceleration(last_two_velocities):    
-    return last_two_velocities[0] - last_two_velocities[1]
+    return last_two_velocities[1] - last_two_velocities[0]
 def calculate_kinematics(number_of_contours,all_vx,last_two_cx,all_vy,last_two_cy,all_ay):             
     for i in range(0,number_of_contours):
         if len(last_two_cx[i]) > 1:
@@ -293,36 +294,38 @@ def analyze_trajectory(last_cy,all_vy,last_peak_time,sound_num,sounds,all_vx,pat
     if play_peak_notes or print_peaks:
         last_peak_time, sound_num, at_peak = peak_checker(last_cy,all_vy,last_peak_time,sound_num,sounds)                        
     if len(all_vx) > 0:
-        path_type = determine_path_type(all_vx[-1])   
-    return last_peak_time,sound_num,at_peak,path_type     
+        path_type = determine_path_type(all_vx[-1],all_vy[-1])   
+    return last_peak_time,sound_num,at_peak,path_type  
 def ball_at_peak(vy_window):
     max_value = 0
-    number_of_frames_up = 2
+    number_of_frames_up = 2    
     vy_window = list(filter(lambda a: a != 0, vy_window))
-    vy_window = [v for i, v in enumerate(vy_window) if i == 0 or v != vy_window[i-1]]
     frames_up = vy_window[-(number_of_frames_up):]
     frames_up.reverse()
-    if abs(sum(frames_up))>average_min_height and len(vy_window)>len(frames_up):
-        if all(j >= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] < average_min_height:
-            #print("You've peaked!")
+    if len(vy_window)>len(frames_up):
+        if all(j <= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] < average_min_height*2:
+            print("You've peaked!")
             return True
         else:
             return False
     else:
         return False
-def midi_hex(channel):
-    i = int('0x90', 16)     
+def midi_note_channel_num(channel,on_or_off):
+    if on_or_off == 'on':
+        i = int('0x90', 16)
+    elif on_or_off == 'off':     
+        i = int('0x90', 16)     
     i += int(channel)
     return i
 midi_channel_to_off = 0
 midi_note_to_off = 0
 def turn_midi_note_off():
     global midi_channel_to_off, midi_note_to_off
-    note_off = [midi_hex(midi_channel_to_off), midi_note_to_off, 0]    
+    note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]    
     midiout.send_message(note_off)
 def send_midi_note(channel,note,volume):      
     global midi_channel_to_off, midi_note_to_off                             
-    note_on = [midi_hex(channel), note, volume]
+    note_on = [midi_note_channel_num(channel,'on'), note, volume]
     midiout.send_message(note_on)
     midi_channel_to_off = channel
     midi_note_to_off = note
@@ -333,14 +336,15 @@ def play_rotating_notes(last_y,sound_num, sounds):
     #sounds[sound_num].set_volume(1-((last_y-buffer)/(480 - buffer*2)))
     #sounds[sound_num].play()
     if using_midi:
-        send_midi_note(1,60+(sound_num*10),112)
+        #send_midi_note(1,60+(sound_num*10),112)
+        send_midi_note(1,60,112)
     sound_num = sound_num + 1
     if sound_num == 4:
         sound_num = 0
     return sound_num
 def peak_checker(last_y,all_vy,last_peak_time,sound_num,sounds):
     at_peak = False
-    min_peak_period = .6
+    min_peak_period = .4
     if len(all_vy) > 2:
         if time.time()-last_peak_time > min_peak_period:
             vy_window_size = int(len(all_vy))
@@ -348,10 +352,12 @@ def peak_checker(last_y,all_vy,last_peak_time,sound_num,sounds):
                 last_peak_time = time.time()
                 at_peak = True
     return last_peak_time, sound_num, at_peak
-def determine_path_type(xv):
-    path_type = "column"
+def determine_path_type(xv,yv):
+    path_type = 'column'
     if abs(xv) > average_min_height/4:
-        path_type = "cross"
+        path_type = 'cross'
+    #if abs(xv) > average_min_height and abs(yv) < average_min_height:
+        #path_type = 'one'
     return path_type 
 def peak_response_system(at_peak,path_type,last_cy,sound_num, sounds,relative_position,column_sounds):
     global peak_count
@@ -359,13 +365,14 @@ def peak_response_system(at_peak,path_type,last_cy,sound_num, sounds,relative_po
         if play_peak_notes:                            
             if path_type == 'cross':
                 sound_num = play_rotating_notes(last_cy,sound_num,sounds)
-            else:                
+            elif path_type == 'column':                
                 if int(relative_position) == 1: 
-                    send_midi_note(0,50,112)                               
+                    send_midi_note(1,40,112)                               
                     #column_sounds[0].play()
                 else:
-                    send_midi_note(0,50,112)
-                    #column_sounds[1].play()
+                    send_midi_note(1,50,112)
+            #elif path_type == 'one':
+                #send_midi_note(1,90,112) 
         if print_peaks:
             peak_count = peak_count + 1
     return sound_num
@@ -564,7 +571,15 @@ def run_camera():
 run_camera()
 
 #next steps
-        #hook ball velocity up to pitch in ableton
+        #midi things:
+        #   figure out how to send note_off
+        #things that can be hooked up to peak sounds:
+        #   relative position, velocity(last frame, averaged frames), maybe even abs of velocity, actual position
+        #ways that we may be able to get more sensitive on low peaks:
+        #   count number of globs without dialation, maybe there will be enough indication from little contours
+        #       in between fingers
+        #   use different colored balls
+        #hook ball velocity up to pitch in ableton, maybe use velocity from last frame or use an average
         #there are 2 hardcoded 'deque(maxlen=30), their maxlen should be changed to being dynamically set from fps
         #   figure out what 'contour_count_window.extend' does exactly, maybe the commented out stuff we have on this 
         #   would solve this issue, so long as we are low, we keep adding 5 to the maxlen each frame
