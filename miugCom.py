@@ -51,13 +51,53 @@ all_mask = []
 video_name = "3Bshower.avi"
 increase_fps = True
 show_time = False
-use_adjust_volume = False
+use_adjust_song_magnitude = False
 play_peak_notes = True
 print_peaks = True                                    
-using_midi = True    
-duration = 40 #seconds
+using_midi = True
+using_height_as_magnitude = True    
+duration = 80 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
+midi_associations = {}
+def frames_are_similar(image1, image2):
+    return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
+def create_association_object():
+    #object/dictionary -dict-  that is devoted to path phase and type called "path_to_midi_action"
+    #   there should be two levels 
+
+    #create_dynamically
+    #after phase selection
+    midi_associations["catch"] = {}
+    #after type selection
+    midi_associations["catch"]["right cross"] = {}
+    #after midi note selection
+    midi_associations["catch"]["right cross"]["channel"] = 0
+    midi_associations["catch"]["right cross"]["note"] = 60
+    midi_associations["catch"]["right cross"]["magnitude"] = 112
+    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}
+
+    #create_dynamically
+    #after phase selection
+    midi_associations["throw"] = {}
+    #after type selection
+    midi_associations["throw"]["right cross"] = {}
+    #after midi note selection
+    midi_associations["throw"]["right cross"]["channel"] = 1
+    midi_associations["throw"]["right cross"]["note"] = 61
+    midi_associations["throw"]["right cross"]["magnitude"] = 112
+    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}
+
+    #create_dynamically
+    #after phase selection
+    midi_associations["peak"] = {}
+    #after type selection
+    midi_associations["peak"]["right cross"] = {}
+    #after midi note selection
+    midi_associations["peak"]["right cross"]["channel"] = 2
+    midi_associations["peak"]["right cross"]["note"] = 62
+    midi_associations["peak"]["right cross"]["magnitude"] = 112
+    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}
 def set_up_midi():
     #midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
@@ -75,7 +115,7 @@ def set_up_peak_notes():
 def set_up_record_camera(video_name):        
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     return cv2.VideoWriter(video_name,fourcc, 20.0, (640,480))
-def set_up_adjust_volume():
+def set_up_adjust_song_magnitude():
     pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
     pg.mixer.init()
     pg.init()
@@ -102,8 +142,8 @@ def set_up_camera():
         sounds = set_up_peak_notes()
     else:
         sounds = None
-    if use_adjust_volume:
-        song = set_up_adjust_volume()
+    if use_adjust_song_magnitude:
+        song = set_up_adjust_song_magnitude()
     else:
         song = None
     if using_midi:
@@ -285,103 +325,247 @@ def average_position(all_axis, window_length, window_end_frame):
     if count > 0:
         average_pos = average_pos/count
     return average_pos
-def determine_relative_positions(last_cx,last_cy):
+def determine_relative_positions(all_cx,all_cy,match_indices_count):
+    last_cx,last_cy = [j for i in [t[-1:] for t in all_cx] for j in i],[j for i in [t[-1:] for t in all_cy] for j in i]
+    last_cx = last_cx[0:match_indices_count]
+    last_cy = last_cy[0:match_indices_count]
     relative_positions = []
     relative_positions.append(ss.rankdata(last_cx))
     relative_positions.append(ss.rankdata(last_cy))
     return relative_positions
-def analyze_trajectory(last_cy,all_vy,last_peak_time,sound_num,sounds,all_vx,path_type):
-    if play_peak_notes or print_peaks:
-        last_peak_time, sound_num, at_peak = peak_checker(last_cy,all_vy,last_peak_time,sound_num,sounds)                        
-    if len(all_vx) > 0:
-        path_type = determine_path_type(all_vx[-1],all_vy[-1])   
-    return last_peak_time,sound_num,at_peak,path_type  
+def ball_at_peak_new(vy_window):
+    number_of_frames_up = 4 
+    vy_window = vy_window[-(number_of_frames_up):]
+    #print(vy_window)
+    if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0:
+        #print("peaked!")
+        return True
+    else:
+        return False
 def ball_at_peak(vy_window):
-    max_value = 0
-    number_of_frames_up = 2    
-    vy_window = list(filter(lambda a: a != 0, vy_window))
+    number_of_frames_up = 4 
+    vy_window = vy_window[-(number_of_frames_up):]
+    #print(vy_window)
+    if all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0:
+        #print("catch!")
+        return True
+    else:
+        return False
+
+    '''number_of_frames_up = 2    #!!!!!!!we could use 2 frames with the conditioals below, or maybe just 3 consec decreasing frames
+    #vy_window = list(filter(lambda a: a != 0, vy_window))
+    #print(vy_window)
     frames_up = vy_window[-(number_of_frames_up):]
     frames_up.reverse()
     if len(vy_window)>len(frames_up):
-        if all(j <= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] < average_min_height*2:
-            print("You've peaked!")
+        if all(j <= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] > average_min_height*2:
+            #print(frames_up)
             return True
         else:
             return False
     else:
-        return False
-def midi_note_channel_num(channel,on_or_off):
-    if on_or_off == 'on':
-        i = int('0x90', 16)
-    elif on_or_off == 'off':     
-        i = int('0x90', 16)     
-    i += int(channel)
-    return i
-midi_channel_to_off = 0
-midi_note_to_off = 0
-def turn_midi_note_off():
-    global midi_channel_to_off, midi_note_to_off
-    note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]    
-    midiout.send_message(note_off)
-def send_midi_note(channel,note,volume):      
-    global midi_channel_to_off, midi_note_to_off                             
-    note_on = [midi_note_channel_num(channel,'on'), note, volume]
-    midiout.send_message(note_on)
-    midi_channel_to_off = channel
-    midi_note_to_off = note
-    off = th.Timer(0.2,turn_midi_note_off) 
-    off.start()
-def play_rotating_notes(last_y,sound_num, sounds):
-    buffer = 50
-    #sounds[sound_num].set_volume(1-((last_y-buffer)/(480 - buffer*2)))
-    #sounds[sound_num].play()
-    if using_midi:
-        #send_midi_note(1,60+(sound_num*10),112)
-        send_midi_note(1,60,112)
-    sound_num = sound_num + 1
-    if sound_num == 4:
-        sound_num = 0
-    return sound_num
-def peak_checker(last_y,all_vy,last_peak_time,sound_num,sounds):
+        return False'''
+def peak_checker(all_vy,last_peak_time):
     at_peak = False
     min_peak_period = .4
     if len(all_vy) > 2:
         if time.time()-last_peak_time > min_peak_period:
+            #this vw window size can probably be removed since we are sending the whole thing through, my only
+            #   concern is that it then passes all_vy through backwards of what we are expecting
             vy_window_size = int(len(all_vy))
-            if ball_at_peak(all_vy[-vy_window_size:]):
+            if ball_at_peak_new(all_vy[-vy_window_size:]):
                 last_peak_time = time.time()
                 at_peak = True
-    return last_peak_time, sound_num, at_peak
+    return last_peak_time, at_peak
+def catch_detected(all_vy):
+    number_of_frames_up = 4 
+    vy_window = all_vy[-(number_of_frames_up):]
+    #print(vy_window)
+    if all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0:
+        #print("catch!")
+        return True
+    else:
+        return False
+
+    '''number_of_frames_up = 2    #!!!!!!!we could use 2 frames with the conditioals below, or maybe just 3 consec decreasing frames
+    #vy_window = list(filter(lambda a: a != 0, vy_window))
+    #print(vy_window)
+    frames_up = vy_window[-(number_of_frames_up):]
+    frames_up.reverse()
+    if len(vy_window)>len(frames_up):
+        if all(j <= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] > average_min_height*2:
+            #print(frames_up)
+            return True
+        else:
+            return False
+    else:
+        return False'''
+    '''number_of_frames_down = 3    #!!!!!!!we could use 2 frames with the conditioals below, or maybe just 3 consec decreasing frames
+    vy_window = list(filter(lambda a: a != 0, all_vy))
+    frames_down = vy_window[-(number_of_frames_down):]
+    #frames_up.reverse()
+    if len(vy_window)>len(frames_down):
+        if frames_down[0] < frames_down[1] and frames_down[1] > frames_down[2]:
+            #print("You've catch!")
+            return True
+        else:
+            return False
+    else:
+        return False'''
+def throw_detected(all_vy):
+    number_of_frames_up = 3
+    vy_window = all_vy[-(number_of_frames_up):]
+    if all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0:
+        return True
+    else:
+        return False
+
+    '''number_of_frames_used = 2    #!!!!!!!we could use 2 frames with the conditioals below, or maybe just 3 consec decreasing frames
+    vy_window = list(filter(lambda a: a != 0, all_vy))
+    frames_used = vy_window[-(number_of_frames_used):]
+    #frames_up.reverse()
+    if len(vy_window)>len(frames_used):
+        if abs(frames_used[0]) < average_min_height/2 and abs(frames_used[1]) > average_min_height*2:
+            #print("You've thrown!")
+            return True
+        else:
+            return False
+    else:
+        return False'''
+def determine_path_phase(path_phase, all_vy, last_peak_time):
+    if len(all_vy) > 3:
+        print(all_vy[-4:])
+    if len(all_vy) > 0:
+        if path_phase == "peak" and all_vy[-1] < 0:
+            path_phase = "down"
+
+        current_peak_time, at_peak = peak_checker(all_vy,last_peak_time)
+        if at_peak and current_peak_time - last_peak_time > .5:
+            path_phase = "peak"       
+        if path_phase == "catch":        
+            path_phase = "held"
+        if path_phase == "down" and catch_detected(all_vy):
+            path_phase = "catch"
+        
+        if path_phase == "throw" and all_vy[-1] > 0:
+            path_phase = "up"
+        if throw_detected(all_vy):
+            path_phase = "throw"
+    return path_phase, current_peak_time
 def determine_path_type(xv,yv):
     path_type = 'column'
     if abs(xv) > average_min_height/4:
-        path_type = 'cross'
+        path_type = 'right cross'
     #if abs(xv) > average_min_height and abs(yv) < average_min_height:
         #path_type = 'one'
-    return path_type 
-def peak_response_system(at_peak,path_type,last_cy,sound_num, sounds,relative_position,column_sounds):
-    global peak_count
-    if at_peak:
-        if play_peak_notes:                            
-            if path_type == 'cross':
-                sound_num = play_rotating_notes(last_cy,sound_num,sounds)
-            elif path_type == 'column':                
-                if int(relative_position) == 1: 
-                    send_midi_note(1,40,112)                               
-                    #column_sounds[0].play()
-                else:
-                    send_midi_note(1,50,112)
-            #elif path_type == 'one':
-                #send_midi_note(1,90,112) 
-        if print_peaks:
-            peak_count = peak_count + 1
-    return sound_num
-def adjust_volume(axis,buffer,position,song):
+    return path_type
+def analyze_trajectory(last_cy,all_vy,last_peak_time,all_vx,path_type,path_phase):
+    #path_phase = get_path_phase()
+    #with current fps, we may not be able to get the begining of path up, but we can get path down using immediately
+    #   after the peak, we will probably need to act on the middle of the number path down to match up with look of path down
+    if len(all_vx) > 0:
+        path_phase, last_peak_time = determine_path_phase(path_phase, all_vy, last_peak_time)
+        path_type = determine_path_type(all_vx[-1],all_vy[-1])   
+    return last_peak_time,path_phase,path_type #make rotating_sound global
+def get_midi_note(path_type,path_phase):
+    print(str(path_phase) + " | " +str(path_type))
+    channel = 0
+    note = 0
+    magnitude = 0
+    if path_type in midi_associations:
+        if path_phase in midi_associations[path_type]:
+            if 'channel' in midi_associations[path_type][path_phase]:
+                channel = midi_associations[path_type][path_phase]["channel"]           
+            if 'note' in midi_associations[path_type][path_phase]:
+                note = midi_associations[path_type][path_phase]["note"]
+            if 'magnitude' in midi_associations[path_type][path_phase]:
+                magnitude = midi_associations[path_type][path_phase]["magnitude"]    
+    return channel, note, magnitude
+def get_midi_modulation(path_type,path_phase):
+    modulation = 1
+    return modulation
+def send_midi_messages(channel, note, magnitude, modulation):
+    #this is where we would send any modulation messages
+    #print(channel)
+    #print(note)
+    #print(magnitude)
+    send_midi_note(channel,note,magnitude)
+def get_wav_sample(path_type,path_phase, rotating_sound_num):
+    note = 1
+    return note, magnitude
+def get_wav_modulation(path_type,path_phase):
+    modulation = 1
+    return modulation
+def send_wav_messages(note, magnitude, modulation):
+    nothing = 0
+def create_audio(path_phase,path_type):
+    print(path_phase)
+    if using_midi:
+        if path_phase == "throw" or path_phase == "peak" or path_phase == "catch":
+            channel, note, magnitude = get_midi_note(path_phase,path_type)         
+            modulation = get_midi_modulation(path_phase,path_type)
+            send_midi_messages(channel, note, magnitude, modulation)
+    else:
+        note, magnitude = get_wav_sample(path_phase,path_type)
+        modulation = get_wav_modulation(path_phase,path_type)
+        send_wav_messages(note, magnitude, modulation)      
+def midi_note_channel_num(channel,on_or_off):
+    if on_or_off == 'on':
+        i = int('0x90', 16)
+    elif on_or_off == 'off':     
+        i = int('0x80', 16)     
+    i += int(channel)
+    return i
+def midi_cc_channel_num(channel):
+    i = int('0xB0', 16)
+    i += int(channel)
+    return i
+midi_channel_to_off = 0
+midi_note_to_off = 0
+def send_midi_note_on_only(channel,note,magnitude):
+    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]    
+    midiout.send_message(note_on)
+
+def turn_midi_note_off():
+    global midi_channel_to_off, midi_note_to_off
+    #print("note_off")
+    note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]
+    midiout.send_message(note_off)
+    #self.stop()
+def send_midi_note(channel,note,magnitude):      
+    #global midi_channel_to_off, midi_note_to_off                             
+    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
+    print("note_on"+str(note_on))
+    midiout.send_message(note_on)
+    midi_channel_to_off = channel
+    midi_note_to_off = note
+    off = th.Timer(0.4,turn_midi_note_off)     
+    off.start()
+
+def use_as_midi_signal(current_num,max_num):
+    return 127*(current_num/max_num)
+def send_midi_cc(channel,controller_num,value):
+    send_cc = [midi_cc_channel_num(channel), controller_num, value]
+    midiout.send_message(send_cc)
+def play_rotating_notes(rotating_sound_num, sounds, magnitude):
+    a = 10
+    '''if using_midi:
+        send_midi_note(1,60+(rotating_sound_num*10),112)
+        send_midi_note(1,60,112)
+    rotating_sound_num = rotating_sound_num + 1
+    if rotating_sound_num == 4:
+        rotating_sound_num = 0
+    return rotating_sound_num'''
+def adjust_song_magnitude(axis,edge_buffer,position,song):
     if axis == "y":
         size = 480        
     if axis == "x":
         size = 640
-    song.set_volume((position-buffer)/(size - buffer*2))
+    if position<edge_buffer:
+        song.set_magnitude(1)
+    if position>480-edge_buffer:
+        song.set_magnitude(0)
+    song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
 def show_and_record_video(frame,frames,out,start,fps,show_mask,mask,all_mask,original_mask):                
     if record_video:
         record_frame(frame, frames, out, start, fps)
@@ -537,11 +721,14 @@ def run_camera():
     global all_mask
     camera = cv2.VideoCapture(0)
     vs, sounds, song, args, out = set_up_camera()
-    start,all_cx,all_cy,all_vx,all_vy,all_ay,frames,num_high,sound_num = time.time(),[[0]],[[0]],[[0]],[[0]],[[0]],0,0,0
-    last_peak_time, at_peak, path_type, break_for_no_video = [-.25]*20,[-.25]*20,["cross"]*20,False
-    contour_count_window, min_height_window = deque(maxlen=30), deque(maxlen=30)
+    start,all_cx,all_cy,all_vx,all_vy,all_ay,frames,num_high,rotating_sound_num = time.time(),[[0]],[[0]],[[0]],[[0]],[[0]],0,0,0
+    last_peak_time, at_peak, path_type, path_phase, break_for_no_video = [-.25]*20,[-.25]*20,[""]*20,[""]*20,False
+    contour_count_window, min_height_window,old_frame = deque(maxlen=30), deque(maxlen=30), None
     while True:
         fps, grabbed, frame, frames, break_for_no_video = analyze_video(start,frames,vs,camera,args)
+        if frames>1 and frames_are_similar(frame, old_frame):
+            continue
+        old_frame = frame
         contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
         if contours and frames > 10:
             average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
@@ -554,62 +741,142 @@ def run_camera():
             distances = find_distances(cx,cy,all_cx,all_cy)               
             matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
             all_cx,all_cy,all_vx,all_vy,all_ay=connect_contours_to_histories(matched_indices,all_cx,all_cy,all_vx,all_vy,all_ay,cx,cy)
-            last_cx,last_cy = [j for i in [t[-1:] for t in all_cx] for j in i],[j for i in [t[-1:] for t in all_cy] for j in i]              
-            relative_positions = determine_relative_positions(last_cx[0:len(matched_indices)],last_cy[0:len(matched_indices)])
-            for i in range(0,len(matched_indices)):
-                last_peak_time[i],sound_num,at_peak[i],path_type[i]=analyze_trajectory(all_cy[i][-1],all_vy[i],last_peak_time[i],sound_num,sounds,all_vx[i],path_type[i])
-                sound_num = peak_response_system(at_peak[i],path_type[i],all_cy[i][-1],sound_num, sounds,relative_positions[0][i],column_sounds)
-            if use_adjust_volume:
-                adjust_volume("y",120,average_position(all_cy, 10, -1),song)
+            relative_positions = determine_relative_positions(all_cx,all_cy,len(matched_indices))
+            for i in range(0,len(matched_indices)):                
+                last_peak_time[i],path_phase[i],path_type[i]=analyze_trajectory(all_cy[i][-1],all_vy[i],last_peak_time[i],all_vx[i],path_type[i],path_phase[i])
+                create_audio(path_phase[i],path_type[i])
+            if use_adjust_song_magnitude:
+                adjust_song_magnitude("y",120,average_position(all_cy, 10, -1),song)
         all_mask = show_and_record_video(frame,frames,out,start,fps,show_mask,mask,all_mask,original_mask)               
         if should_break(start, duration,break_for_no_video):
             break
     end = closing_operations(fps,vs,camera,out,all_mask)
     create_plots(duration,frames,start,end,all_cx,all_cy)
-
-
+create_association_object()
 run_camera()
 
+#for now we can just ignore the issue of dictionary key for [all]
+
+#6 path types
+#   right cross
+#   left cross
+#   left column
+#   right column
+#   non-end column
+#   one
+
+#all path types have all the path phases, except 'one', it only has its path straight across
+
+#phase of path
+#   thrown
+#   way up
+#   peak
+#   way down
+#   catch
+#   all phases
+
+#new juggling coordinate to use 
+#   average peak height, average hand catch height
+
+#relattive position
+#odd even one
+#synched peaks
+#x, y of each ball, average of all balls,
+#largest distance between two contours
+#   shortest distance between two contours
+#   equadistance of all contours
+#velocity at throw, maybe an average velocity over course of path
+#lift and held(left,right,both)
+#   binary on off switch
+#changed height by hand
+
+#MUSIC---------
+#pitch
+#magnitude
+#tempo
+#filters
+#mute
+#solo
+#trigger sample
+#start/stop loop
+#single note, multiple notes
+#notes in a cycle
+#   notes in a scale
+#       prechosen number of notes from a scale.
+#           selecting the scale
+#               selecting key of the scale
+#       randomized notes in a scale
+#       randomized skipped notes in a sccale
+#   preset notes in a scale, with some notes missing with a randomizer
+#preselected chords or chord progressions
+#   preselected chords for individual actions
+#   cycling through chords in a chord progression
+#       cycle by throws
+#               detects tempo and then counts measures for which a given chord will be played for any throw
+#       cycle by beats
+#select instrument for action
+
+#transport actions, play, pause,stop,loop
+#sound modulation
+#note creation
+
+#you can set your sequence by selecting your chord types(major, major 7, minor, minor 7) and chord root(the notes, c, c#)
+#   in this same way you have a scale type(minor,major) and a scale root(or key)
+
 #next steps
+#instead of passing in C4 and 112, pass in something that can actually be played and pass it into something that actually plays it 
+#on the issue about not being able to detect the throw and the path_up because we are sending our midi signal early
+#   in on the throw up: We can try printing the velocities that trigger a peak to see just how low it is in the path,
+#   and we should be sure to do this with no overlay and mask or video being shown
+#we may be able to get a better fps by turning off the overlay art and the mask video
+#get frame subtraction hooked up to fps_demo.py to see if we are getting a truely good fps rate there
+#create the dictionary system above
+#variables that wont be changing can be tuples, find out if we should use tuples in our dictionary
         #midi things:
-        #   figure out how to send note_off
-        #things that can be hooked up to peak sounds:
-        #   relative position, velocity(last frame, averaged frames), maybe even abs of velocity, actual position
         #ways that we may be able to get more sensitive on low peaks:
         #   count number of globs without dialation, maybe there will be enough indication from little contours
         #       in between fingers
         #   use different colored balls
-        #hook ball velocity up to pitch in ableton, maybe use velocity from last frame or use an average
         #there are 2 hardcoded 'deque(maxlen=30), their maxlen should be changed to being dynamically set from fps
         #   figure out what 'contour_count_window.extend' does exactly, maybe the commented out stuff we have on this 
         #   would solve this issue, so long as we are low, we keep adding 5 to the maxlen each frame
-        #if 2 peaking together, make them play a new sound altogher
         #find other dancing/music software
-        #look into midi latency issue
-        #hook up volume to all sounds are played at the volume
-            #enhance volume calculation in terms of height, using the average juggling height as a good volume, as well
-            #   'scaling' another way to say you are changing the measurement of how you do the volume and log scale would also change the 
-            #   rep of eh height, trying to scale height to volume
-        #hook up tempo for preexisting music to eventually be used with midi, maybe check to see if pygame has a speed changer
+        #   Very Nervous Sytem looks really really great
+        #   sent email to Movement Rhythm software people
+        #hook up magnitude to all sounds are played at the magnitude
+            #enhance magnitude calculation in terms of height, using the average juggling height as a good magnitude, as well
+            #   'scaling' another way to say you are changing the measurement of how you do the magnitude and log scale would also change the 
+            #   rep of the height, trying to scale height to magnitude
         #having issues with pygame notes not triggering in patterns, maybe because it thinks the same ball is peaking to soon
         #   and so it is not allowed to make the sound because it is too soon. sometimes sounds seem to bunch up as well, maybe this is a pygame issue.
-
-#column_sounds[random.getrandbits(1)].play() <-- gives a random 1 or 0
-#todo
+        #we could use 2 frames with the conditioals below, or or just 3 consec decreasing
+        #move plots to new file
+        #make simple tkinter gui
+        #   wait on this
 #could be dealt with dynamicly: contour_count_window, it needs to be a different length when the fps is 
 #                                       high so that blurs dont get seen as new balls
 #get the record feature to start working again
 #   wait 5 seconds to start recording, use those 5 seconds to determine the fps and set it that way
 #   try and record with increased fps in an empty project
-#get hooked up to midi
 #implement tempo detection(peaks per second), this could be hooked up via midi with virtualdj bpm
+#   also check to see if pygame can change audio speed
 #it may also be interesting to find an actual center of mass as well. This can also be done hemispherically if we 
 #       can find out exactly which pixels are on/off.
+#get rid of any library we are not using
 #PLOTS:
 #   try different window sizes for dif
 #   plot average position, maybe true com and a com for either side of the screen
 #   rebuild dif and corrcoef plots
 #   make a corrcoef for the diffs
+
+
+
+#known bugs:
+#   crashes if there are too many random contours flashin in and out
+#   tracking needs to be better on small throws
+
+#column_sounds[random.getrandbits(1)].play() <-- gives a random 1 or 0
+#todo
 
 
 #predicting drops by detecting patterns that often come before them could be really interseting,
