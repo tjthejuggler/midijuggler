@@ -77,7 +77,7 @@ def create_association_object():
     midi_associations["catch"]["right cross"]["magnitude"] = 112
     #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}
 
-    #create_dynamically
+    '''#create_dynamically
     #after phase selection
     midi_associations["throw"] = {}
     #after type selection
@@ -86,7 +86,7 @@ def create_association_object():
     midi_associations["throw"]["right cross"]["channel"] = 1
     midi_associations["throw"]["right cross"]["note"] = 61
     midi_associations["throw"]["right cross"]["magnitude"] = 112
-    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}
+    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}'''
 
     #create_dynamically
     #after phase selection
@@ -333,7 +333,7 @@ def determine_relative_positions(all_cx,all_cy,match_indices_count):
     relative_positions.append(ss.rankdata(last_cx))
     relative_positions.append(ss.rankdata(last_cy))
     return relative_positions
-def ball_at_peak_new(vy_window):
+def ball_at_peak(vy_window):
     number_of_frames_up = 4 
     vy_window = vy_window[-(number_of_frames_up):]
     #print(vy_window)
@@ -342,29 +342,6 @@ def ball_at_peak_new(vy_window):
         return True
     else:
         return False
-def ball_at_peak(vy_window):
-    number_of_frames_up = 4 
-    vy_window = vy_window[-(number_of_frames_up):]
-    #print(vy_window)
-    if all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0:
-        #print("catch!")
-        return True
-    else:
-        return False
-
-    '''number_of_frames_up = 2    #!!!!!!!we could use 2 frames with the conditioals below, or maybe just 3 consec decreasing frames
-    #vy_window = list(filter(lambda a: a != 0, vy_window))
-    #print(vy_window)
-    frames_up = vy_window[-(number_of_frames_up):]
-    frames_up.reverse()
-    if len(vy_window)>len(frames_up):
-        if all(j <= 0 for j in frames_up) and sorted(frames_up) == frames_up and frames_up[0] > average_min_height*2:
-            #print(frames_up)
-            return True
-        else:
-            return False
-    else:
-        return False'''
 def peak_checker(all_vy,last_peak_time):
     at_peak = False
     min_peak_period = .4
@@ -373,7 +350,7 @@ def peak_checker(all_vy,last_peak_time):
             #this vw window size can probably be removed since we are sending the whole thing through, my only
             #   concern is that it then passes all_vy through backwards of what we are expecting
             vy_window_size = int(len(all_vy))
-            if ball_at_peak_new(all_vy[-vy_window_size:]):
+            if ball_at_peak(all_vy[-vy_window_size:]):
                 last_peak_time = time.time()
                 at_peak = True
     return last_peak_time, at_peak
@@ -412,10 +389,10 @@ def catch_detected(all_vy):
             return False
     else:
         return False'''
-def throw_detected(all_vy):
+def throw_detected(all_vy):#the reason hold/throw are not working right now is because occurs like a frame after catch
     number_of_frames_up = 3
     vy_window = all_vy[-(number_of_frames_up):]
-    if all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0:
+    if all(j < 0 for j in vy_window[-2:]) and vy_window[0] >= 0:
         return True
     else:
         return False
@@ -433,20 +410,18 @@ def throw_detected(all_vy):
     else:
         return False'''
 def determine_path_phase(path_phase, all_vy, last_peak_time):
-    if len(all_vy) > 3:
-        print(all_vy[-4:])
+    #if len(all_vy) > 3:
+        #print(all_vy[-4:])
     if len(all_vy) > 0:
         if path_phase == "peak" and all_vy[-1] < 0:
             path_phase = "down"
-
         current_peak_time, at_peak = peak_checker(all_vy,last_peak_time)
         if at_peak and current_peak_time - last_peak_time > .5:
             path_phase = "peak"       
         if path_phase == "catch":        
             path_phase = "held"
         if path_phase == "down" and catch_detected(all_vy):
-            path_phase = "catch"
-        
+            path_phase = "catch"        
         if path_phase == "throw" and all_vy[-1] > 0:
             path_phase = "up"
         if throw_detected(all_vy):
@@ -454,11 +429,13 @@ def determine_path_phase(path_phase, all_vy, last_peak_time):
     return path_phase, current_peak_time
 def determine_path_type(xv,yv):
     path_type = 'column'
-    if abs(xv) > average_min_height/4:
+    if abs(xv) > average_min_height/8:
         path_type = 'right cross'
     #if abs(xv) > average_min_height and abs(yv) < average_min_height:
         #path_type = 'one'
     return path_type
+    #make play midi a threaded thing
+    #make last_peak_time global
 def analyze_trajectory(last_cy,all_vy,last_peak_time,all_vx,path_type,path_phase):
     #path_phase = get_path_phase()
     #with current fps, we may not be able to get the begining of path up, but we can get path down using immediately
@@ -467,8 +444,7 @@ def analyze_trajectory(last_cy,all_vy,last_peak_time,all_vx,path_type,path_phase
         path_phase, last_peak_time = determine_path_phase(path_phase, all_vy, last_peak_time)
         path_type = determine_path_type(all_vx[-1],all_vy[-1])   
     return last_peak_time,path_phase,path_type #make rotating_sound global
-def get_midi_note(path_type,path_phase):
-    print(str(path_phase) + " | " +str(path_type))
+def get_midi_note(path_type,path_phase):    
     channel = 0
     note = 0
     magnitude = 0
@@ -499,12 +475,13 @@ def get_wav_modulation(path_type,path_phase):
 def send_wav_messages(note, magnitude, modulation):
     nothing = 0
 def create_audio(path_phase,path_type):
-    print(path_phase)
+    #print(path_phase)
     if using_midi:
         if path_phase == "throw" or path_phase == "peak" or path_phase == "catch":
-            channel, note, magnitude = get_midi_note(path_phase,path_type)         
-            modulation = get_midi_modulation(path_phase,path_type)
-            send_midi_messages(channel, note, magnitude, modulation)
+            if path_phase in midi_associations and path_type in midi_associations[path_phase]:
+                channel, note, magnitude = get_midi_note(path_phase,path_type)         
+                modulation = get_midi_modulation(path_phase,path_type)
+                send_midi_messages(channel, note, magnitude, modulation)
     else:
         note, magnitude = get_wav_sample(path_phase,path_type)
         modulation = get_wav_modulation(path_phase,path_type)
@@ -520,28 +497,23 @@ def midi_cc_channel_num(channel):
     i = int('0xB0', 16)
     i += int(channel)
     return i
-midi_channel_to_off = 0
-midi_note_to_off = 0
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]    
     midiout.send_message(note_on)
-
-def turn_midi_note_off():
-    global midi_channel_to_off, midi_note_to_off
-    #print("note_off")
-    note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]
+def send_threaded_midi_note_off(note_off):
+    #print("note_off "+str(note_off))
     midiout.send_message(note_off)
-    #self.stop()
-def send_midi_note(channel,note,magnitude):      
-    #global midi_channel_to_off, midi_note_to_off                             
-    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    print("note_on"+str(note_on))
+def send_threaded_midi_note_on(note_on):
+    #print("note_on"+str(note_on))
     midiout.send_message(note_on)
-    midi_channel_to_off = channel
-    midi_note_to_off = note
-    off = th.Timer(0.4,turn_midi_note_off)     
+def send_midi_note(channel,note,magnitude):                      
+    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
+    on = th.Thread(target=send_threaded_midi_note_on, args = [note_on])
+    on.daemon = True
+    on.start()
+    note_off = [midi_note_channel_num(channel,'off'), note, 0]
+    off = th.Timer(0.4,send_threaded_midi_note_off, args = [note_off])     
     off.start()
-
 def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
 def send_midi_cc(channel,controller_num,value):
@@ -824,7 +796,9 @@ run_camera()
 #   in this same way you have a scale type(minor,major) and a scale root(or key)
 
 #next steps
-#instead of passing in C4 and 112, pass in something that can actually be played and pass it into something that actually plays it 
+#make the 'right cross' actually mean right cross and make the left side as well
+#clean up the code, lots of comments and scattered todo lists
+#see about making time between peaks a global variable
 #on the issue about not being able to detect the throw and the path_up because we are sending our midi signal early
 #   in on the throw up: We can try printing the velocities that trigger a peak to see just how low it is in the path,
 #   and we should be sure to do this with no overlay and mask or video being shown
