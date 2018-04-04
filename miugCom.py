@@ -46,7 +46,7 @@ column_sounds = [pg.mixer.Sound("hhat2.wav"), pg.mixer.Sound("snare.wav")]
 show_camera = False
 record_video = False
 show_mask = True
-show_overlay = True
+show_overlay = False
 all_mask = []
 video_name = "3Bshower.avi"
 increase_fps = True
@@ -60,18 +60,18 @@ duration = 10 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 midi_associations = {}
+all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 rotating_sound_num = 0
-def rotating_midi_note():
+def rotating_midi_note(ball_index):
     global rotating_sound_num
     note_to_return = 60 + rotating_sound_num    
     rotating_sound_num = rotating_sound_num + 1
     if rotating_sound_num == 4:
         rotating_sound_num = 0
-    print("hey")
     return note_to_return
-def midi_magnitude():
+def midi_magnitude(ball_index):
     return 112
 def create_association_object():
     #object/dictionary -dict-  that is devoted to path phase and type called "path_to_midi_action"
@@ -129,7 +129,6 @@ def create_association_object():
     midi_associations["peak"]["right cross"]["channel"] = 2
     midi_associations["peak"]["right cross"]["note"] = rotating_midi_note
     midi_associations["peak"]["right cross"]["magnitude"] = midi_magnitude
-
 def set_up_midi():
     #midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
@@ -186,9 +185,9 @@ def set_up_camera():
     else:
         out = None
     return vs, sounds, song, args, out
-def analyze_video(start,frames,vs,camera,args):
+def analyze_video(start,loop_count,vs,camera,args,frame_count):
     if time.time()-start > 0:
-        fps = frames/(time.time()-start)
+        fps = frame_count/(time.time()-start)
     else:
         fps = 10
     if increase_fps:
@@ -196,11 +195,11 @@ def analyze_video(start,frames,vs,camera,args):
         grabbed = None
     else:
         grabbed, frame = camera.read()
-    frames = frames + 1
+    loop_count = loop_count + 1
     break_for_no_video = False
     if args.get("video") and not grabbed:
         break_for_no_video = True 
-    return fps, grabbed, frame, frames, break_for_no_video    
+    return fps, grabbed, frame, loop_count, break_for_no_video    
 def get_contours(frame, contour_count_window, fps):    
     framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_range = np.array([0, 0, 247])
@@ -212,9 +211,6 @@ def get_contours(frame, contour_count_window, fps):
     mask = cv2.dilate(mask, dilate_kernel, iterations=3)
     im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     if contours:
-        #if len(contour_count_window) < int(fps-5):
-        #    for _ in range(5):
-        #       contour_count_window.extend(len(contours))
         contour_count_window.append(len(contours))        
     else:
         contour_count_window.append(0)
@@ -241,8 +237,9 @@ def calculate_velocity(last_two_positions):
     return last_two_positions[1] - last_two_positions[0]
 def calculate_acceleration(last_two_velocities):    
     return last_two_velocities[1] - last_two_velocities[0]
-def calculate_kinematics(number_of_contours,all_vx,last_two_cx,all_vy,last_two_cy,all_ay):             
-    for i in range(0,number_of_contours):
+def calculate_kinematics():
+    last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]             
+    for i in range(0,len(all_cx)):
         if len(last_two_cx[i]) > 1:
             all_vx[i].append(calculate_velocity(last_two_cx[i]))
             all_vy[i].append(calculate_velocity(last_two_cy[i]))
@@ -302,7 +299,7 @@ def split_contours(max_contour_index,cx,cy,average_contour_count,last_cx,last_cy
     print(cx)
     print(cy)
     return cx, cy
-def find_distances(cx,cy,all_cx,all_cy):
+def find_distances(cx,cy):
     distances = []
     for i in range(0,len(all_cx)):
         distances.append([])
@@ -332,7 +329,7 @@ def get_contour_matchings(distances,average_contour_count):
         for d in range(0,len(distances)):
             distances[d][min_dist_col] = 100000  
     return indices_to_return
-def connect_contours_to_histories(matched_indices,all_cx,all_cy,all_vx,all_vy,all_ay,cx,cy):            
+def connect_contours_to_histories(matched_indices,cx,cy):            
     while len(all_cx) < len(matched_indices):
         all_cx.append([]*len(all_cx[0]))
         all_cy.append([]*len(all_cx[0]))
@@ -342,7 +339,6 @@ def connect_contours_to_histories(matched_indices,all_cx,all_cy,all_vx,all_vy,al
     for i in range(0,len(matched_indices)):
         all_cx[i].append(cx[matched_indices[i]])
         all_cy[i].append(cy[matched_indices[i]])
-    return all_cx,all_cy,all_vx,all_vy,all_ay 
 def average_position(all_axis, window_length, window_end_frame):
     average_pos = 0
     count = 0
@@ -357,7 +353,7 @@ def average_position(all_axis, window_length, window_end_frame):
     if count > 0:
         average_pos = average_pos/count
     return average_pos
-def determine_relative_positions(all_cx,all_cy,match_indices_count):
+def determine_relative_positions(match_indices_count):
     last_cx,last_cy = [j for i in [t[-1:] for t in all_cx] for j in i],[j for i in [t[-1:] for t in all_cy] for j in i]
     last_cx = last_cx[0:match_indices_count]
     last_cy = last_cy[0:match_indices_count]
@@ -372,7 +368,7 @@ def determine_relative_positions(all_cx,all_cy,match_indices_count):
         else:
             relative_positions.append("mid")
     return relative_positions
-def ball_at_peak_new(vy_window):
+def ball_at_peak(vy_window):
     number_of_frames_up = 4 
     vy_window = vy_window[-(number_of_frames_up):]
     #print(vy_window)
@@ -381,61 +377,46 @@ def ball_at_peak_new(vy_window):
         return True
     else:
         return False
-def ball_at_peak(vy_window):
-    number_of_frames_up = 4 
-    vy_window = vy_window[-(number_of_frames_up):]
-    #print(vy_window)
-    if all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0:
-        #print("catch!")
-        return True
-    else:
-        return False
-def peak_checker(all_vy,last_peak_time):
+def peak_checker(index):
     at_peak = False
     min_peak_period = .4
-    if len(all_vy) > 2:
-        if time.time()-last_peak_time > min_peak_period:
-            #this vw window size can probably be removed since we are sending the whole thing through, my only
-            #   concern is that it then passes all_vy through backwards of what we are expecting
-            vy_window_size = int(len(all_vy))
-            if ball_at_peak_new(all_vy[-vy_window_size:]):
-                last_peak_time = time.time()
+    if len(all_vy[index]) > 2:
+        if time.time()-last_peak_time[index] > min_peak_period:
+            if ball_at_peak(all_vy[index]) and time.time() - last_peak_time[index] > .5:
+                last_peak_time[index] = time.time()
                 at_peak = True
-    return last_peak_time, at_peak
-def catch_detected(all_vy):
+    return at_peak
+def catch_detected(index):
     number_of_frames_up = 4 
-    vy_window = all_vy[-(number_of_frames_up):]
+    vy_window = all_vy[index][-(number_of_frames_up):]
     if all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0:
         #print("catch!")
         return True
     else:
         return False
-def throw_detected(all_vy):
+def throw_detected(index):
     number_of_frames_up = 3
-    vy_window = all_vy[-(number_of_frames_up):]
+    vy_window = all_vy[index][-(number_of_frames_up):]
     if all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0:
         return True
     else:
         return False
-def determine_path_phase(path_phase, all_vy, last_peak_time):
-    if len(all_vy) > 0:
-        if path_phase == "peak" and all_vy[-1] < 0:
+def determine_path_phase(path_phase, index):
+    if len(all_vy[index]) > 0:
+        if path_phase == "peak" and all_vy[index][-1] < 0:
             path_phase = "down"
-        current_peak_time, at_peak = peak_checker(all_vy,last_peak_time)
-        if at_peak and current_peak_time - last_peak_time > .5:
+        if peak_checker(index):
             path_phase = "peak"       
         if path_phase == "catch":        
             path_phase = "held"
-        if path_phase == "down" and catch_detected(all_vy):
+        if path_phase == "down" and catch_detected(index):
             path_phase = "catch"        
-        if path_phase == "throw" and all_vy[-1] > 0:
+        if path_phase == "throw" and all_vy[index][-1] > 0:
             path_phase = "up"
-        if throw_detected(all_vy):
+        if throw_detected(index):
             path_phase = "throw"
-    return path_phase, current_peak_time
+    return path_phase
 def determine_path_type(xv,yv,position):
-    #print(xv)
-    #print(average_min_height/5)
     path_type = position
     if abs(xv) > average_min_height/5:
         path_type = path_type + ' cross'
@@ -444,12 +425,12 @@ def determine_path_type(xv,yv,position):
     #if abs(xv) > average_min_height and abs(yv) < average_min_height:
         #path_type = 'one'
     return path_type
-def analyze_trajectory(all_vy,last_peak_time,all_vx,path_phase,path_type,relative_position):
-    if len(all_vx) > 0:
-        path_phase, last_peak_time = determine_path_phase(path_phase, all_vy, last_peak_time)
-        path_type = determine_path_type(all_vx[-1],all_vy[-1],relative_position)   
-    return last_peak_time,path_phase,path_type
-def get_midi_note(path_phase,path_type):
+def analyze_trajectory(index,path_phase,path_type,relative_position):
+    if len(all_vx[index]) > 0:
+        path_phase = determine_path_phase(path_phase, index)
+        path_type = determine_path_type(all_vx[index][-1],all_vy[index][-1],relative_position)   
+    return path_phase,path_type
+def get_midi_note(path_phase,path_type,ball_index):
     #print(str(path_phase) + " | " +str(path_type))
     channel = 0
     note = 0
@@ -459,9 +440,9 @@ def get_midi_note(path_phase,path_type):
             if 'channel' in midi_associations[path_phase][path_type]:
                 channel = midi_associations[path_phase][path_type]["channel"]           
             if 'note' in midi_associations[path_phase][path_type]:
-                note = midi_associations[path_phase][path_type]["note"]()
+                note = midi_associations[path_phase][path_type]["note"](ball_index)
             if 'magnitude' in midi_associations[path_phase][path_type]:
-                magnitude = midi_associations[path_phase][path_type]["magnitude"]()    
+                magnitude = midi_associations[path_phase][path_type]["magnitude"](ball_index)    
     return channel, note, magnitude
 def get_midi_modulation(path_phase,path_type):
     modulation = 1
@@ -485,7 +466,7 @@ def create_audio(path_phase,path_type, ball_index):
         if path_phase in midi_associations:
             if path_type in midi_associations[path_phase]:
                 if path_phase == "throw" or path_phase == "peak" or path_phase == "catch":
-                    channel, note, magnitude = get_midi_note(path_phase,path_type,)         
+                    channel, note, magnitude = get_midi_note(path_phase,path_type,ball_index)         
                     modulation = get_midi_modulation(path_phase,path_type)
                     send_midi_messages(channel, note, magnitude, modulation)
     else:
@@ -508,17 +489,12 @@ midi_note_to_off = 0
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]    
     midiout.send_message(note_on)
-
 def turn_midi_note_off():
     global midi_channel_to_off, midi_note_to_off
-    #print("note_off")
     note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]
     midiout.send_message(note_off)
-    #self.stop()
-def send_midi_note(channel,note,magnitude):      
-    #global midi_channel_to_off, midi_note_to_off                             
+def send_midi_note(channel,note,magnitude):                          
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    print("note_on"+str(note_on))
     midiout.send_message(note_on)
     midi_channel_to_off = channel
     midi_note_to_off = note
@@ -539,9 +515,9 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
     if position>480-edge_buffer:
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
-def show_and_record_video(frame,frames,out,start,fps,show_mask,mask,all_mask,original_mask):                
+def show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_mask):                
     if record_video:
-        record_frame(frame, frames, out, start, fps)
+        record_frame(frame, out, start, fps)
     if show_camera:
         cv2.imshow('Frame', frame)
     if show_mask:
@@ -564,7 +540,7 @@ def show_subplot(duration,index_multiplier,lines,subplot_num):
         index = index + 1    
     plt.xticks(tick_index, tick_label, rotation='horizontal')
     plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
-def record_frame(frame, frames, out, start, fps):    
+def record_frame(frame, out, start, fps):    
     if fps>20:
         fpsdif = fps/20 #20 is the fps of our avi
         if randint(0, 100)<fpsdif*10: #this random is used to keep our video from having too many frames and playing slow
@@ -641,7 +617,7 @@ def make_com_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used):
     lines.append(average_x)
     lines.append(average_y)
     show_subplot(duration,fps,lines,subplot_num[subplot_num_used])
-def make_indiv_com_plot(duration,fps,all_cx, all_cy):
+def make_indiv_com_plot(duration,fps):
     subplot_num,subplot_num_used = create_subplot_grid(3)
     for i in range(0,len(all_cx)):
         lines = []
@@ -666,7 +642,7 @@ def make_corrcoef_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used
                 corrcoef_list.append(0)
         lines.append(corrcoef_list)
     show_subplot(duration,fps,lines,subplot_num[subplot_num_used])
-def create_plots(duration,frames,start,end,all_cx,all_cy,):
+def create_plots(duration,frames,start,end):
     show_corrcoef_plot = False
     show_dif_plot = False
     show_com_plot  = False
@@ -676,7 +652,7 @@ def create_plots(duration,frames,start,end,all_cx,all_cy,):
     tick_label3,tick_index3,tick_label2,tick_index2,tick_label,tick_index = [],[],[],[],[],[]
     fps = frames/(end-start)
     if show_indiv_com_plot:
-        make_indiv_com_plot(duration,fps,all_cx, all_cy) 
+        make_indiv_com_plot(duration,fps) 
     num_charts = sum([show_dif_plot,show_com_plot,show_corrcoef_plot])    
     if num_charts > 0:
         subplot_num, subplot_num_used = create_subplot_grid(num_charts)
@@ -691,42 +667,41 @@ def create_plots(duration,frames,start,end,all_cx,all_cy,):
             subplot_num_used = subplot_num_used - 1
         plt.show()
 def run_camera():
-    global all_mask
+    global all_mask,all_cx,all_cy,all_vx,all_vy,all_ay
     camera = cv2.VideoCapture(0)
     vs, sounds, song, args, out = set_up_camera()
-    start,all_cx,all_cy,all_vx,all_vy,all_ay,frames,num_high = time.time(),[[0]],[[0]],[[0]],[[0]],[[0]],0,0
-    last_peak_time, at_peak, path_type, path_phase, break_for_no_video = [-.25]*20,[-.25]*20,[""]*20,[""]*20,False
+    start,loop_count,num_high = time.time(),0,0
+    at_peak, path_type, path_phase, break_for_no_video = [-.25]*20,[""]*20,[""]*20,False
     contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=30), deque(maxlen=60), None, 0
     while True:
-        fps, grabbed, frame, frames, break_for_no_video = analyze_video(start,frames,vs,camera,args)
-        if frames>1 and frames_are_similar(frame, old_frame):
+        fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
+        if loop_count>1 and frames_are_similar(frame, old_frame):
             continue
         else:
             frame_count = frame_count+1
         old_frame = frame
         contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
-        if contours and frames > 10:
+        if contours and frame_count > 10:
             average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
-            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,average_contour_count,min_height_window)
-            last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]
-            all_vx,all_vy,all_ay = calculate_kinematics(len(all_cx),all_vx,last_two_cx,all_vy,last_two_cy,all_ay)             
+            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,average_contour_count,min_height_window)            
+            calculate_kinematics()             
             missing_ball_count = average_contour_count - len(cx)
             #if missing_ball_count > 0:
             #    cx, cy = split_contours(cx, cy,average_contour_count,last_two_cx,last_two_cy,missing_ball_count)
-            distances = find_distances(cx,cy,all_cx,all_cy)               
+            distances = find_distances(cx,cy)               
             matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
-            all_cx,all_cy,all_vx,all_vy,all_ay=connect_contours_to_histories(matched_indices,all_cx,all_cy,all_vx,all_vy,all_ay,cx,cy)
-            relative_positions = determine_relative_positions(all_cx,all_cy,len(matched_indices))
+            connect_contours_to_histories(matched_indices,cx,cy)
+            relative_positions = determine_relative_positions(len(matched_indices))
             for i in range(0,len(matched_indices)):                
-                last_peak_time[i],path_phase[i],path_type[i]=analyze_trajectory(all_vy[i],last_peak_time[i],all_vx[i],path_phase[i],path_type[i],relative_positions[i])
+                path_phase[i],path_type[i]=analyze_trajectory(i,path_phase[i],path_type[i],relative_positions[i])
                 create_audio(path_phase[i],path_type[i],i)
             if use_adjust_song_magnitude:
                 adjust_song_magnitude("y",120,average_position(all_cy, 10, -1),song)
-        all_mask = show_and_record_video(frame,frames,out,start,fps,show_mask,mask,all_mask,original_mask)               
+        all_mask = show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_mask)               
         if should_break(start, duration,break_for_no_video):
             break
     end = closing_operations(fps,vs,camera,out,all_mask)
-    create_plots(duration,frame_count,start,end,all_cx,all_cy)
+    create_plots(duration,frame_count,start,end)
 create_association_object()
 run_camera()
 
@@ -799,24 +774,19 @@ run_camera()
 #   in this same way you have a scale type(minor,major) and a scale root(or key)
 
 #next steps
-#move plots over to another file
-#make notes dynamic
 #hook up modulation
         #   count number of globs without dialation, maybe there will be enough indication from little contours
         #       in between fingers
-        #   use different colored balls
         #there are 2 hardcoded 'deque(maxlen=30), their maxlen should be changed to being dynamically set from fps
         #   figure out what 'contour_count_window.extend' does exactly, maybe the commented out stuff we have on this 
         #   would solve this issue, so long as we are low, we keep adding 5 to the maxlen each frame
         #find other dancing/music software
         #   Very Nervous Sytem looks really really great
-        #hook up magnitude to all sounds are played at the magnitude
             #enhance magnitude calculation in terms of height, using the average juggling height as a good magnitude, as well
             #   'scaling' another way to say you are changing the measurement of how you do the magnitude and log scale would also change the 
             #   rep of the height, trying to scale height to magnitude
         #having issues with pygame notes not triggering in patterns, maybe because it thinks the same ball is peaking to soon
         #   and so it is not allowed to make the sound because it is too soon. sometimes sounds seem to bunch up as well, maybe this is a pygame issue.
-        #we could use 2 frames with the conditioals below, or or just 3 consec decreasing
         #move plots to new file
         #make simple tkinter gui
         #   wait on this
