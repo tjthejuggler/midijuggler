@@ -38,6 +38,9 @@ import peakutils
 import random
 import scipy.stats as ss
 import threading as th
+from music_helper import letter_note_as_number
+from music_helper import get_scale_from_root
+from music_helper import get_notes_in_scale
 pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
@@ -73,15 +76,19 @@ def midi_controller_value_from_positions(current_position, max_position, edge_bu
     else:
         value = int(127*((current_position-edge_buffer)/(max_position-edge_buffer*2)))
     return value
-def rotating_midi_note(index):
-    global rotating_sound_num
-    note_to_return = 60 + rotating_sound_num    
+def rotating_midi_note(index, list_of_notes):
+    global rotating_sound_num    
     rotating_sound_num = rotating_sound_num + 1
-    if rotating_sound_num == 4:
+    if rotating_sound_num == len(list_of_notes):
         rotating_sound_num = 0
-    return note_to_return
-def midi_note_based_on_position(index):
-    return midi_controller_value_from_positions(all_cx[index][-1],640,0)
+    return list_of_notes[rotating_sound_num]
+def midi_note_based_on_position(index, list_of_notes):
+    rounded_to_scale = True
+    value = midi_controller_value_from_positions(all_cx[index][-1],640,0)
+    if rounded_to_scale:        
+        value = min(list_of_notes, key=lambda x:abs(x-value))
+    #this could also be done by rounding to the closest note in a chosen scale, all octaves included, or just 1 or a few octaves blown up
+    return value
 def midi_magnitude(index):
     return 112
 def midi_modulator(index, type, channel, controller_num):
@@ -92,44 +99,46 @@ def midi_modulator(index, type, channel, controller_num):
         value = midi_controller_value_from_positions(all_cy[index][-1],480,0)
     return [channel, controller_num, value] 
 def create_association_object():
-    main_note = midi_note_based_on_position
+    #print(get_notes_in_scale("C","all","PENTATONIC"))
+
+    main_note = [midi_note_based_on_position, get_notes_in_scale("C","all","PENTATONIC")]
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
     midi_associations["peak"]["mid column"]["channel"] = 2
     midi_associations["peak"]["mid column"]["note"] = main_note
     midi_associations["peak"]["mid column"]["magnitude"] = midi_magnitude
-    midi_associations["peak"]["mid column"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["peak"]["mid column"]["modulator"] = [["width",0,0], ["height",0,1]]
     
     midi_associations["peak"]["left column"] = {}
     midi_associations["peak"]["left column"]["channel"] = 2
     midi_associations["peak"]["left column"]["note"] = main_note
     midi_associations["peak"]["left column"]["magnitude"] = midi_magnitude
-    midi_associations["peak"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["peak"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]
     
     midi_associations["peak"]["right column"] = {}
     midi_associations["peak"]["right column"]["channel"] = 2
     midi_associations["peak"]["right column"]["note"] = main_note
     midi_associations["peak"]["right column"]["magnitude"] = midi_magnitude
-    midi_associations["peak"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["peak"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]
     
     midi_associations["peak"]["mid cross"] = {}
     midi_associations["peak"]["mid cross"]["channel"] = 2
     midi_associations["peak"]["mid cross"]["note"] = main_note
     midi_associations["peak"]["mid cross"]["magnitude"] = midi_magnitude
-    midi_associations["peak"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["peak"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]
     
     midi_associations["peak"]["left cross"] = {}
     midi_associations["peak"]["left cross"]["channel"] = 2
     midi_associations["peak"]["left cross"]["note"] = main_note
     midi_associations["peak"]["left cross"]["magnitude"] = midi_magnitude
-    midi_associations["peak"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["peak"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]
     
     midi_associations["peak"]["right cross"] = {}
     midi_associations["peak"]["right cross"]["channel"] = 2
     midi_associations["peak"]["right cross"]["note"] = main_note
     midi_associations["peak"]["right cross"]["magnitude"] = midi_magnitude
-    midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
 
 def set_up_midi():
     #midiout = rtmidi.MidiOut()
@@ -437,17 +446,18 @@ def get_midi_note(path_phase,path_type,ball_index):
     channel = 0
     note = 0
     magnitude = 0
+    #print(path_phase)
+    #print(path_type)
     if path_phase in midi_associations:
         if path_type in midi_associations[path_phase]:
             if 'channel' in midi_associations[path_phase][path_type]:
                 channel = midi_associations[path_phase][path_type]["channel"]           
             if 'note' in midi_associations[path_phase][path_type]:
-                note = midi_associations[path_phase][path_type]["note"](ball_index)
+                note = midi_associations[path_phase][path_type]["note"][0](ball_index,midi_associations[path_phase][path_type]["note"][1])
             if 'magnitude' in midi_associations[path_phase][path_type]:
                 magnitude = midi_associations[path_phase][path_type]["magnitude"](ball_index)    
     return channel, note, magnitude
 def get_midi_modulation(path_phase,path_type,ball_index):
-        #print(str(path_phase) + " | " +str(path_type))
     modulators = []
     if path_phase in midi_associations:
         if path_type in midi_associations[path_phase]:
@@ -456,10 +466,6 @@ def get_midi_modulation(path_phase,path_type,ball_index):
                     modulators.append(midi_modulator(ball_index, i[0], i[1], i[2]))
     return modulators
 def send_midi_messages(channel, note, magnitude, modulators):
-    #this is where we would send any modulation messages
-    #print(channel)
-    #print(note)
-    #print(magnitude)
     for i in modulators:
         send_midi_cc(i[0],i[1],i[2])       
     send_midi_note(channel,note,magnitude)
@@ -492,8 +498,6 @@ def midi_note_channel_num(channel,on_or_off):
 def midi_cc_channel_num(channel):
     i = int('0xB0', 16)
     i += int(channel)
-    print(channel)
-    print(i)
     return i
 midi_channel_to_off = 0
 midi_note_to_off = 0
@@ -515,8 +519,6 @@ def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
 def send_midi_cc(channel,controller_num,value):
     send_cc = [midi_cc_channel_num(channel), controller_num, value]
-    print("cc")
-    print(send_cc)
     midiout.send_message(send_cc)
 def adjust_song_magnitude(axis,edge_buffer,position,song):
     if axis == "y":
@@ -769,7 +771,7 @@ run_camera()
 #           selecting the scale
 #               selecting key of the scale
 #       randomized notes in a scale
-#       randomized skipped notes in a sccale
+#       randomized skipped notes in a scale
 #   preset notes in a scale, with some notes missing with a randomizer
 #preselected chords or chord progressions
 #   preselected chords for individual actions
