@@ -63,7 +63,7 @@ duration = 60 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 midi_associations = {}
-all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20
+all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 rotating_sound_num = 0
@@ -84,10 +84,20 @@ def rotating_midi_note(index, list_of_notes):
     return list_of_notes[rotating_sound_num]
 def midi_note_based_on_position(index, list_of_notes):
     rounded_to_scale = True
-    value = midi_controller_value_from_positions(all_cx[index][-1],640,0)
-    if rounded_to_scale:        
-        value = min(list_of_notes, key=lambda x:abs(x-value))
-    #this could also be done by rounding to the closest note in a chosen scale, all octaves included, or just 1 or a few octaves blown up
+    max_position = 640
+    value = 0
+    if rounded_to_scale:
+        stretched_note_positions = []
+        stretched_note_positions_indices = [] 
+        section_size = max_position/len(list_of_notes)
+        for i in range(0,len(list_of_notes)):
+            stretched_note_positions.append(int(i*section_size))
+            stretched_note_positions_indices.append(i)            
+        closest_stretched_note = min(stretched_note_positions, key=lambda x:abs(x-all_cx[index][-1]))
+        value = list_of_notes[stretched_note_positions.index(closest_stretched_note)]
+    else:
+        value = midi_controller_value_from_positions(all_cx[index][-1],max_position,0)       
+
     return value
 def midi_magnitude(index):
     return 112
@@ -99,9 +109,13 @@ def midi_modulator(index, type, channel, controller_num):
         value = midi_controller_value_from_positions(all_cy[index][-1],480,0)
     return [channel, controller_num, value] 
 def create_association_object():
-    #print(get_notes_in_scale("C","all","PENTATONIC"))
-
-    main_note = [midi_note_based_on_position, get_notes_in_scale("C","all","PENTATONIC")]
+    #NEXT:
+    #chosen from the scale can be a chosen number of random notes
+    #   it cycles through these notes a chosen number of times, and then cycles through another set based on a chosen pattern on repeat,
+    #       for instance, with 4 random notes, [1,1,2] might play: C,D,A,G , C,D,A,G , D,B,C,D , C,D,A,G , C,D,A,G , D,B,C,D
+    #make whatever the chord equavalint of our note/scale setup is
+    #   the pychord library may help
+    main_note = [rotating_midi_note, get_notes_in_scale("C",[4,5],"INDIAN")]
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
@@ -380,11 +394,13 @@ def determine_relative_positions(match_indices_count):
             relative_positions.append("mid")
     return relative_positions
 def ball_at_peak(vy_window):
+    global peak_count
     number_of_frames_up = 4 
     vy_window = vy_window[-(number_of_frames_up):]
     #print(vy_window)
     if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0:
         #print("peaked!")
+        peak_count = peak_count+1
         return True
     else:
         return False
@@ -507,7 +523,10 @@ def send_midi_note_on_only(channel,note,magnitude):
 def turn_midi_note_off():
     global midi_channel_to_off, midi_note_to_off
     note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]
-    midiout.send_message(note_off)
+    try:
+        midiout.send_message(note_off)
+    except:
+        pass
 def send_midi_note(channel,note,magnitude):                          
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
     midiout.send_message(note_on)
@@ -540,11 +559,11 @@ def show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_m
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask
-def show_subplot(duration,index_multiplier,lines,subplot_num):
+def show_subplot(duration_at_end,index_multiplier,lines,subplot_num):
     interval = 5 #sets the plot ticks and the timer markers    
     tick_label,tick_index = [],[]
     plt.subplot(subplot_num)  
-    for s in range(duration + interval):
+    for s in range(int(duration_at_end) + interval):
         if s%interval == 0:
             tick_label.append(s)
             tick_index.append(s*index_multiplier)
@@ -576,6 +595,7 @@ def should_break(start,duration,break_for_no_video):
 def closing_operations(fps,vs,camera,out,all_mask):
     global midiout
     print("fps: "+str(fps))
+    print("peaks: "+str(peak_count))
     if using_midi:
         del midiout
     if increase_fps:
@@ -643,7 +663,7 @@ def make_indiv_com_plot(duration,fps):
         show_subplot(duration,fps,lines,subplot_num[subplot_num_used])
         subplot_num_used = subplot_num_used - 1 
     plt.show() 
-def make_corrcoef_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size):
+def make_corrcoef_plot(duration_at_end,fps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size):
     lines = []
     window_x,window_y = deque(maxlen=corrcoef_window_size),deque(maxlen=corrcoef_window_size)
     for i in range(0,len(all_cx)):
@@ -656,8 +676,8 @@ def make_corrcoef_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used
             else:
                 corrcoef_list.append(0)
         lines.append(corrcoef_list)
-    show_subplot(duration,fps,lines,subplot_num[subplot_num_used])
-def create_plots(duration,frames,start,end):
+    show_subplot(duration_at_end,fps,lines,subplot_num[subplot_num_used])
+def create_plots(frames,start,end):
     show_corrcoef_plot = False
     show_dif_plot = False
     show_com_plot  = False
@@ -665,20 +685,21 @@ def create_plots(duration,frames,start,end):
     corrcoef_window_size = 30    
     time_between_difs = .5 #microseconds
     tick_label3,tick_index3,tick_label2,tick_index2,tick_label,tick_index = [],[],[],[],[],[]
-    fps = frames/(end-start)
+    duration_at_end = end-start
+    fps = frames/duration_at_end
     if show_indiv_com_plot:
-        make_indiv_com_plot(duration,fps) 
+        make_indiv_com_plot(duration_at_end,fps) 
     num_charts = sum([show_dif_plot,show_com_plot,show_corrcoef_plot])    
     if num_charts > 0:
         subplot_num, subplot_num_used = create_subplot_grid(num_charts)
         if show_dif_plot:
-            make_dif_plot(duration, frames, all_cx, all_cy, subplot_num, subplot_num_used, time_between_difs)
+            make_dif_plot(duration_at_end, frames, all_cx, all_cy, subplot_num, subplot_num_used, time_between_difs)
             subplot_num_used = subplot_num_used - 1               
         if show_com_plot:
-            make_com_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used)
+            make_com_plot(duration_at_end,fps,all_cx, all_cy, subplot_num,subplot_num_used)
             subplot_num_used = subplot_num_used - 1                             
         if show_corrcoef_plot:
-            make_corrcoef_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size)
+            make_corrcoef_plot(duration_at_end,fps,all_cx, all_cy, subplot_num,subplot_num_used,corrcoef_window_size)
             subplot_num_used = subplot_num_used - 1
         plt.show()
 def run_camera():
@@ -716,7 +737,7 @@ def run_camera():
         if should_break(start, duration,break_for_no_video):
             break
     end = closing_operations(fps,vs,camera,out,all_mask)
-    create_plots(duration,frame_count,start,end)
+    create_plots(frame_count,start,end)
 create_association_object()
 run_camera()
 

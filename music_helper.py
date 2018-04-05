@@ -38,7 +38,7 @@ def get_scale_from_root(root, scale_type):
        steps = [0, 2, 3, 5, 7, 9, 10]   
     if scale_type == "HARMONIC_MINOR":
        steps = [0, 2, 3, 5, 7, 8, 11]  
-    if scale_type == "INDIAN":
+    if scale_type == "INDIAN":#since we get rid of any repeated value, we lose one of the INDIAN 1s. 
        steps = [0, 1, 1, 4, 5, 8, 10]
     if scale_type == "LOCRIAN":
        steps = [0, 1, 3, 5, 6, 8, 10]
@@ -68,12 +68,14 @@ def get_scale_from_root(root, scale_type):
     return scale  
 def get_notes_in_scale(letter,octave,scale_type):
     notes = []
-    if octave == "all":
+    if octave == 'all':
       root = letter_note_as_number(letter)
       for i in range (0,9):
         notes.extend(get_scale_from_root(root+(i*12), scale_type))
-      notes = list(set(notes))
     else:
-      root = (octave+1)*12+letter_note_as_number(letter)
-      notes = get_scale_from_root(root, scale_type)
+      for c in octave:
+        root = (c+1)*12+letter_note_as_number(letter)
+        notes.extend(get_scale_from_root(root, scale_type))
+    notes = list(set(notes))
+    notes = sorted(notes)
     return notes
