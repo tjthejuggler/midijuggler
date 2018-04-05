@@ -56,7 +56,7 @@ play_peak_notes = True
 print_peaks = True                                    
 using_midi = True
 using_height_as_magnitude = True    
-duration = 10 #seconds
+duration = 60 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 midi_associations = {}
@@ -64,71 +64,73 @@ all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time = [[0]],[[0]],[[0]],[[0]],[[0]
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 rotating_sound_num = 0
-def rotating_midi_note(ball_index):
+def midi_controller_value_from_positions(current_position, max_position, edge_buffer):
+    value = 0
+    if current_position<edge_buffer:
+        value = 127
+    elif current_position>max_position-edge_buffer:
+        value = 0
+    else:
+        value = int(127*((current_position-edge_buffer)/(max_position-edge_buffer*2)))
+    return value
+def rotating_midi_note(index):
     global rotating_sound_num
     note_to_return = 60 + rotating_sound_num    
     rotating_sound_num = rotating_sound_num + 1
     if rotating_sound_num == 4:
         rotating_sound_num = 0
     return note_to_return
-def midi_magnitude(ball_index):
+def midi_note_based_on_position(index):
+    return midi_controller_value_from_positions(all_cx[index][-1],640,0)
+def midi_magnitude(index):
     return 112
+def midi_modulator(index, type, channel, controller_num):
+    value = 0
+    if type == "width":
+        value = midi_controller_value_from_positions(all_cx[index][-1],640,0)
+    if type == "height":
+        value = midi_controller_value_from_positions(all_cy[index][-1],480,0)
+    return [channel, controller_num, value] 
 def create_association_object():
-    #object/dictionary -dict-  that is devoted to path phase and type called "path_to_midi_action"
-    #   there should be two levels 
-
-    '''#create_dynamically
-    #after phase selection
-    midi_associations["catch"] = {}
-    #after type selection
-    midi_associations["catch"]["right cross"] = {}
-    #after midi note selection
-    midi_associations["catch"]["right cross"]["channel"] = 0
-    midi_associations["catch"]["right cross"]["note"] = 60
-    midi_associations["catch"]["right cross"]["magnitude"] = 112
-    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}
-
-    #create_dynamically
-    #after phase selection
-    midi_associations["throw"] = {}
-    #after type selection
-    midi_associations["throw"]["right cross"] = {}
-    #after midi note selection
-    midi_associations["throw"]["right cross"]["channel"] = 1
-    midi_associations["throw"]["right cross"]["note"] = 61
-    midi_associations["throw"]["right cross"]["magnitude"] = 112
-    #midi_associations["peak"]["right column"]["modulator"] = {"width": "filter cutoff"}'''
+    main_note = midi_note_based_on_position
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
     midi_associations["peak"]["mid column"]["channel"] = 2
-    midi_associations["peak"]["mid column"]["note"] = rotating_midi_note
+    midi_associations["peak"]["mid column"]["note"] = main_note
     midi_associations["peak"]["mid column"]["magnitude"] = midi_magnitude
-
+    midi_associations["peak"]["mid column"]["modulator"] = [["width",0,0], ["height",0,1]]
+    
     midi_associations["peak"]["left column"] = {}
     midi_associations["peak"]["left column"]["channel"] = 2
-    midi_associations["peak"]["left column"]["note"] = rotating_midi_note
+    midi_associations["peak"]["left column"]["note"] = main_note
     midi_associations["peak"]["left column"]["magnitude"] = midi_magnitude
-
+    midi_associations["peak"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]
+    
     midi_associations["peak"]["right column"] = {}
     midi_associations["peak"]["right column"]["channel"] = 2
-    midi_associations["peak"]["right column"]["note"] = rotating_midi_note
+    midi_associations["peak"]["right column"]["note"] = main_note
     midi_associations["peak"]["right column"]["magnitude"] = midi_magnitude
-
+    midi_associations["peak"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]
+    
     midi_associations["peak"]["mid cross"] = {}
     midi_associations["peak"]["mid cross"]["channel"] = 2
-    midi_associations["peak"]["mid cross"]["note"] = rotating_midi_note
+    midi_associations["peak"]["mid cross"]["note"] = main_note
     midi_associations["peak"]["mid cross"]["magnitude"] = midi_magnitude
-
+    midi_associations["peak"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    
     midi_associations["peak"]["left cross"] = {}
     midi_associations["peak"]["left cross"]["channel"] = 2
-    midi_associations["peak"]["left cross"]["note"] = rotating_midi_note
+    midi_associations["peak"]["left cross"]["note"] = main_note
     midi_associations["peak"]["left cross"]["magnitude"] = midi_magnitude
-
+    midi_associations["peak"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    
     midi_associations["peak"]["right cross"] = {}
     midi_associations["peak"]["right cross"]["channel"] = 2
-    midi_associations["peak"]["right cross"]["note"] = rotating_midi_note
+    midi_associations["peak"]["right cross"]["note"] = main_note
     midi_associations["peak"]["right cross"]["magnitude"] = midi_magnitude
+    midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+
 def set_up_midi():
     #midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
@@ -444,14 +446,22 @@ def get_midi_note(path_phase,path_type,ball_index):
             if 'magnitude' in midi_associations[path_phase][path_type]:
                 magnitude = midi_associations[path_phase][path_type]["magnitude"](ball_index)    
     return channel, note, magnitude
-def get_midi_modulation(path_phase,path_type):
-    modulation = 1
-    return modulation
-def send_midi_messages(channel, note, magnitude, modulation):
+def get_midi_modulation(path_phase,path_type,ball_index):
+        #print(str(path_phase) + " | " +str(path_type))
+    modulators = []
+    if path_phase in midi_associations:
+        if path_type in midi_associations[path_phase]:
+            if 'modulator' in midi_associations[path_phase][path_type]:
+                for i in midi_associations[path_phase][path_type]['modulator']:
+                    modulators.append(midi_modulator(ball_index, i[0], i[1], i[2]))
+    return modulators
+def send_midi_messages(channel, note, magnitude, modulators):
     #this is where we would send any modulation messages
     #print(channel)
     #print(note)
     #print(magnitude)
+    for i in modulators:
+        send_midi_cc(i[0],i[1],i[2])       
     send_midi_note(channel,note,magnitude)
 def get_wav_sample(path_phase,path_type):
     note = 1
@@ -465,10 +475,9 @@ def create_audio(path_phase,path_type, ball_index):
     if using_midi:
         if path_phase in midi_associations:
             if path_type in midi_associations[path_phase]:
-                if path_phase == "throw" or path_phase == "peak" or path_phase == "catch":
-                    channel, note, magnitude = get_midi_note(path_phase,path_type,ball_index)         
-                    modulation = get_midi_modulation(path_phase,path_type)
-                    send_midi_messages(channel, note, magnitude, modulation)
+                channel, note, magnitude = get_midi_note(path_phase,path_type,ball_index)         
+                modulators = get_midi_modulation(path_phase,path_type,ball_index)
+                send_midi_messages(channel, note, magnitude, modulators)
     else:
         note, magnitude = get_wav_sample(path_phase,path_type)
         modulation = get_wav_modulation(path_phase,path_type)
@@ -483,6 +492,8 @@ def midi_note_channel_num(channel,on_or_off):
 def midi_cc_channel_num(channel):
     i = int('0xB0', 16)
     i += int(channel)
+    print(channel)
+    print(i)
     return i
 midi_channel_to_off = 0
 midi_note_to_off = 0
@@ -504,6 +515,8 @@ def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
 def send_midi_cc(channel,controller_num,value):
     send_cc = [midi_cc_channel_num(channel), controller_num, value]
+    print("cc")
+    print(send_cc)
     midiout.send_message(send_cc)
 def adjust_song_magnitude(axis,edge_buffer,position,song):
     if axis == "y":
