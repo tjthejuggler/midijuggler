@@ -8,9 +8,6 @@ import cv2
 import colorsys
 import math
 from math import hypot
-from tkinter import * #for widgets
-import tkinter as ttk #for widgets
-from tkinter.scrolledtext import ScrolledText
 import time #for sending midi
 import rtmidi #for sending midi
 import numpy as np #for webcam
@@ -19,22 +16,14 @@ from collections import deque # for tracking balls
 import argparse # for tracking balls
 import imutils # for tracking balls
 import sys # for tracking balls
-from tkinter import messagebox
 import pyautogui
-import pyHook
-import pythoncom
-import win32com.client
-from tkinter.filedialog import askopenfilename
 from scipy import ndimage
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import pygame as pg
-import librosa  
-import librosa.display
 from datetime import datetime
 from datetime import timedelta
 from random import randint
-import peakutils
 import random
 import scipy.stats as ss
 import threading as th
@@ -59,11 +48,11 @@ play_peak_notes = True
 print_peaks = True                                    
 using_midi = True
 using_height_as_magnitude = True    
-duration = 60 #seconds
+duration = 40 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 midi_associations = {}
-all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0
+all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count,notes_in_scale_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0,0
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 rotating_sound_num = 0
@@ -104,7 +93,7 @@ def midi_magnitude(index):
 def midi_modulator(index, type, channel, controller_num):
     value = 0
     if type == "width":
-        value = midi_controller_value_from_positions(all_cx[index][-1],640,0)
+        value = midi_controller_value_from_positions(all_cx[index][-1],640,80)
     if type == "height":
         value = midi_controller_value_from_positions(all_cy[index][-1],480,0)
     return [channel, controller_num, value] 
@@ -115,7 +104,8 @@ def create_association_object():
     #       for instance, with 4 random notes, [1,1,2] might play: C,D,A,G , C,D,A,G , D,B,C,D , C,D,A,G , C,D,A,G , D,B,C,D
     #make whatever the chord equavalint of our note/scale setup is
     #   the pychord library may help
-    main_note = [rotating_midi_note, get_notes_in_scale("C",[4,5],"INDIAN")]
+    main_note = [midi_note_based_on_position, get_notes_in_scale("C",[4,5],"MINOR")]
+    notes_in_scale_count = len(get_notes_in_scale("C",[4,5],"MINOR"))
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
@@ -153,6 +143,8 @@ def create_association_object():
     midi_associations["peak"]["right cross"]["note"] = main_note
     midi_associations["peak"]["right cross"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+
+
 
 def set_up_midi():
     #midiout = rtmidi.MidiOut()
@@ -233,7 +225,7 @@ def get_contours(frame, contour_count_window, fps):
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(1,1))
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
     mask = cv2.erode(original_mask, erode_kernel, iterations=1)
-    mask = cv2.dilate(mask, dilate_kernel, iterations=3)
+    mask = cv2.dilate(mask, dilate_kernel, iterations=4)
     im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         contour_count_window.append(len(contours))        
@@ -398,7 +390,7 @@ def ball_at_peak(vy_window):
     number_of_frames_up = 4 
     vy_window = vy_window[-(number_of_frames_up):]
     #print(vy_window)
-    if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0:
+    if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0 and abs(sum(vy_window[-4:-1])/3)>10:
         #print("peaked!")
         peak_count = peak_count+1
         return True
@@ -549,13 +541,20 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
     if position>480-edge_buffer:
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
+def create_rectangles_from_scale(mask_copy):
+    rectagnle_width = 640/max(1,notes_in_scale_count)
+    for i in range(0,notes_in_scale_count):
+        cv2.rectangle(mask_copy,(i*rectagnle_width,0),(i+1*rectagnle_width,480),(255,255,255),5)
+    return mask_copy
 def show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_mask):                
     if record_video:
         record_frame(frame, out, start, fps)
     if show_camera:
         cv2.imshow('Frame', frame)
     if show_mask:
-        cv2.imshow('mask',mask)
+        mask_copy = mask
+        mask_copy = create_rectangles_from_scale(mask_copy)
+        cv2.imshow('mask_copy',mask_copy)
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask
@@ -596,6 +595,7 @@ def closing_operations(fps,vs,camera,out,all_mask):
     global midiout
     print("fps: "+str(fps))
     print("peaks: "+str(peak_count))
+    print(all_vy)
     if using_midi:
         del midiout
     if increase_fps:
