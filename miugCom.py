@@ -48,11 +48,12 @@ play_peak_notes = True
 print_peaks = True                                    
 using_midi = True
 using_height_as_magnitude = True    
-duration = 40 #seconds
+duration = 100 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 midi_associations = {}
-all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count,notes_in_scale_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0,0
+all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0,
+notes_in_scale_count = len(get_notes_in_scale("C",[4,5],"MINOR"))
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 rotating_sound_num = 0
@@ -98,6 +99,7 @@ def midi_modulator(index, type, channel, controller_num):
         value = midi_controller_value_from_positions(all_cy[index][-1],480,0)
     return [channel, controller_num, value] 
 def create_association_object():
+
     #NEXT:
     #chosen from the scale can be a chosen number of random notes
     #   it cycles through these notes a chosen number of times, and then cycles through another set based on a chosen pattern on repeat,
@@ -105,7 +107,6 @@ def create_association_object():
     #make whatever the chord equavalint of our note/scale setup is
     #   the pychord library may help
     main_note = [midi_note_based_on_position, get_notes_in_scale("C",[4,5],"MINOR")]
-    notes_in_scale_count = len(get_notes_in_scale("C",[4,5],"MINOR"))
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
@@ -542,9 +543,15 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
 def create_rectangles_from_scale(mask_copy):
-    rectagnle_width = 640/max(1,notes_in_scale_count)
+    #cv2.rectangle(mask_copy,(0,0),(50,480),(255,255,255),2)
+    rectangle_width = int(640/max(1,notes_in_scale_count))
+
     for i in range(0,notes_in_scale_count):
-        cv2.rectangle(mask_copy,(i*rectagnle_width,0),(i+1*rectagnle_width,480),(255,255,255),5)
+        left_corner = i*rectangle_width
+        right_corner = (i+1)*rectangle_width
+        cv2.rectangle(mask_copy,(left_corner,0),(right_corner,480),(255,255,255),2)
+        print(left_corner)
+        print(right_corner)
     return mask_copy
 def show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_mask):                
     if record_video:
@@ -554,6 +561,7 @@ def show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_m
     if show_mask:
         mask_copy = mask
         mask_copy = create_rectangles_from_scale(mask_copy)
+        mask_copy = cv2.flip(mask_copy,1)
         cv2.imshow('mask_copy',mask_copy)
     if show_overlay: 
         all_mask.append(original_mask)
