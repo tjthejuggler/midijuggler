@@ -48,12 +48,12 @@ play_peak_notes = True
 print_peaks = True                                    
 using_midi = True
 using_height_as_magnitude = True    
-duration = 100 #seconds
+duration = 60 #seconds
 average_min_height = 30
 peak_count,midiout = 0,rtmidi.MidiOut()
 midi_associations = {}
-all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0,
-notes_in_scale_count = len(get_notes_in_scale("C",[4,5],"MINOR"))
+all_cx,all_cy,all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0
+notes_in_scale_count = len(get_notes_in_scale("C",[4,5],"MAJOR"))
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 rotating_sound_num = 0
@@ -74,7 +74,7 @@ def rotating_midi_note(index, list_of_notes):
     return list_of_notes[rotating_sound_num]
 def midi_note_based_on_position(index, list_of_notes):
     rounded_to_scale = True
-    max_position = 640
+    max_position = frame_width
     value = 0
     if rounded_to_scale:
         stretched_note_positions = []
@@ -94,19 +94,18 @@ def midi_magnitude(index):
 def midi_modulator(index, type, channel, controller_num):
     value = 0
     if type == "width":
-        value = midi_controller_value_from_positions(all_cx[index][-1],640,80)
+        value = midi_controller_value_from_positions(all_cx[index][-1],frame_width,0)
     if type == "height":
         value = midi_controller_value_from_positions(all_cy[index][-1],480,0)
     return [channel, controller_num, value] 
 def create_association_object():
-
     #NEXT:
     #chosen from the scale can be a chosen number of random notes
     #   it cycles through these notes a chosen number of times, and then cycles through another set based on a chosen pattern on repeat,
     #       for instance, with 4 random notes, [1,1,2] might play: C,D,A,G , C,D,A,G , D,B,C,D , C,D,A,G , C,D,A,G , D,B,C,D
     #make whatever the chord equavalint of our note/scale setup is
     #   the pychord library may help
-    main_note = [midi_note_based_on_position, get_notes_in_scale("C",[4,5],"MINOR")]
+    main_note = [midi_note_based_on_position, get_notes_in_scale("C",[4,5],"MAJOR")]
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
@@ -145,8 +144,6 @@ def create_association_object():
     midi_associations["peak"]["right cross"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
 
-
-
 def set_up_midi():
     #midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
@@ -163,7 +160,7 @@ def set_up_peak_notes():
     return sounds
 def set_up_record_camera(video_name):        
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    return cv2.VideoWriter(video_name,fourcc, 20.0, (640,480))
+    return cv2.VideoWriter(video_name,fourcc, 20.0, (frame_width,frame_height))
 def set_up_adjust_song_magnitude():
     pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
     pg.mixer.init()
@@ -204,6 +201,7 @@ def set_up_camera():
         out = None
     return vs, sounds, song, args, out
 def analyze_video(start,loop_count,vs,camera,args,frame_count):
+    global frame_height, frame_width
     if time.time()-start > 0:
         fps = frame_count/(time.time()-start)
     else:
@@ -213,6 +211,7 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
         grabbed = None
     else:
         grabbed, frame = camera.read()
+    frame_height, frame_width, channels = frame.shape
     loop_count = loop_count + 1
     break_for_no_video = False
     if args.get("video") and not grabbed:
@@ -223,10 +222,10 @@ def get_contours(frame, contour_count_window, fps):
     lower_range = np.array([0, 0, 247])
     upper_range = np.array([146, 12, 255])     
     original_mask = cv2.inRange(framehsv, lower_range, upper_range)
-    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(1,1))
+    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(2,2))
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
-    mask = cv2.erode(original_mask, erode_kernel, iterations=1)
-    mask = cv2.dilate(mask, dilate_kernel, iterations=4)
+    mask = cv2.erode(original_mask, erode_kernel, iterations=3)
+    mask = cv2.dilate(mask, dilate_kernel, iterations=3)
     im2, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         contour_count_window.append(len(contours))        
@@ -346,7 +345,7 @@ def get_contour_matchings(distances,average_contour_count):
             distances[min_dist_row][i] = 100000
         for d in range(0,len(distances)):
             distances[d][min_dist_col] = 100000  
-    return indices_to_return
+    return indices_to_return, len(indices_to_return)
 def connect_contours_to_histories(matched_indices,cx,cy):            
     while len(all_cx) < len(matched_indices):
         all_cx.append([]*len(all_cx[0]))
@@ -389,10 +388,8 @@ def determine_relative_positions(match_indices_count):
 def ball_at_peak(vy_window):
     global peak_count
     number_of_frames_up = 4 
-    vy_window = vy_window[-(number_of_frames_up):]
-    #print(vy_window)
-    if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0 and abs(sum(vy_window[-4:-1])/3)>10:
-        #print("peaked!")
+    vy_window = vy_window[-(number_of_frames_up):]    
+    if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0 and abs(sum(vy_window[-4:-1])/3)>4:
         peak_count = peak_count+1
         return True
     else:
@@ -513,9 +510,8 @@ midi_note_to_off = 0
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]    
     midiout.send_message(note_on)
-def turn_midi_note_off():
-    global midi_channel_to_off, midi_note_to_off
-    note_off = [midi_note_channel_num(midi_channel_to_off,'off'), midi_note_to_off, 0]
+def turn_midi_note_off(channel,note):
+    note_off = [midi_note_channel_num(channel,'off'), note, 0]
     try:
         midiout.send_message(note_off)
     except:
@@ -525,7 +521,7 @@ def send_midi_note(channel,note,magnitude):
     midiout.send_message(note_on)
     midi_channel_to_off = channel
     midi_note_to_off = note
-    off = th.Timer(0.4,turn_midi_note_off)     
+    off = th.Timer(0.4,turn_midi_note_off, args = [channel,note])     
     off.start()
 def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
@@ -534,35 +530,40 @@ def send_midi_cc(channel,controller_num,value):
     midiout.send_message(send_cc)
 def adjust_song_magnitude(axis,edge_buffer,position,song):
     if axis == "y":
-        size = 480        
+        size = frame_height        
     if axis == "x":
-        size = 640
+        size = frame_width
     if position<edge_buffer:
         song.set_magnitude(1)
-    if position>480-edge_buffer:
+    if position>frame_height-edge_buffer:
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
-def create_rectangles_from_scale(mask_copy):
-    #cv2.rectangle(mask_copy,(0,0),(50,480),(255,255,255),2)
-    rectangle_width = int(640/max(1,notes_in_scale_count))
-
+def create_grid_of_notes(mask_copy,matched_indices_count,path_phase):
+    rectangle_width = int(frame_width/max(1,notes_in_scale_count))
+    rectangles_with_peaks = []
+    for i in range(0,matched_indices_count):
+        if path_phase[i] == 'peak':
+            rectangles_with_peaks.append(math.floor(all_cx[i][-1]/rectangle_width))    
     for i in range(0,notes_in_scale_count):
         left_corner = i*rectangle_width
         right_corner = (i+1)*rectangle_width
-        cv2.rectangle(mask_copy,(left_corner,0),(right_corner,480),(255,255,255),2)
-        print(left_corner)
-        print(right_corner)
+        if i in rectangles_with_peaks:
+            cv2.rectangle(mask_copy,(left_corner,0),(right_corner,frame_height),(255,255,255),thickness=cv2.FILLED)
+        else:
+            cv2.rectangle(mask_copy,(left_corner,0),(right_corner,frame_height),(255,255,255),2)
     return mask_copy
-def show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_mask):                
+def show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,path_phase):    
+    show_scale_grid = True            
     if record_video:
         record_frame(frame, out, start, fps)
     if show_camera:
         cv2.imshow('Frame', frame)
     if show_mask:
-        mask_copy = mask
-        mask_copy = create_rectangles_from_scale(mask_copy)
-        mask_copy = cv2.flip(mask_copy,1)
-        cv2.imshow('mask_copy',mask_copy)
+        if show_scale_grid:
+            mask_copy = mask
+            mask_copy = create_grid_of_notes(mask_copy,matched_indices_count,path_phase)
+            mask_copy = cv2.flip(mask_copy,1)
+        cv2.imshow('mask',mask_copy)
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask
@@ -603,7 +604,6 @@ def closing_operations(fps,vs,camera,out,all_mask):
     global midiout
     print("fps: "+str(fps))
     print("peaks: "+str(peak_count))
-    print(all_vy)
     if using_midi:
         del midiout
     if increase_fps:
@@ -650,7 +650,7 @@ def make_com_plot(duration,fps,all_cx, all_cy, subplot_num,subplot_num_used):
     for i in range(0,len(all_cx)):
         lines.append(all_cx[i])
         for a in range(0,len(all_cy[i])):
-            all_cy[i][a] = 480-all_cy[i][a]
+            all_cy[i][a] = frame_height-all_cy[i][a]
         lines.append(all_cy[i])
     average_x = []
     average_y = []
@@ -666,7 +666,7 @@ def make_indiv_com_plot(duration,fps):
         lines = []
         lines.append(all_cx[i])
         for a in range(0,len(all_cy[i])):
-            all_cy[i][a] = 480-all_cy[i][a]
+            all_cy[i][a] = frame_height-all_cy[i][a]
         lines.append(all_cy[i])
         show_subplot(duration,fps,lines,subplot_num[subplot_num_used])
         subplot_num_used = subplot_num_used - 1 
@@ -716,24 +716,21 @@ def run_camera():
     vs, sounds, song, args, out = set_up_camera()
     start,loop_count,num_high = time.time(),0,0
     at_peak, path_type, path_phase, break_for_no_video = [-.25]*20,[""]*20,[""]*20,False
-    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=30), deque(maxlen=60), None, 0
+    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=120), deque(maxlen=60), None, 0
     while True:
         fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
         if loop_count>1 and frames_are_similar(frame, old_frame):
             continue
         else:
             frame_count = frame_count+1
-        old_frame = frame
+        old_frame,matched_indices_count = frame,0
         contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
         if contours and frame_count > 10:
             average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
             cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,average_contour_count,min_height_window)            
             calculate_kinematics()             
-            missing_ball_count = average_contour_count - len(cx)
-            #if missing_ball_count > 0:
-            #    cx, cy = split_contours(cx, cy,average_contour_count,last_two_cx,last_two_cy,missing_ball_count)
             distances = find_distances(cx,cy)               
-            matched_indices = get_contour_matchings(distances,min(len(contours),average_contour_count))
+            matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
             connect_contours_to_histories(matched_indices,cx,cy)
             relative_positions = determine_relative_positions(len(matched_indices))
             for i in range(0,len(matched_indices)):                
@@ -741,13 +738,27 @@ def run_camera():
                 create_audio(path_phase[i],path_type[i],i)
             if use_adjust_song_magnitude:
                 adjust_song_magnitude("y",120,average_position(all_cy, 10, -1),song)
-        all_mask = show_and_record_video(frame,out,start,fps,show_mask,mask,all_mask,original_mask)               
+        all_mask = show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,path_phase)               
         if should_break(start, duration,break_for_no_video):
             break
     end = closing_operations(fps,vs,camera,out,all_mask)
     create_plots(frame_count,start,end)
 create_association_object()
 run_camera()
+
+
+    #NEXT:
+    #work on readme
+    #Make rects indicate peaks
+    #make rotating notes have option to notes occasionally randomly omited
+    #keep putting instructions into the readme, need stuff about REAPER, loopbe, iac or whatever mac uses
+    #chosen from the scale can be a chosen number of random notes
+    #   it cycles through these notes a chosen number of times, and then cycles through another set based on a chosen pattern on repeat,
+    #       for instance, with 4 random notes, [1,1,2] might play: C,D,A,G , C,D,A,G , D,B,C,D , C,D,A,G , C,D,A,G , D,B,C,D
+    #make whatever the chord equavalint of our note/scale setup is
+    #   the pychord library may help
+    #    Pip freeze may help make it easier for others to use
+    #   Look into making an exe from python
 
 #for now we can just ignore the issue of dictionary key for [all]
 
@@ -818,6 +829,11 @@ run_camera()
 #   in this same way you have a scale type(minor,major) and a scale root(or key)
 
 #next steps
+#re-add frame_width/480 stuff
+#make note_offs not be global
+#slowly go over the differences between the last 2 commits and see what breaks things
+#figure out what else is different in the untitled file to the left
+
 #hook up modulation
         #   count number of globs without dialation, maybe there will be enough indication from little contours
         #       in between fingers
@@ -878,4 +894,10 @@ run_camera()
         font, 
         fontScale,
         fontColor,
-        lineType)'''
+        lineType)
+
+
+            this is the stuff for handling a ball eclipsing another and resulting in 1 big contour
+                    #missing_ball_count = average_contour_count - len(cx)
+            #if missing_ball_count > 0:
+            #    cx, cy = split_contours(cx, cy,average_contour_count,last_two_cx,last_two_cy,missing_ball_count)'''
