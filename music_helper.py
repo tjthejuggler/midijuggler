@@ -1,3 +1,4 @@
+import math
 def letter_note_as_number(letter):
     if letter == "C":
         number = 0
@@ -60,13 +61,12 @@ def get_scale_from_root(root, scale_type):
        steps = [0, 1, 3, 5, 7, 8, 10]  
     if scale_type == "TURKISH":
        steps = [0, 1, 3, 5, 7, 10, 11]
-
     scale = []
     for s in steps:
         scale.append(root+s)
     scale.append(root+12)
     return scale  
-def get_notes_in_scale(letter,octave,scale_type):
+def get_notes_in_scale(letter,octave,scale_type,chord_type):
     notes = []
     if octave == 'all':
       root = letter_note_as_number(letter)
@@ -78,4 +78,31 @@ def get_notes_in_scale(letter,octave,scale_type):
         notes.extend(get_scale_from_root(root, scale_type))
     notes = list(set(notes))
     notes = sorted(notes)
-    return notes
+    chords = calculate_chords(notes,scale_type,chord_type)
+    return chords
+def calculate_chords(notes,scale_type,chord_type):
+    chords = []
+    steps = [0]
+    if scale_type == 'MAJOR':
+      steps = [0,4,7,11,15,19,23]
+    if scale_type == "MIXOLYDIAN":
+      steps = [0,4,7,10,14,17,21]  
+    if scale_type == "LYDIAN":
+      steps = [0,4,7,11,14,18,21]  
+    if scale_type == "PHRYGIAN":
+      steps = [0,4,7,10,13,17,20]  
+    if scale_type == 'NATURAL_MINOR':
+      steps = [0,3,7,10,14,17,21]  
+    if scale_type == "HARMONIC_MINOR":   
+      steps = [0,3,7,11,14,17,20]
+    if scale_type == "MELODIC_MINOR": 
+      steps = [0,3,7,11,14,17,21]  
+    if scale_type == "LOCRIAN":
+      steps = [0,3,6,10,13,16,20]        
+    steps_to_use = math.floor(chord_type/2)+1
+    for n in notes:
+      notes_to_append = []
+      for s in steps[0:steps_to_use]:
+        notes_to_append.append(n+s)
+      chords.append(notes_to_append)
+    return chords
