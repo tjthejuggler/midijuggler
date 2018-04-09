@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from settings import *
 show_corrcoef_plot = False
 show_dif_plot = False
 show_com_plot  = False
@@ -33,7 +34,7 @@ def show_subplot(duration_at_end,index_multiplier,lines,subplot_num):
         index = index + 1    
     plt.xticks(tick_index, tick_label, rotation='horizontal')
     plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
-def make_dif_plot(duration_at_end, frames, subplot_num, subplot_num_used, time_between_difs, all_cx):
+def make_dif_plot(duration_at_end, frames, subplot_num, subplot_num_used, time_between_difs):
     lines = []
     number_of_points = duration_at_end/time_between_difs
     print("number_of_points :"+str(number_of_points))
@@ -91,7 +92,7 @@ def make_corrcoef_plot(duration_at_end,fps,all_cx, all_cy, subplot_num,subplot_n
                 corrcoef_list.append(0)
         lines.append(corrcoef_list)
     show_subplot(duration_at_end,fps,lines,subplot_num[subplot_num_used])
-def create_plots(frames,start,end,all_cx, all_cy,frame_height):
+def create_plots(frames,start,end,frame_height):
     tick_label3,tick_index3,tick_label2,tick_index2,tick_label,tick_index = [],[],[],[],[],[]
     duration_at_end = end-start
     fps = frames/duration_at_end
