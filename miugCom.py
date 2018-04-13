@@ -28,15 +28,17 @@ show_time = False
 print_peaks = True
 average_min_height = 30
 peak_count = 0
+max_balls = 3
+can_lift = [True]*20
+can_lift_master = True
 all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[-.25]*20,0
-can_put, notes_in_scale_count = [""]*20,len(get_notes_in_scale("C",[4,7],"NATURAL_MINOR",1))
 midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),0 
 def get_contour_centers(contours, average_contour_count,min_height_window):
     global average_min_height
     cx,cy,moments,min_height,maxM00,maxIndex = [],[],[],100000,0,-1
     for i in range(0,len(contours)):
         contour = contours[i]
-        M = cv2.moments(contour) 
+        M = cv2.moments(contour)
         if M['m00'] > 0:
             cx.append(int(M['m10']/M['m00']))
             cy.append(int(M['m01']/M['m00']))
@@ -53,7 +55,7 @@ def calculate_velocity(last_two_positions):
     return last_two_positions[1] - last_two_positions[0]
 def calculate_acceleration(last_two_velocities):    
     return last_two_velocities[1] - last_two_velocities[0]
-def calculate_kinematics():
+def calculate_kinematics(time_between_frames):
     last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]             
     for i in range(0,len(all_cx)):
         if len(last_two_cx[i]) > 1:
@@ -157,16 +159,25 @@ def throw_detected(index):
         return True
     else:
         return False
-def determine_path_phase(index):
-    if len(all_vy[index]) > 0:
-        if path_phase[index] == 'put':
+def lift_detected(index, frame_count):
+    global can_lift_master
+    if frame_count > 20:
+        if all(j < 0 for j in all_vy[index][-14:-10]) and all(abs(j) < 10 for j in all_vy[index][-9:]) and can_lift_master:
+            can_lift_master = False
+            return True
+        else:
+            return False
+    else:
+        return False
+def determine_path_phase(index, frame_count):#look up webcam side warping
+    if len(all_vy[index]) > 0:#https://github.com/vishnubob/python-midi#Examine_a_MIDI_File to use midi files in python
+        if path_phase[index] == 'lift':
             settings.path_phase[index] = 'up'
         if path_phase[index] == 'peak' and all_vy[index][-1] < 0:
             settings.path_phase[index] = "down"
         if peak_checker(index):
             settings.path_phase[index] = "peak"
-            can_put[index] = True       
-        if path_phase[index] == "catch":        
+        if path_phase[index] == "catch":                
             settings.path_phase[index] = "held"
         if path_phase[index] == "down" and catch_detected(index):
             settings.path_phase[index] = "catch"        
@@ -174,11 +185,23 @@ def determine_path_phase(index):
             settings.path_phase[index] = "up"
         if throw_detected(index):
             settings.path_phase[index] = "throw"
-        if (path_phase[index] == 'up' or path_phase[index] == 'held'):
-            #if all_cy[index][-1] > average_peak_height and can_put[index] and all(abs(x) < 1 for x in all_vx[index][-2:]) and all(abs(y) < 1 for y in all_vy[index][-2:]):
-            if all_cy[index][-1] <100:
-                settings.path_phase[index] = 'put'
-                can_put[index] = False
+        '''print("ds")
+        print(all_cy[index][-1])
+        print(average_peak_height)
+        print(all_vy[index][-1])
+        if len(all_vy[index]) > 1:
+            print(all_vy[index][-2])
+        print(can_lift[index])'''
+        if lift_detected(index, frame_count):
+            settings.path_phase[index] = 'lift'
+            print('lift')
+            send_midi_note_on_only(2,10,100)
+            can_lift[index] = False
+            can_list_master = False
+        if all(j > 3 for j in all_vy[index][-4:]):
+            #print("TRU")
+            can_list_master = False
+            can_lift[index] = False
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if abs(all_vx[index][-1]) > average_min_height/5:
@@ -187,9 +210,9 @@ def determine_path_type(index,position):
         settings.path_type[index] = path_type[index] + ' column'
     #if abs(xv) > average_min_height and abs(yv) < average_min_height:
         #path_type[index] = 'one'
-def analyze_trajectory(index,relative_position):
+def analyze_trajectory(index,relative_position, frame_count):
     if len(all_vx[index]) > 0:
-        determine_path_phase(index)
+        determine_path_phase(index, frame_count)
         determine_path_type(index,relative_position)  
 def should_break(start,break_for_no_video):      
     what_to_return = False
@@ -221,7 +244,7 @@ def run_camera():
     sounds, song = setup_audio()
     start,loop_count,num_high = time.time(),0,0
     at_peak, break_for_no_video = [-.25]*20,False
-    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=120), deque(maxlen=60), None, 0
+    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=60), deque(maxlen=60), None, 0
     while True:
         fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
         if loop_count>1 and frames_are_similar(frame, old_frame):
@@ -230,21 +253,22 @@ def run_camera():
             frame_count = frame_count+1
         old_frame,matched_indices_count = frame,0
         contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
+        time_between_frames = 0#make this be the time betwen now and last frame
         if contours and frame_count > 10:
-            average_contour_count = round(sum(contour_count_window)/len(contour_count_window)) 
+            average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
             cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,average_contour_count,min_height_window)            
-            calculate_kinematics()             
+            calculate_kinematics(time_between_frames)             
             distances = find_distances(cx,cy)               
             matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
             connect_contours_to_histories(matched_indices,cx,cy)
             relative_positions = determine_relative_positions(len(matched_indices))
             for i in range(0,len(matched_indices)):                                
-                analyze_trajectory(i,relative_positions[i])
+                analyze_trajectory(i,relative_positions[i],frame_count)
                 create_audio(i)
-        all_mask = show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,notes_in_scale_count)               
+        all_mask = show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         if should_break(start,break_for_no_video):
             break
     end = closing_operations(fps,vs,camera,out,all_mask)
-    create_plots(frame_count,start,end,frame_height)
+    ##create_plots(frame_count,start,end,frame_height)
 run_camera()
 

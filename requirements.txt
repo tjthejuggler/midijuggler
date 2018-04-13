@@ -1,0 +1,120 @@
+JUGGLING ACTIONS
+================
+
+if you downloaded a midi file and then could import it into python and take individual parts and advance them beat by beat
+
+
+6 path types
+   right cross
+   left cross
+   left column
+   right column
+   non-end column
+   one
+
+all path types have all the path phases, except 'one', it only has its path straight across
+
+phase of path
+   thrown
+   way up
+   peak
+   way down
+   catch
+   all phases
+
+new juggling coordinate to use 
+   average peak height, average hand catch height
+
+relative position of balls to each other (left most, right most)
+odd even one
+synched peaks
+x, y of each ball, average of all balls,
+largest distance between two contours
+   shortest distance between two contours
+   equadistance of all contours
+velocity at throw, maybe an average velocity over course of path
+lift and held(left,right,both)
+   binary on off switch
+changed height by hand
+
+MUSIC---------
+pitch
+magnitude
+tempo
+filters
+mute
+solo
+trigger sample
+start/stop loop
+single note, multiple notes
+notes in a cycle
+   notes in a scale
+       prechosen number of notes from a scale.
+           selecting the scale
+               selecting key of the scale
+       randomized notes in a scale
+       randomized skipped notes in a scale
+   preset notes in a scale, with some notes missing with a randomizer
+preselected chords or chord progressions
+   preselected chords for individual actions
+   cycling through chords in a chord progression
+       cycle by throws
+               detects tempo and then counts measures for which a given chord will be played for any throw
+       cycle by beats
+select instrument for action
+
+transport actions, play, pause,stop,loop
+sound modulation
+note creation
+
+ASSOCIATING ACTIONS WITH MUSIC EVENTS AND PROPERTIES
+===================================================
+Use case 1: Loop Creation/Playback Method 1
+
+		1)preset an instrument order
+		2)begin juggling in a mode where peaks make notes
+		3)start the creation of a loop with an action(a ball held in a certain place), 
+		4)end of the creation of the loop (all balls held)
+		5)begin the playback of the created loop and change the current instrument to the next instrument
+		  in the preset instrument list loop (all balls no longer held)
+		6)go back to (3) as many times as desired
+		&)play another instrument over top of the loops made
+
+Loop creation Method 2
+		1)begin juggling in a mode where peaks make notes
+		2)every time a note is made it gets added to a 
+
+Once a loop has been made, it can be triggered and played with the timing as it was made, or it can be 
+	played a note at a time based on triggers from the path phases
+
+	option to either add a note to current loop or just hear it
+	ability to undo the addition of notes individually
+	ability to move that loop to the background and begin making another loop of a different instrument,
+		and repeat the process as much as desired
+	ability to change the speed of all loops
+
+	there are two different kinds of loops that can be made, 
+		-loops that once made continue to play to their own beat
+		-loops that play the next note acording to the path phase
+
+
+	Shifting positional - What the grid sections do changes over time, either at a contant gradual pace,
+		or on every action(peak). The grid sections are horizontal and/or vertical are used for different instruments, notes, or anything else.
+
+		with shifting positional, juggling in one place sounds like rotational, moving around will play
+			notes that either just happened or are about to happen, but then staying in one place again
+			will start playing that same loop again.
+
+	Completely changed positional - similar to shifting positional in that if you just stand in one place and
+		juggle you will cycle through the loop, but now all grid sections are completely changing so moving
+		around a bit, doesn't play notes that either just were played or are about to be played, they
+		play completely different notes. This means that you could have different loops cycling through
+		based on where you are standing.
+
+	if my average position goes far enough to a side, then it triggers a longer sound that will go over top
+		of the current loop and continue to play until the average position goes far enough to the other side
+
+	different modes/features should be triggered based on predecided times  
+
+
+	one shot - a played note cannot be played again until another note has been played
