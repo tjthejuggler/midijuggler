@@ -33,7 +33,7 @@ can_lift = [True]*20
 can_lift_master = True
 all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[-.25]*20,0
 midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),0 
-def get_contour_centers(contours, average_contour_count,min_height_window):
+def get_contour_centers(contours, min_height_window):
     global average_min_height
     cx,cy,moments,min_height,maxM00,maxIndex = [],[],[],100000,0,-1
     for i in range(0,len(contours)):
@@ -169,7 +169,11 @@ def lift_detected(index, frame_count):
             return False
     else:
         return False
+in_pre_record = True
+left_button_active = True
+right_button_active = True
 def determine_path_phase(index, frame_count):#look up webcam side warping
+    global in_pre_record, right_button_active, left_button_active
     if len(all_vy[index]) > 0:#https://github.com/vishnubob/python-midi#Examine_a_MIDI_File to use midi files in python
         if path_phase[index] == 'lift':
             settings.path_phase[index] = 'up'
@@ -195,13 +199,26 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
         if lift_detected(index, frame_count):
             settings.path_phase[index] = 'lift'
             print('lift')
-            send_midi_note_on_only(2,10,100)
+            #
             can_lift[index] = False
             can_list_master = False
         if all(j > 3 for j in all_vy[index][-4:]):
             #print("TRU")
             can_list_master = False
             can_lift[index] = False
+        if all_cx[index][-1] < 20:
+            if right_button_active:
+                print('rba')
+                send_midi_note_on_only(2,10,100)
+                right_button_active = False
+        if all_cx[index][-1] > 620:
+            if left_button_active:
+                print('lba')
+                send_midi_note_on_only(2,10,100)
+                left_button_active = False
+                settings.in_melody = True
+                create_association_object()
+                
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if abs(all_vx[index][-1]) > average_min_height/5:
@@ -244,7 +261,7 @@ def run_camera():
     sounds, song = setup_audio()
     start,loop_count,num_high = time.time(),0,0
     at_peak, break_for_no_video = [-.25]*20,False
-    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=60), deque(maxlen=60), None, 0
+    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=3), deque(maxlen=60), None, 0
     while True:
         fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
         if loop_count>1 and frames_are_similar(frame, old_frame):
@@ -256,7 +273,7 @@ def run_camera():
         time_between_frames = 0#make this be the time betwen now and last frame
         if contours and frame_count > 10:
             average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
-            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,average_contour_count,min_height_window)            
+            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,min_height_window)            
             calculate_kinematics(time_between_frames)             
             distances = find_distances(cx,cy)               
             matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
@@ -265,6 +282,13 @@ def run_camera():
             for i in range(0,len(matched_indices)):                                
                 analyze_trajectory(i,relative_positions[i],frame_count)
                 create_audio(i)
+                if len(all_cx) > 99:
+                    all_cx[i]=all_cx[i][-50:]
+                    all_cy[i]=all_cy[i][-50:]
+                    all_vx[i]=all_vx[i][-50:]
+                    all_vy[i]=all_vy[i][-50:]
+                    all_ay[i]=all_ay[i][-50:]
+            #print(path_phase)
         all_mask = show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         if should_break(start,break_for_no_video):
             break

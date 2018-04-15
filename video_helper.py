@@ -74,15 +74,15 @@ def get_contours(frame, contour_count_window, fps):
         contour_count_window.append(0)
     return contours, mask, original_mask, contour_count_window
 def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
-    use_path_type_coloring = False
-    use_hybrid_coloring = True
+    use_path_type_coloring = True
+    use_hybrid_coloring = False
     mask_copy=cv2.cvtColor(mask_copy,cv2.COLOR_GRAY2BGR)
     rectangle_width = int(settings.frame_width/max(1,notes_in_scale_count))
     rectangles_with_peaks = []
     rectangles_with_peaks_path_types = []
     color_to_use = (0,0,0)
     for i in range(0,matched_indices_count):
-        if path_phase[i] == 'peak' or path_phase[i] == 'put':
+        if path_phase[i] == 'peak' or path_phase[i] == 'lift':
             rectangles_with_peaks.append(math.floor(all_cx[i][-1]/rectangle_width))
             rectangles_with_peaks_path_types.append(path_type[i])  
     for i in range(0,notes_in_scale_count):
