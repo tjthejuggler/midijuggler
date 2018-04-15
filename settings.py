@@ -6,6 +6,8 @@ slot_system = [0,1,0,1] #single note,5th,5th,single note,5th,5th, = 1 full famil
 family_size = len(slot_system)
 family_count = len(family_identities)
 
+play_chords_as_appegios = True
+
 in_melody = False 
 
 family_notes = []

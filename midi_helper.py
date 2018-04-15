@@ -260,13 +260,22 @@ def get_midi_modulation(index,path_phase,path_type):
                     modulators.append(midi_modulator(index, i[0], i[1], i[2]))
     return modulators
 def send_midi_messages(channel, notes, magnitude, modulators):
+    
     for i in modulators:
         send_midi_cc(i[0],i[1],i[2])
     try:
         send_midi_note(channel,notes,magnitude)
     except TypeError:
-        for n in notes:        
-            send_midi_note(channel,n,magnitude)
+        if play_chords_as_appegios:
+            for n in range(0,len(notes)):
+                if n == 0:
+                    send_midi_note(channel,notes[n],magnitude)
+                else:
+                    play = th.Timer(n*0.05,send_midi_note, args = [channel,notes[n],magnitude])     
+                    play.start()
+        else:
+            for n in notes:
+                send_midi_note(channel,n,magnitude)
 def get_wav_sample(index):
     note = 1
     return note, magnitude
