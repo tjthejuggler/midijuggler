@@ -22,6 +22,7 @@ from music_helper import get_notes_in_scale
 from plot_helper import create_plots
 from midi_helper import *
 from video_helper import *
+import video_helper
 from settings import *
 import settings
 show_time = False
@@ -208,17 +209,14 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
             can_lift[index] = False
         if all_cx[index][-1] < 20:
             if right_button_active:
-                print('rba')
                 send_midi_note_on_only(2,10,100)
                 right_button_active = False
         if all_cx[index][-1] > 620:
             if left_button_active:
-                print('lba')
                 send_midi_note_on_only(2,10,100)
                 left_button_active = False
                 settings.in_melody = True
-                create_association_object()
-                
+                create_association_object()                
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if abs(all_vx[index][-1]) > average_min_height/5:
@@ -230,13 +228,57 @@ def determine_path_type(index,position):
 def analyze_trajectory(index,relative_position, frame_count):
     if len(all_vx[index]) > 0:
         determine_path_phase(index, frame_count)
-        determine_path_type(index,relative_position)  
-def should_break(start,break_for_no_video):      
-    what_to_return = False
-    if time.time() - start > duration or break_for_no_video:
-        what_to_return = True
+        determine_path_type(index,relative_position) 
+def write_colors_to_text_file():
+    text_to_write = ''
+    text_file = open("tracked_colors.txt", "w+")
+    for c in video_helper.colors_to_track:
+        for i in c:
+            text_to_write = text_to_write + str(i) + str(',')
+        text_file.write(text_to_write+'\n')
+        text_to_write = ''
+    text_file.close() 
+def set_color_to_track(frame,index):
+    b,g,r = 0.0, 0.0, 0.0
+    count = 0
+    lowest_x = min(video_helper.color_selecter_pos[0],video_helper.color_selecter_pos[2])
+    highest_x = max(video_helper.color_selecter_pos[0],video_helper.color_selecter_pos[2])
+    lowest_y = min(video_helper.color_selecter_pos[1],video_helper.color_selecter_pos[3])
+    highest_y = max(video_helper.color_selecter_pos[1],video_helper.color_selecter_pos[3])
+    for i in range (lowest_x,highest_x):
+        for k in range (lowest_y,highest_y):
+            pixlb, pixlg, pixlr = frame[k,i]
+            b += pixlb
+            g += pixlg
+            r += pixlr
+            count += 1
+    hsv_color = list(colorsys.rgb_to_hsv(((r/count)/255), ((g/count)/255), ((b/count)/255)))
+    video_helper.colors_to_track[index] = hsv_color
+    print(video_helper.colors_to_track[index][0]*255, video_helper.colors_to_track[index][1]*255, video_helper.colors_to_track[index][2]*255)
+    write_colors_to_text_file()
+    load_colors_to_track_from_txt()
+def check_for_keyboard_input(camera,frame):
     key = cv2.waitKey(1) & 0xFF
-    if key == ord("q"):            
+    q_pressed = False
+    if key == ord('q'):            
+        q_pressed = True
+    if key == ord('a'):
+        cv2.destroyAllWindows()            
+        video_helper.show_mask = not video_helper.show_mask
+        video_helper.show_camera = not video_helper.show_camera
+    if video_helper.show_camera:
+        if key == ord('s'):       
+            camera.set(cv2.CAP_PROP_SETTINGS,0.0) 
+        if key == ord('z'):
+            set_color_to_track(frame,0)
+        if key == ord('x'):
+            set_color_to_track(frame,1)
+        if key == ord('c'):
+            set_color_to_track(frame,2)
+    return q_pressed
+def should_break(start,break_for_no_video,q_pressed):      
+    what_to_return = False
+    if time.time() - start > duration or break_for_no_video or q_pressed:
         what_to_return = True
     return what_to_return
 def closing_operations(fps,vs,camera,out,all_mask):
@@ -253,7 +295,7 @@ def closing_operations(fps,vs,camera,out,all_mask):
     cv2.destroyAllWindows()
     if show_overlay:        
         cv2.imshow('overlay',sum(all_mask))
-    return time.time()   
+    return time.time()
 def run_camera():
     global all_mask,all_vx,all_vy,all_ay
     camera = cv2.VideoCapture(0)
@@ -269,15 +311,35 @@ def run_camera():
         else:
             frame_count = frame_count+1
         old_frame,matched_indices_count = frame,0
+
         contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
         time_between_frames = 0#make this be the time betwen now and last frame
         if contours and frame_count > 10:
-            average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
-            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,min_height_window)            
-            calculate_kinematics(time_between_frames)             
-            distances = find_distances(cx,cy)               
-            matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
-            connect_contours_to_histories(matched_indices,cx,cy)
+            #here we want to split based on whether we are using different colored balls,
+            #   if we are not using different colored balls then it is business as usual,
+            #   but if we are, then we must do some stuff differently
+
+            if settings.using_individual_color_tracking:
+                #for i in colors_to_track:
+
+                continue
+                #next to do:
+
+                #loop through each of our tracking colors,
+                #   in order to do this we need to have variables holding our tracked colors
+                #   and we need a settings.using_individual_color_tracking boolean
+                #   get the largest glob of our color and add its position to that
+                #       balls history, from there we should just be able to join right back
+                #       in with our code.
+                #have tracking colors automatically saved when set and loaded at start
+            else:
+                average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
+                cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,min_height_window)            
+                calculate_kinematics(time_between_frames)             
+                distances = find_distances(cx,cy)               
+                matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
+                connect_contours_to_histories(matched_indices,cx,cy)
+
             relative_positions = determine_relative_positions(len(matched_indices))
             for i in range(0,len(matched_indices)):                                
                 analyze_trajectory(i,relative_positions[i],frame_count)
@@ -290,7 +352,8 @@ def run_camera():
                     all_ay[i]=all_ay[i][-50:]
             #print(path_phase)
         all_mask = show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
-        if should_break(start,break_for_no_video):
+        q_pressed = check_for_keyboard_input(camera,frame)
+        if should_break(start,break_for_no_video,q_pressed):
             break
     end = closing_operations(fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)

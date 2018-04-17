@@ -98,7 +98,7 @@ def get_midi_from_letter(letter, current_octave):
     else:
         return sharp_letters.index(letter)+(current_octave - 4 )*12 + 60
 def create_association_object():
-    print(settings.in_melody)
+    #print(settings.in_melody)
     if settings.in_melody:
         settings.scale_to_use = get_notes_in_scale("F",[3,4],"Major",1)
 
@@ -238,7 +238,7 @@ def get_midi_note(index,path_phase,path_type):
                 channel = midi_associations[this_path_phase][this_path_type]["channel"]           
             if 'notes' in midi_associations[this_path_phase][this_path_type]:
                 all_possible_notes = midi_associations[this_path_phase][this_path_type]['notes']
-                print(all_possible_notes)
+                #print(all_possible_notes)
                 if midi_associations[this_path_phase][this_path_type]["note_selection_mode"] == "rotational":
                         notes = rotational_selecter(index,all_possible_notes)
                 if midi_associations[this_path_phase][this_path_type]["note_selection_mode"] == "positional":
@@ -247,7 +247,7 @@ def get_midi_note(index,path_phase,path_type):
                         notes = hybrid_selecter(index,all_possible_notes)
             if 'magnitude' in midi_associations[this_path_phase][this_path_type]:
                 magnitude = midi_associations[this_path_phase][this_path_type]["magnitude"](index)    
-    print(notes)
+    #print(notes)
     return channel, notes, magnitude
 def get_midi_modulation(index,path_phase,path_type):
     this_path_phase = path_phase[index]
@@ -348,7 +348,7 @@ def create_audio(index):
         adjust_song_magnitude("y",120,average_position(all_cy, 10, -1),song)
     if using_midi:
         if path_phase[index] == 'put':
-            print(settings.scale_to_use)
+            #print(settings.scale_to_use)
             override_notes = positional_selecter(index,settings.scale_to_use)
             use_override_notes = True
         if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:

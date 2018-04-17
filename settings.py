@@ -19,6 +19,8 @@ midi_note_hybrid_current_family = 0
 
 path_type, path_phase = [""]*20,[""]*20
 
+using_individual_color_tracking = False
+
 all_cx, all_cy = [[0]],[[0]]
 
 frame_height, frame_width = 0,0
