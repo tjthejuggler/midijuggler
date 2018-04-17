@@ -148,18 +148,11 @@ def peak_checker(index):
 def catch_detected(index):
     number_of_frames_up = 4 
     vy_window = all_vy[index][-(number_of_frames_up):]
-    if all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0:
-        #print("catch!")
-        return True
-    else:
-        return False
+    return (all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0)
 def throw_detected(index):
     number_of_frames_up = 3
     vy_window = all_vy[index][-(number_of_frames_up):]
-    if all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0:
-        return True
-    else:
-        return False
+    return (all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0)
 def lift_detected(index, frame_count):
     global can_lift_master
     if frame_count > 20:
@@ -252,9 +245,11 @@ def set_color_to_track(frame,index):
             g += pixlg
             r += pixlr
             count += 1
+    count = min(1,count)
     hsv_color = list(colorsys.rgb_to_hsv(((r/count)/255), ((g/count)/255), ((b/count)/255)))
     video_helper.colors_to_track[index] = hsv_color
-    print(video_helper.colors_to_track[index][0]*255, video_helper.colors_to_track[index][1]*255, video_helper.colors_to_track[index][2]*255)
+    video_helper.most_recently_set_color_to_track = index
+    #print(video_helper.colors_to_track[index][0]*255, video_helper.colors_to_track[index][1]*255, video_helper.colors_to_track[index][2]*255)
     write_colors_to_text_file()
     load_colors_to_track_from_txt()
 def check_for_keyboard_input(camera,frame):
@@ -275,6 +270,13 @@ def check_for_keyboard_input(camera,frame):
             set_color_to_track(frame,1)
         if key == ord('c'):
             set_color_to_track(frame,2)
+        if key == ord('n'):
+            print('n pushed')
+            print(most_recently_set_color_to_track)
+            video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] -= (1/255)
+            #print(video_helper.colors_to_track[most_recently_set_color_to_track][0])
+        if key == ord('m'):
+            video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] += (1/255)
     return q_pressed
 def should_break(start,break_for_no_video,q_pressed):      
     what_to_return = False

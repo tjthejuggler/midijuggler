@@ -132,7 +132,7 @@ def create_association_object():
                 last_note_gotten = note_gotten
                 last_chord_with_voicing_gotten = 0
             for d in voicing[i]:
-                chord_with_voicing_gotten = midi_notes[i][math.floor(d/2)]
+                chord_with_voicing_gotten = midi_notes[i][int(math.floor(d/2))]
                 if chord_with_voicing_gotten < last_chord_with_voicing_gotten:
                     chord_with_voicing_gotten = chord_with_voicing_gotten + 12                   
                 midi_notes_with_voicing[i].append(chord_with_voicing_gotten)

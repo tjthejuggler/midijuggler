@@ -20,6 +20,7 @@ mouse_down = False
 current_color_selecter_color = [0,0,0]
 color_selecter_pos = [0,0,0,0]
 colors_to_track = [[100,100,100],[12,13,14],[150,170,190]]
+most_recently_set_color_to_track = 0
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 def setup_record_camera(video_name):        
@@ -45,7 +46,7 @@ def load_colors_to_track_from_txt():
     for i in range(0,len(lines)):
         split_lines = lines[i].split(',') 
         for j in range(0,3):
-            colors_to_track[i][j] = split_lines[j]
+            colors_to_track[i][j] = float(split_lines[j])
 def setup_camera():
     load_colors_to_track_from_txt()
     if using_individual_color_tracking:
@@ -75,53 +76,25 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
         break_for_no_video = True 
     return fps, grabbed, frame, loop_count, break_for_no_video    
 def get_contours(frame, contour_count_window, fps):    
-
-#every once in a while it flashes like it found a contour, but the contour it shows is 
-#   barely there and fragmented
-#we could get the old get_contours and compare things
-#our 'colors_to_track' are coming in as 0-1, 0-1, 0-255,
-#   but with the old setup we were using 0-255 for all 3 numbers
-
     framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     contours_to_return = []
     lower_range = [0]*3
     upper_range = [0]*3
     mask = [frame]*3
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(2,2))
-    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(6,6))
+    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
     for i in range(0,3):
         h = float(colors_to_track[i][0])*255
-        s = float(colors_to_track[i][1])*255
-        v = float(colors_to_track[i][2])*255
-
-        low_h=h-10 #make h ranges bigger
-        low_s=s-50
-
-        low_v=v-50
-
-        high_h=h+10
-        high_s=s+50
-        high_v=v+50
-
-        lower_range = np.array([low_h, max(0,low_s), max(0,low_v)])
-        upper_range = np.array([high_h, min(255,high_s), min(255,high_v)])
-
-        print(lower_range)
-        print(upper_range)
-
-        mask = cv2.inRange(framehsv, lower_range, upper_range)
-
-        
-
-        #mask=cv2.erode(mask, erode_kernel, iterations=3)
-        mask=cv2.dilate(mask, dilate_kernel, iterations=3)
-
-        cv2.imshow('mask'+str(i),mask)
-
-        res=cv2.bitwise_and(frame, frame, mask = mask)
-
-        _, contours, hierarchy = cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
+        low_h=h-20
+        high_h=h+20
+        lower_range = np.array([float(low_h), float(30), float(30)])
+        upper_range = np.array([float(high_h), float(255), float(255)])
+        mask[i] = cv2.inRange(framehsv, lower_range, upper_range)
+        mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
+        mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
+        if show_camera:   
+            cv2.imshow('mask'+str(i),mask[i])
+        _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
             largest_area = 0
             largest_contour_index=0
@@ -130,18 +103,19 @@ def get_contours(frame, contour_count_window, fps):
                 if contour_area>largest_area:
                     largest_area=contour_area
                     largest_contour_index=i
-
             contours_to_return.append(contours[largest_contour_index])
-
+    combined_mask = cv2.add(mask[1],mask[0])
+    combined_mask = cv2.add(combined_mask,mask[2])
     if len(contours_to_return)>0:
+        print(len(contours_to_return))
         contour_count_window.append(len(contours_to_return))   
     else:
         contour_count_window.append(0)
-    return contours_to_return, res, res, contour_count_window
+    return contours_to_return, combined_mask, combined_mask, contour_count_window
 def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     use_path_type_coloring = True
     use_hybrid_coloring = False
-    mask_copy=cv2.cvtColor(mask_copy,cv2.COLOR_HSV2BGR)
+    mask_copy=cv2.cvtColor(mask_copy,cv2.COLOR_GRAY2BGR)
     rectangle_width = int(settings.frame_width/max(1,notes_in_scale_count))
     rectangles_with_peaks = []
     rectangles_with_peaks_path_types = []
