@@ -3,33 +3,59 @@
 Mac installiation (High Sierra):
 
 Install python 3 : 
+
 brew install python3
+
 Create virtual env with python 3:
+
 		virtualenv -p python3.6 juggler-python-3.6-env
+		
      -	Activate the env:
+     
 		source juggler-python-3.6-env/bin/activate
+		
 Install rmidi:
+
 		 pip install python-rtmidi
+		 
      -      Install numpy:
+     
             	easy_install numpy
+		
 Install CV2:
+
 		pip install opencv-python
+		
 Install imutils:
+
 	pip install imutils
+	
 Install pyautogui:
+
 	pip3 install pyobjc
 	pip3 install pillow
 	pip3 install pyobjc-core
 	pip3 install pyautogui
+	
 Install scipy
+
 	pip install scipy
+	
 Install matplolib:
+
 	pip install matplotlib
+	
              Fix: Python is not installed as a framework:
+	     
+	     
 		This solution worked for me. If you already installed matplotlib using pip on your virtual environment, you can just type the following:
+		
 $ cd ~/.matplotlib $ nano matplotlibrc
+
 And then, write backend: TkAgg in there. 
+
 Install pygame:
+
 	pip install pygame
 
 Windows installation should be very similar to the Mac installation.
