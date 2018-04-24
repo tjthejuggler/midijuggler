@@ -7,6 +7,8 @@ from math import hypot
 import time #for sending midi
 import numpy as np #for webcam
 from collections import deque # for tracking balls
+import itertools
+import collections
 import imutils # for tracking balls
 import pyautogui
 from scipy import ndimage
@@ -30,8 +32,10 @@ max_balls = 3
 can_lift = [True]*20
 can_lift_master = True#not sure but this master may not be needed now that we have different 
                     #colored balls
-all_vx,all_vy,all_time_vx,all_time_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0
-midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),0 
+all_vx,all_vy,all_time_vx,all_time_vy,all_ay = [deque(maxlen=30)],[deque(maxlen=30)],[deque(maxlen=30)],[deque(maxlen=30)],[deque(maxlen=30)]
+last_peak_time,peak_count = [-.25]*20,0
+midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),-1 
+average_catch_height = -1
 def get_contour_centers(contours, min_height_window):
     global average_min_height
     cx,cy,moments,min_height,maxM00,maxIndex = [],[],[],100000,0,-1
@@ -108,7 +112,7 @@ def connect_contours_to_histories(matched_indices,cx,cy):
     while len(all_cx) < len(matched_indices):
         settings.all_cx.append([]*len(all_cx[0]))
         settings.all_cy.append([]*len(all_cx[0]))
-        all_vx.append([]*len(all_cx[0]))
+        all_vx.append(deque(maxlen=30)*len(all_cx[0])) 
         all_vy.append([]*len(all_cx[0]))
         all_time_vx.append([]*len(all_cx[0]))
         all_time_vy.append([]*len(all_cx[0]))
@@ -133,7 +137,7 @@ def determine_relative_positions(match_indices_count):
     return relative_positions
 def ball_at_peak(vy_window):
     global peak_count
-    number_of_frames_up = 4 
+    number_of_frames_up = 4
     vy_window = vy_window[-(number_of_frames_up):] 
     if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0 and abs(sum(vy_window[-4:-1])/3)>4:
         peak_count = peak_count+1
@@ -142,28 +146,40 @@ def ball_at_peak(vy_window):
     else:
         return False
 def peak_checker(index):
+    global average_peak_height
     at_peak = False
     min_peak_period = .4
-    if len(all_vy[index]) > 2:
+    current_all_vy = list(all_vy[index])
+    if len(current_all_vy) > 2:
         if time.time()-last_peak_time[index] > min_peak_period:
-            if ball_at_peak(all_vy[index]) and time.time() - last_peak_time[index] > .5:
+            if ball_at_peak(current_all_vy) and time.time() - last_peak_time[index] > .5:
                 last_peak_time[index] = time.time()
-                past_peak_heights.append(all_cy[index][-1])
+                current_all_cy = list(all_cy[index])
+                past_peak_heights.append(current_all_cy[-1])
                 average_peak_height = sum(past_peak_heights)/len(past_peak_heights)
                 at_peak = True
     return at_peak
 def catch_detected(index):
-    number_of_frames_up = 4 
-    vy_window = all_vy[index][-(number_of_frames_up):]
+    number_of_frames_up = 4
+    current_all_vy = list(all_vy[index])
+    vy_window = current_all_vy[-(number_of_frames_up):]
     return (all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0)
 def throw_detected(index):
     number_of_frames_up = 3
-    vy_window = all_vy[index][-(number_of_frames_up):]
-    return (all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0)
+    #print(all_vy[index])
+    current_all_vy = list(all_vy[index])
+    #vy_window = list(collections.deque(itertools.islice(all_vy[index], 30-number_of_frames_up, 30)))
+    vy_window = current_all_vy[-(number_of_frames_up):]
+    print(vy_window)
+    if len(vy_window)>1:
+        return (all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0)
 def lift_detected(index, frame_count):
     global can_lift_master
-    if frame_count > 20:
-        if all(j < 0 for j in all_vy[index][-14:-10]) and all(abs(j) < 10 for j in all_vy[index][-9:]) and can_lift_master:
+    if frame_count > 20:#work on this
+        #if all_cy[index][-1] < average_peak_height
+        current_all_vy = list(all_vy[index])
+        if all(j < 0 for j in current_all_vy[-14:-10]) and all(abs(j) < 10 for j in current_all_vy[-9:]) and can_lift_master:
+            print('lift')
             can_lift_master = False
             return True
         else:
@@ -175,6 +191,7 @@ left_button_active = True
 right_button_active = True
 def determine_path_phase(index, frame_count):#look up webcam side warping
     global in_pre_record, right_button_active, left_button_active
+    print(len(all_vy[index]))
     if len(all_vy[index]) > 0:#https://github.com/vishnubob/python-midi#Examine_a_MIDI_File to use midi files in python
         if path_phase[index] == 'lift':
             settings.path_phase[index] = 'up'
@@ -195,7 +212,8 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
             print('lift')
             can_lift[index] = False
             can_list_master = False
-        if all(j > 3 for j in all_vy[index][-4:]):
+        current_all_vy = list(all_vy[index])
+        if all(j > 3 for j in current_all_vy[-4:]):
             #print("TRU")
             can_list_master = False
             can_lift[index] = False
@@ -339,6 +357,8 @@ def run_camera():
         two_frames_ago = previous_frame
         previous_frame = frame
         q_pressed = check_for_keyboard_input(camera,frame)
+        #print(all_vx)
+        #print(all_vy)
         if should_break(start,break_for_no_video,q_pressed):
             break
     end = closing_operations(average_fps,vs,camera,out,all_mask)

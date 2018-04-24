@@ -369,13 +369,9 @@ def average_position(all_axis, window_length, window_end_frame):
     return average_pos
 last_note_sent = 0
 def send_midi_note_from_soundscape_color(soundscape_color):
-    print(soundscape_color)
     soundscape_color = np.array(soundscape_color).tolist()
-
     average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
-    print(average_soundscape_color)
     send_midi_messages(2,average_soundscape_color,40,[])
-    print('white')
 def create_audio(index,soundscape_image):
     global use_override_notes,override_notes,last_note_sent
     is_ongoing = False
