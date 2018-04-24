@@ -66,8 +66,8 @@ def get_scale_from_root(root, scale_type):
     for s in steps:
         scale.append(root+s)
     scale.append(root+12)
-    print(scale)
-    print(steps)
+    #print(scale)
+    #print(steps)
     return scale  
 def get_notes_in_scale(letter,octave,scale_type,chord_type):
     notes = []
@@ -79,7 +79,7 @@ def get_notes_in_scale(letter,octave,scale_type,chord_type):
       for c in octave:
         root = (c+1)*12+letter_note_as_number(letter)
         notes.extend(get_scale_from_root(root, scale_type))
-    print(get_scale_from_root(root, scale_type))
+    #print(get_scale_from_root(root, scale_type))
     notes = list(set(notes))
     notes = sorted(notes)
     return notes

@@ -7,6 +7,7 @@ from settings import *
 import settings
 from pychord import Chord
 import math
+import numpy as np #for webcam
 pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
@@ -39,7 +40,6 @@ def rotational_selecter(list_of_notes):
         rotating_sound_num = 0
     return list_of_notes[rotating_sound_num]
 def positional_selecter(index, list_of_notes):
-    #print(list_of_notes)
     positional_selecter_is_in_use = True
     rounded_to_list = True
     max_position = settings.frame_width
@@ -52,8 +52,29 @@ def positional_selecter(index, list_of_notes):
         closest_stretched_note = min(stretched_note_positions, key=lambda x:abs(x-all_cx[index][-1]))
         notes_to_return = list_of_notes[stretched_note_positions.index(closest_stretched_note)]
     else:
-        notes_to_return = position_to_midi_value(all_cx[index][-1],max_position,0)       
+        notes_to_return = position_to_midi_value(all_cx[index][-1],max_position,0)
     return notes_to_return
+def honeycomb_selecter(index, list_of_notes):
+    notes_to_return = []
+    honeycomb_diameter = settings.frame_width/settings.number_of_honeycomb_rows
+    number_of_honeycomb_columns = settings.frame_height/honeycomb_diameter+1
+    total_number_of_honeycombs = number_of_honeycomb_rows * number_of_honeycomb_columns
+    ball_x = all_cx[index][-1]
+    ball_y = all_cy[index][-1]
+    closest_x_index,closest_y_index = 0.0,0.0
+    if math.floor((ball_y/honeycomb_diameter+.5)%2)==0:
+        closest_x_index = round(ball_x / honeycomb_diameter)
+        closest_y_index = round(ball_y / honeycomb_diameter)       
+    else:
+        closest_x_index = round((ball_x / honeycomb_diameter-.5)+.5)
+        closest_y_index = round(ball_y / honeycomb_diameter)
+    index_to_use = closest_x_index*closest_y_index
+    if index_to_use != 0:
+        index_to_use = index_to_use%len(list_of_notes)
+    if len(list_of_notes) > 0:
+        return list_of_notes[index_to_use]
+    else:
+        return 0
 def hybrid_selecter(index, list_of_notes):
     global use_override_notes,override_notes
     settings.midi_note_hybrid_current_slot = settings.midi_note_hybrid_current_slot + 1
@@ -90,7 +111,6 @@ def midi_modulator(index, type, channel, controller_num):
         value = position_to_midi_value(all_cy[index][-1],480,0)
     return [channel, controller_num, value]
 def get_midi_from_letter(letter, current_octave):
-
     sharp_letters = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
     flat_letters = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"]
     if "b" in letter:
@@ -98,56 +118,57 @@ def get_midi_from_letter(letter, current_octave):
     else:
         return sharp_letters.index(letter)+(current_octave - 4 )*12 + 60
 def create_association_object():
-    #print(settings.in_melody)
-    if settings.in_melody:
-        settings.scale_to_use = get_notes_in_scale("F",[3,4],"Major",1)
-
-
+    if settings.using_loop:
+        if settings.in_melody:
+            settings.scale_to_use = get_notes_in_scale("F",[3,4],"Major",1)
+        else:
+            midi_notes = []
+            midi_notes_with_voicing = []
+            chords = ["FM9", "Am7","BbM7","A7"]
+            voicing = [[1,5,1,3,7,9],[1,5,1,3,7],[1,5,1,3,7,5],[1,5,1,3,7]]
+            for i in range(0,len(chords)):
+                midi_notes.append([])
+                midi_notes_with_voicing.append([])
+                c = Chord(chords[i])
+                cur_notes = c.components()
+                if "9" in chords[i]:
+                    current_octave = 5
+                else:
+                    current_octave = 4
+                last_note_gotten = 0      
+                for n in cur_notes:
+                    note_gotten = get_midi_from_letter(n,current_octave)
+                    if note_gotten < last_note_gotten:
+                        note_gotten = note_gotten + 12
+                    midi_notes[i].append(note_gotten)
+                    last_note_gotten = note_gotten
+                    last_chord_with_voicing_gotten = 0
+                for d in voicing[i]:
+                    chord_with_voicing_gotten = midi_notes[i][int(math.floor(d/2))]
+                    if chord_with_voicing_gotten < last_chord_with_voicing_gotten:
+                        chord_with_voicing_gotten = chord_with_voicing_gotten + 12                   
+                    midi_notes_with_voicing[i].append(chord_with_voicing_gotten)
+                    last_chord_with_voicing_gotten = chord_with_voicing_gotten
+            settings.scale_to_use = midi_notes_with_voicing
     else:
-
-        midi_notes = []
-        midi_notes_with_voicing = []
-        #put ball in far right to start recording,
-        #record loop
-        #put loop in far right to stop recording and switch to using
-
-        #instead of midi_note_with_voicing
-        chords = ["FM9", "Am7","BbM7","A7"]
-        voicing = [[1,5,1,3,7,9],[1,5,1,3,7],[1,5,1,3,7,5],[1,5,1,3,7]]
-        for i in range(0,len(chords)):
-            midi_notes.append([])
-            midi_notes_with_voicing.append([])
-            c = Chord(chords[i])
-            cur_notes = c.components()
-            if "9" in chords[i]:
-                current_octave = 5
-            else:
-                current_octave = 4
-            last_note_gotten = 0      
-            for n in cur_notes:
-                note_gotten = get_midi_from_letter(n,current_octave)
-                if note_gotten < last_note_gotten:
-                    note_gotten = note_gotten + 12
-                midi_notes[i].append(note_gotten)
-                last_note_gotten = note_gotten
-                last_chord_with_voicing_gotten = 0
-            for d in voicing[i]:
-                chord_with_voicing_gotten = midi_notes[i][int(math.floor(d/2))]
-                if chord_with_voicing_gotten < last_chord_with_voicing_gotten:
-                    chord_with_voicing_gotten = chord_with_voicing_gotten + 12                   
-                midi_notes_with_voicing[i].append(chord_with_voicing_gotten)
-                last_chord_with_voicing_gotten = chord_with_voicing_gotten
-    #move the code above into its own function
-        #print(midi_notes)
-        settings.scale_to_use = midi_notes_with_voicing
-
-
+        settings.scale_to_use = get_notes_in_scale("F",[3,4],"Major",1)
 
     cross_selection_mode = 'positional'
     column_selection_mode = 'positional'
-
+    settings.grid_type_to_show = 'positional'
     cross_notes_to_use = settings.scale_to_use
     column_notes_to_use = settings.scale_to_use
+
+    settings.scale_to_use = get_notes_in_scale("F",[1,2,3,4],"Major",1)
+    #settings.scale_to_use = [50,60,70,80]
+
+
+    '''midi_associations['all phases'] = {}
+    midi_associations['all phases']['all types'] = {}
+    midi_associations['all phases']['all types']["channel"] = 2
+    midi_associations['all phases']['all types']["note_selection_mode"] = 'honeycomb'
+    midi_associations['all phases']['all types']["notes"] = settings.scale_to_use
+    midi_associations['all phases']['all types']["magnitude"] = midi_magnitude  ''' 
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
@@ -156,11 +177,11 @@ def create_association_object():
     midi_associations["peak"]["mid column"]["notes"] = column_notes_to_use
     midi_associations["peak"]["mid column"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
-    '''midi_associations["peak"]["mid column"] = {}
-    midi_associations["peak"]["mid column"]["channel"] = 2
-    midi_associations["peak"]["mid column"]["notes"]["scale_type"] = 
-    midi_associations["peak"]["mid column"]["notes"]["root"] = 
-    midi_associations["peak"]["mid column"]["notes"][""] = chord/scale/individual'''   
+    #midi_associations["peak"]["mid column"] = {}
+    #midi_associations["peak"]["mid column"]["channel"] = 2
+    #midi_associations["peak"]["mid column"]["notes"]["scale_type"] = 
+    #midi_associations["peak"]["mid column"]["notes"]["root"] = 
+    #midi_associations["peak"]["mid column"]["notes"][""] = chord/scale/individual   
     midi_associations["peak"]["left column"] = {}
     midi_associations["peak"]["left column"]["channel"] = 2
     midi_associations["peak"]["left column"]["note_selection_mode"] = column_selection_mode
@@ -193,7 +214,6 @@ def create_association_object():
     #midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
 def setup_midi():
     create_association_object()
-    #midiout = rtmidi.MidiOut()
     available_ports = midiout.get_ports()
     if available_ports:
         midiout.open_port(1)
@@ -232,13 +252,13 @@ def get_midi_note(index,path_phase,path_type):
     magnitude = 0
     this_path_phase = path_phase[index]
     this_path_type = path_type[index]
+    is_ongoing = False
     if this_path_phase in midi_associations:
         if this_path_type in midi_associations[this_path_phase]:
             if 'channel' in midi_associations[this_path_phase][this_path_type]:
                 channel = midi_associations[this_path_phase][this_path_type]["channel"]           
             if 'notes' in midi_associations[this_path_phase][this_path_type]:
                 all_possible_notes = midi_associations[this_path_phase][this_path_type]['notes']
-                #print(all_possible_notes)
                 if midi_associations[this_path_phase][this_path_type]["note_selection_mode"] == "rotational":
                         notes = rotational_selecter(index,all_possible_notes)
                 if midi_associations[this_path_phase][this_path_type]["note_selection_mode"] == "positional":
@@ -247,8 +267,14 @@ def get_midi_note(index,path_phase,path_type):
                         notes = hybrid_selecter(index,all_possible_notes)
             if 'magnitude' in midi_associations[this_path_phase][this_path_type]:
                 magnitude = midi_associations[this_path_phase][this_path_type]["magnitude"](index)    
-    #print(notes)
-    return channel, notes, magnitude
+    if 'all phases' in midi_associations:
+        if midi_associations['all phases']['all types']['note_selection_mode'] == 'honeycomb':
+            is_ongoing = True
+            all_possible_notes = midi_associations['all phases']['all types']['notes']
+            notes = honeycomb_selecter(index,all_possible_notes)
+            magnitude = midi_associations['all phases']['all types']['magnitude'](index)
+            channel = midi_associations['all phases']['all types']['channel']
+    return channel, notes, magnitude, is_ongoing
 def get_midi_modulation(index,path_phase,path_type):
     this_path_phase = path_phase[index]
     this_path_type = path_type[index]
@@ -259,8 +285,7 @@ def get_midi_modulation(index,path_phase,path_type):
                 for i in midi_associations[this_path_phase][this_path_type]['modulator']:
                     modulators.append(midi_modulator(index, i[0], i[1], i[2]))
     return modulators
-def send_midi_messages(channel, notes, magnitude, modulators):
-    
+def send_midi_messages(channel, notes, magnitude, modulators):    
     for i in modulators:
         send_midi_cc(i[0],i[1],i[2])
     try:
@@ -342,19 +367,39 @@ def average_position(all_axis, window_length, window_end_frame):
     if count > 0:
         average_pos = average_pos/count
     return average_pos
-def create_audio(index):
-    global use_override_notes,override_notes
+last_note_sent = 0
+def send_midi_note_from_soundscape_color(soundscape_color):
+    print(soundscape_color)
+    soundscape_color = np.array(soundscape_color).tolist()
+
+    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
+    print(average_soundscape_color)
+    send_midi_messages(2,average_soundscape_color,40,[])
+    print('white')
+def create_audio(index,soundscape_image):
+    global use_override_notes,override_notes,last_note_sent
+    is_ongoing = False
     if use_adjust_song_magnitude:
         adjust_song_magnitude("y",120,average_position(all_cy, 10, -1),song)
     if using_midi:
-        if path_phase[index] == 'put':
-            #print(settings.scale_to_use)
+        if path_phase[index] == 'putt':
             override_notes = positional_selecter(index,settings.scale_to_use)
             use_override_notes = True
-        if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
-                channel, notes, magnitude = get_midi_note(index,path_phase,path_type)         
-                modulators = get_midi_modulation(index,path_phase,path_type)
-                send_midi_messages(channel, notes, magnitude, modulators)
+        if settings.using_soundscape:
+            soundscape_color = soundscape_image[all_cy[index][-1],all_cx[index][-1]]
+            send_midi_note_from_soundscape_color(soundscape_color)
+        else:
+            if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
+                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
+                    modulators = get_midi_modulation(index,path_phase,path_type)
+                    send_midi_messages(channel+index, notes, magnitude, modulators)
+            elif 'all phases' in midi_associations: # i think this should be replaced with
+            #   some kind of function that makes all the associations
+                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
+                    if last_note_sent != notes:
+                        turn_midi_note_off(channel,last_note_sent)
+                        send_midi_note_on_only(channel, notes, magnitude)
+                        last_note_sent = notes        
     else:
         note, magnitude = get_wav_sample(index)
         modulation = get_wav_modulation(index)

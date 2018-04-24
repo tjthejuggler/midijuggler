@@ -1,6 +1,5 @@
 # import the necessary packages
 from __future__ import print_function
-import argparse
 import imutils
 import colorsys
 import math
@@ -13,8 +12,7 @@ import pyautogui
 from scipy import ndimage
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from datetime import datetime
-from datetime import timedelta
+import datetime
 from random import randint
 import random
 import scipy.stats as ss
@@ -28,11 +26,11 @@ import settings
 show_time = False
 print_peaks = True
 average_min_height = 30
-peak_count = 0
 max_balls = 3
 can_lift = [True]*20
-can_lift_master = True
-all_vx,all_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[-.25]*20,0
+can_lift_master = True#not sure but this master may not be needed now that we have different 
+                    #colored balls
+all_vx,all_vy,all_time_vx,all_time_vy,all_ay,last_peak_time,peak_count = [[0]],[[0]],[[0]],[[0]],[[0]],[-.25]*20,0
 midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),0 
 def get_contour_centers(contours, min_height_window):
     global average_min_height
@@ -53,23 +51,29 @@ def get_contour_centers(contours, min_height_window):
     average_min_height = sum(min_height_window)/len(min_height_window)            
     return cx,cy, maxIndex, min_height_window
 def calculate_velocity(last_two_positions):
-    return last_two_positions[1] - last_two_positions[0]
+    return last_two_positions[0] - last_two_positions[1]
+def calculate_time_velocity(velocity,time_since_last_frame):
+    return velocity / time_since_last_frame
 def calculate_acceleration(last_two_velocities):    
     return last_two_velocities[1] - last_two_velocities[0]
-def calculate_kinematics(time_between_frames):
-    last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]             
-    for i in range(0,len(all_cx)):
+def calculate_kinematics(time_since_last_frame):
+    last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]          
+    for i in range(len(all_cx)):
         if len(last_two_cx[i]) > 1:
             all_vx[i].append(calculate_velocity(last_two_cx[i]))
             all_vy[i].append(calculate_velocity(last_two_cy[i]))
-            if len(all_vx[i]) > 2:
+            all_time_vx[i].append(calculate_time_velocity(all_vx[i][-1],time_since_last_frame))
+            all_time_vy[i].append(calculate_time_velocity(all_vy[i][-1],time_since_last_frame))            
+            if len(all_vy[i]) > 2:
                 all_ay[i].append(calculate_acceleration([all_vy[i][-2],all_vy[i][-1]]))
             else:
                 all_ay[i].append(0)
         else:
             all_vx[i].append(0)
             all_vy[i].append(0)
-    return all_vx,all_vy,all_ay
+            all_time_vx[i].append(0)
+            all_time_vy[i].append(0) 
+    #print(str(time_since_last_frame) + '    ' + str(all_time_vx[i][-1]) + '    '+ str(all_vx[i][-1])  )    
 def find_distances(cx,cy):
     distances = []
     for i in range(0,len(all_cx)):
@@ -106,6 +110,8 @@ def connect_contours_to_histories(matched_indices,cx,cy):
         settings.all_cy.append([]*len(all_cx[0]))
         all_vx.append([]*len(all_cx[0]))
         all_vy.append([]*len(all_cx[0]))
+        all_time_vx.append([]*len(all_cx[0]))
+        all_time_vy.append([]*len(all_cx[0]))
         all_ay.append([]*len(all_cx[0]))
     for i in range(0,len(matched_indices)):
         settings.all_cx[i].append(cx[matched_indices[i]])
@@ -128,9 +134,10 @@ def determine_relative_positions(match_indices_count):
 def ball_at_peak(vy_window):
     global peak_count
     number_of_frames_up = 4 
-    vy_window = vy_window[-(number_of_frames_up):]    
+    vy_window = vy_window[-(number_of_frames_up):] 
     if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0 and abs(sum(vy_window[-4:-1])/3)>4:
         peak_count = peak_count+1
+        print('ball at peak')
         return True
     else:
         return False
@@ -183,33 +190,26 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
             settings.path_phase[index] = "up"
         if throw_detected(index):
             settings.path_phase[index] = "throw"
-        '''print("ds")
-        print(all_cy[index][-1])
-        print(average_peak_height)
-        print(all_vy[index][-1])
-        if len(all_vy[index]) > 1:
-            print(all_vy[index][-2])
-        print(can_lift[index])'''
         if lift_detected(index, frame_count):
             settings.path_phase[index] = 'lift'
             print('lift')
-            #
             can_lift[index] = False
             can_list_master = False
         if all(j > 3 for j in all_vy[index][-4:]):
             #print("TRU")
             can_list_master = False
             can_lift[index] = False
-        if all_cx[index][-1] < 20:
-            if right_button_active:
-                send_midi_note_on_only(2,10,100)
-                right_button_active = False
-        if all_cx[index][-1] > 620:
-            if left_button_active:
-                send_midi_note_on_only(2,10,100)
-                left_button_active = False
-                settings.in_melody = True
-                create_association_object()                
+        if settings.using_loop:
+            if all_cx[index][-1] < 20:
+                if right_button_active:
+                    send_midi_note_on_only(2,10,100)
+                    right_button_active = False
+            if all_cx[index][-1] > 620:
+                if left_button_active:
+                    send_midi_note_on_only(2,10,100)
+                    left_button_active = False
+                    settings.in_melody = True
+                    create_association_object()                
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if abs(all_vx[index][-1]) > average_min_height/5:
@@ -221,13 +221,19 @@ def determine_path_type(index,position):
 def analyze_trajectory(index,relative_position, frame_count):
     if len(all_vx[index]) > 0:
         determine_path_phase(index, frame_count)
-        determine_path_type(index,relative_position) 
+        determine_path_type(index,relative_position)
+    if len(all_cx) > 99:
+        all_cx[index]=all_cx[index][-50:]
+        all_cy[index]=all_cy[index][-50:]
+        all_vx[index]=all_vx[index][-50:]
+        all_vy[index]=all_vy[index][-50:]
+        all_ay[index]=all_ay[index][-50:]
 def write_colors_to_text_file():
     text_to_write = ''
     text_file = open("tracked_colors.txt", "w+")
     for c in video_helper.colors_to_track:
         for i in c:
-            text_to_write = text_to_write + str(i) + str(',')
+            text_to_write = ','.join((str(i) for i in c))
         text_file.write(text_to_write+'\n')
         text_to_write = ''
     text_file.close() 
@@ -271,10 +277,7 @@ def check_for_keyboard_input(camera,frame):
         if key == ord('c'):
             set_color_to_track(frame,2)
         if key == ord('n'):
-            print('n pushed')
-            print(most_recently_set_color_to_track)
             video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] -= (1/255)
-            #print(video_helper.colors_to_track[most_recently_set_color_to_track][0])
         if key == ord('m'):
             video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] += (1/255)
     return q_pressed
@@ -283,12 +286,12 @@ def should_break(start,break_for_no_video,q_pressed):
     if time.time() - start > duration or break_for_no_video or q_pressed:
         what_to_return = True
     return what_to_return
-def closing_operations(fps,vs,camera,out,all_mask):
+def closing_operations(average_fps,vs,camera,out,all_mask):
     global midiout
-    print("fps: "+str(fps))
+    print("average fps: "+str(average_fps))
     print("peaks: "+str(peak_count))
     if using_midi:
-        del midiout
+        midiout = None
     if increase_fps:
         vs.stop()
     camera.release()
@@ -301,63 +304,44 @@ def closing_operations(fps,vs,camera,out,all_mask):
 def run_camera():
     global all_mask,all_vx,all_vy,all_ay
     camera = cv2.VideoCapture(0)
+    soundscape_image = cv2.imread('soundscape.png',1)
+
+    ret, previous_frame = camera.read()
+    two_frames_ago = previous_frame
     vs, args, out = setup_camera()
     sounds, song = setup_audio()
-    start,loop_count,num_high = time.time(),0,0
+    start,loop_count,num_high,last_frame_time = time.time(),0,0,1.0
     at_peak, break_for_no_video = [-.25]*20,False
     contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=3), deque(maxlen=60), None, 0
     while True:
-        fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
+        average_fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
         if loop_count>1 and frames_are_similar(frame, old_frame):
             continue
         else:
             frame_count = frame_count+1
+        time_since_last_frame = time.time() - last_frame_time
+        last_frame_time = time.time()  
         old_frame,matched_indices_count = frame,0
-
-        contours, mask, original_mask, contour_count_window = get_contours(frame,contour_count_window,fps)
-        time_between_frames = 0#make this be the time betwen now and last frame
+        contours, mask, original_mask, contour_count_window = get_contours(frame,previous_frame,two_frames_ago,contour_count_window)
         if contours and frame_count > 10:
-            #here we want to split based on whether we are using different colored balls,
-            #   if we are not using different colored balls then it is business as usual,
-            #   but if we are, then we must do some stuff differently
-
-            if settings.using_individual_color_tracking:
-                #for i in colors_to_track:
-
-                continue
-                #next to do:
-
-                #loop through each of our tracking colors,
-                #   in order to do this we need to have variables holding our tracked colors
-                #   and we need a settings.using_individual_color_tracking boolean
-                #   get the largest glob of our color and add its position to that
-                #       balls history, from there we should just be able to join right back
-                #       in with our code.
-                #have tracking colors automatically saved when set and loaded at start
-            else:
-                average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
-                cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,min_height_window)            
-                calculate_kinematics(time_between_frames)             
-                distances = find_distances(cx,cy)               
-                matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
-                connect_contours_to_histories(matched_indices,cx,cy)
-
+            average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
+            cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,min_height_window)            
+            calculate_kinematics(time_since_last_frame)             
+            distances = find_distances(cx,cy)               
+            matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
+            connect_contours_to_histories(matched_indices,cx,cy)
             relative_positions = determine_relative_positions(len(matched_indices))
             for i in range(0,len(matched_indices)):                                
                 analyze_trajectory(i,relative_positions[i],frame_count)
-                create_audio(i)
-                if len(all_cx) > 99:
-                    all_cx[i]=all_cx[i][-50:]
-                    all_cy[i]=all_cy[i][-50:]
-                    all_vx[i]=all_vx[i][-50:]
-                    all_vy[i]=all_vy[i][-50:]
-                    all_ay[i]=all_ay[i][-50:]
-            #print(path_phase)
-        all_mask = show_and_record_video(frame,out,start,fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
+                cv2.imshow('ss',soundscape_image)
+                create_audio(i,soundscape_image)
+        all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
+        two_frames_ago = previous_frame
+        previous_frame = frame
         q_pressed = check_for_keyboard_input(camera,frame)
         if should_break(start,break_for_no_video,q_pressed):
             break
-    end = closing_operations(fps,vs,camera,out,all_mask)
+    end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
 run_camera()
 

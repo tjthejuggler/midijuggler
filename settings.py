@@ -10,12 +10,21 @@ play_chords_as_appegios = True
 
 in_melody = False 
 
+using_loop = False
+
 family_notes = []
+
 for i in range(len(set(family_identities))):
     family_notes.append([])
 
+using_soundscape = False
+
 midi_note_hybrid_current_slot = -1
 midi_note_hybrid_current_family = 0
+
+number_of_honeycomb_rows = 5
+
+grid_type_to_show = ""
 
 path_type, path_phase = [""]*20,[""]*20
 
