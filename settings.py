@@ -1,5 +1,5 @@
 using_midi = True
-duration = 180 #seconds
+duration = 1800 #seconds
 
 family_identities = [0,0,1,2] #alternates back and forth between 2 families
 slot_system = [0,1,0,1] #single note,5th,5th,single note,5th,5th, = 1 full family
@@ -26,7 +26,7 @@ number_of_honeycomb_rows = 5
 
 grid_type_to_show = ""
 
-path_type, path_phase = [""]*20,[""]*20
+path_type, path_phase, in_hand = [""]*20,[""]*20, [False]*20
 
 using_individual_color_tracking = False
 

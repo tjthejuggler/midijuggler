@@ -56,18 +56,23 @@ def get_contour_centers(contours, min_height_window):
     return cx,cy, maxIndex, min_height_window
 def calculate_velocity(last_two_positions):
     return last_two_positions[0] - last_two_positions[1]
-def calculate_time_velocity(velocity,time_since_last_frame):
-    return velocity / time_since_last_frame
+def calculate_time_velocity(velocity,time_since_previous_frame):
+    return velocity / time_since_previous_frame
 def calculate_acceleration(last_two_velocities):    
     return last_two_velocities[1] - last_two_velocities[0]
-def calculate_kinematics(time_since_last_frame):
-    last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]          
+previous_frame_time = 0
+temp_count = 0
+def calculate_kinematics(frame_count):
+    global previous_frame_time,temp_count
+    last_two_cx,last_two_cy = [t[-2:] for t in all_cx],[t[-2:] for t in all_cy]    
+    time_since_previous_frame = time.clock() - previous_frame_time
+    previous_frame_time = time.clock()     
     for i in range(len(all_cx)):
         if len(last_two_cx[i]) > 1:
             all_vx[i].append(calculate_velocity(last_two_cx[i]))
             all_vy[i].append(calculate_velocity(last_two_cy[i]))
-            all_time_vx[i].append(calculate_time_velocity(all_vx[i][-1],time_since_last_frame))
-            all_time_vy[i].append(calculate_time_velocity(all_vy[i][-1],time_since_last_frame))            
+            all_time_vx[i].append(calculate_time_velocity(all_vx[i][-1],time_since_previous_frame))
+            all_time_vy[i].append(calculate_time_velocity(all_vy[i][-1],time_since_previous_frame))            
             if len(all_vy[i]) > 2:
                 all_ay[i].append(calculate_acceleration([all_vy[i][-2],all_vy[i][-1]]))
             else:
@@ -77,7 +82,13 @@ def calculate_kinematics(time_since_last_frame):
             all_vy[i].append(0)
             all_time_vx[i].append(0)
             all_time_vy[i].append(0) 
-    #print(str(time_since_last_frame) + '    ' + str(all_time_vx[i][-1]) + '    '+ str(all_vx[i][-1])  )    
+    if frame_count > 20:
+        all_time_vy_list = list(all_time_vy[0])
+        all_vy_list = list(all_vy[0])
+        all_ay_list = list(all_ay[0])
+        temp_count += 1
+        #print(str(temp_count)+' ' +str(all_cy[0][-1])+' '+str(all_time_vy_list[-1])+' ' +str(time_since_previous_frame)+' '+str(all_vy_list[-1])+' '+str(all_ay_list[-1]))   
+
 def find_distances(cx,cy):
     distances = []
     for i in range(0,len(all_cx)):
@@ -170,7 +181,6 @@ def throw_detected(index):
     current_all_vy = list(all_vy[index])
     #vy_window = list(collections.deque(itertools.islice(all_vy[index], 30-number_of_frames_up, 30)))
     vy_window = current_all_vy[-(number_of_frames_up):]
-    print(vy_window)
     if len(vy_window)>1:
         return (all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0)
 def lift_detected(index, frame_count):
@@ -191,31 +201,70 @@ left_button_active = True
 right_button_active = True
 def determine_path_phase(index, frame_count):#look up webcam side warping
     global in_pre_record, right_button_active, left_button_active
-    print(len(all_vy[index]))
-    if len(all_vy[index]) > 0:#https://github.com/vishnubob/python-midi#Examine_a_MIDI_File to use midi files in python
-        if path_phase[index] == 'lift':
+    #keep an long and short average acceleration, maybe just a long average down acceleration
+#   and a constant short average acceleration. if the short average gets too far away from the
+#   long, then we know we are held
+#instead of an average long, we coud base it off a calibration
+#   IN calibration: number of frames between peaks / 5 = number of frames of acceleration
+#                   to use
+#   get an average in calibration from whatever is on the other 
+
+#if it was unheld and is all of a sudden held, then it is catch
+#2 or 3 frames of 
+
+#push C to go into callibration mode, callibration starts after 5 seconds, a printout says
+#   when it begins and when it completes. the info from callibration gets saved to a txt,
+#   maybe the same txt that is used for the colors.
+
+#when the program runs it gets its callibration info from the text file
+
+    if len(all_ay[index]) > 0:
+        if path_phase[index] == 'throw' and all_vy[index][-1] > 0:
             settings.path_phase[index] = 'up'
-        if path_phase[index] == 'peak' and all_vy[index][-1] < 0:
-            settings.path_phase[index] = "down"
-        if peak_checker(index):
-            settings.path_phase[index] = "peak"
-        if path_phase[index] == "catch":                
-            settings.path_phase[index] = "held"
-        if path_phase[index] == "down" and catch_detected(index):
-            settings.path_phase[index] = "catch"        
-        if path_phase[index] == "throw" and all_vy[index][-1] > 0:
-            settings.path_phase[index] = "up"
+        if path_phase[index] == 'catch':                
+            settings.path_phase[index] = 'held'
+        recent_average_acceleration = sum(list(all_ay[index])[-3:])/3
+        if abs((-5)-recent_average_acceleration) < 4:#this 4 and the -5 are to be set with callibration
+            print('                        NOT IN HAND')
+            if settings.in_hand[index] == True:
+                settings.path_phase[index] = 'throw'
+            else:
+                
+                if list(all_vy[index])[-1] > 0:
+                    settings.path_phase[index] = 'up'
+                    '''if peak_checker(index):
+                        settings.path_phase[index] = 'peak'''
+                else:
+                    if settings.path_phase[index] == 'up':
+                        settings.path_phase[index] = 'peak'
+                    elif settings.path_phase[index] == 'peak':
+                        settings.path_phase[index] = 'down'
+            settings.in_hand[index] = False
+        else:            
+            print('                                             IN HAND')
+            if settings.in_hand[index] == False:
+                settings.path_phase[index] = 'catch' 
+            else:
+                settings.path_phase[index] = 'held'
+            settings.in_hand[index] = True
+    if len(all_vy[index]) > 0:#https://github.com/vishnubob/python-midi#Examine_a_MIDI_File to use midi files in python
+        '''if path_phase[index] == 'lift':
+            settings.path_phase[index] = 'up'
+        if path_phase[index] == 'down' and catch_detected(index):
+            settings.path_phase[index] = 'catch'    
         if throw_detected(index):
-            settings.path_phase[index] = "throw"
+            settings.path_phase[index] = 'throw'''
         if lift_detected(index, frame_count):
+            #lift_detected could probably be switched over to checking to
+            #   see if in_hand[index] is true and over a certain height
             settings.path_phase[index] = 'lift'
             print('lift')
             can_lift[index] = False
-            can_list_master = False
+            can_lift_master = False
         current_all_vy = list(all_vy[index])
         if all(j > 3 for j in current_all_vy[-4:]):
             #print("TRU")
-            can_list_master = False
+            can_lift_master = False
             can_lift[index] = False
         if settings.using_loop:
             if all_cx[index][-1] < 20:
@@ -227,7 +276,9 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
                     send_midi_note_on_only(2,10,100)
                     left_button_active = False
                     settings.in_melody = True
-                    create_association_object()                
+                    create_association_object()              
+    print(list(all_vy[index])[-1])
+    print(path_phase[index]+ '       index: '+str(index))  
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if abs(all_vx[index][-1]) > average_min_height/5:
@@ -269,7 +320,8 @@ def set_color_to_track(frame,index):
             g += pixlg
             r += pixlr
             count += 1
-    count = min(1,count)
+    count = max(1,count)
+    print(count)
     hsv_color = list(colorsys.rgb_to_hsv(((r/count)/255), ((g/count)/255), ((b/count)/255)))
     video_helper.colors_to_track[index] = hsv_color
     video_helper.most_recently_set_color_to_track = index
@@ -323,28 +375,25 @@ def run_camera():
     global all_mask,all_vx,all_vy,all_ay
     camera = cv2.VideoCapture(0)
     soundscape_image = cv2.imread('soundscape.png',1)
-
     ret, previous_frame = camera.read()
     two_frames_ago = previous_frame
     vs, args, out = setup_camera()
     sounds, song = setup_audio()
-    start,loop_count,num_high,last_frame_time = time.time(),0,0,1.0
+    start,loop_count,num_high,previous_frame_time = time.time(),0,0,1.0
     at_peak, break_for_no_video = [-.25]*20,False
-    contour_count_window, min_height_window,old_frame,frame_count = deque(maxlen=3), deque(maxlen=60), None, 0
+    contour_count_window, min_height_window,frame_count = deque(maxlen=3), deque(maxlen=60), 0
     while True:
         average_fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
-        if loop_count>1 and frames_are_similar(frame, old_frame):
+        if loop_count>1 and frames_are_similar(frame, previous_frame):
             continue
         else:
             frame_count = frame_count+1
-        time_since_last_frame = time.time() - last_frame_time
-        last_frame_time = time.time()  
         old_frame,matched_indices_count = frame,0
         contours, mask, original_mask, contour_count_window = get_contours(frame,previous_frame,two_frames_ago,contour_count_window)
         if contours and frame_count > 10:
             average_contour_count = min(max_balls, round(sum(contour_count_window)/len(contour_count_window)))
             cx, cy, max_contour_index, min_height_window = get_contour_centers(contours,min_height_window)            
-            calculate_kinematics(time_since_last_frame)             
+            calculate_kinematics(frame_count)             
             distances = find_distances(cx,cy)               
             matched_indices,matched_indices_count = get_contour_matchings(distances,min(len(contours),average_contour_count))
             connect_contours_to_histories(matched_indices,cx,cy)
@@ -357,8 +406,6 @@ def run_camera():
         two_frames_ago = previous_frame
         previous_frame = frame
         q_pressed = check_for_keyboard_input(camera,frame)
-        #print(all_vx)
-        #print(all_vy)
         if should_break(start,break_for_no_video,q_pressed):
             break
     end = closing_operations(average_fps,vs,camera,out,all_mask)

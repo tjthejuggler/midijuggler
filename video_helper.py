@@ -76,7 +76,21 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
     if args.get("video") and not grabbed:
         break_for_no_video = True 
     return average_fps, grabbed, frame, loop_count, break_for_no_video
-def get_contours(frame, previous_frame,two_frames_ago, contour_count_window):    
+    #these are some attempts at frame differencing to help with the color tracking,
+        #but may not be so useful since frame differencing wouldt tell us about balls
+        #we are holding still
+def diff(img,img1):
+    return cv2.absdiff(img,img1)
+def diff_remove_bg(img,img0,img1):
+    img0 = cv2.cvtColor(img0, cv2.COLOR_BGR2GRAY)
+    img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    d1 = diff(img0,img)
+    d2 = diff(img,img1)
+    return cv2.bitwise_xor(d1,d2)
+average_contour_area_from_last_frame = 0
+def get_contours(frame, previous_frame,two_frames_ago, contour_count_window):
+    global average_contour_area_from_last_frame
     current_framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     contours_to_return = []
     lower_range = [0]*3
@@ -99,12 +113,22 @@ def get_contours(frame, previous_frame,two_frames_ago, contour_count_window):
         if len(contours) > 0:
             largest_area = 0
             largest_contour_index=0
+            sum_of_all_contour_areas = 0
+            total_number_of_contours = 0
             for i in range(0,len(contours)):
                 contour_area = cv2.contourArea(contours[i])
-                if contour_area>largest_area:
+                sum_of_all_contour_areas =+ contour_area
+                total_number_of_contours =+ 1
+                print('cont  '+str(contour_area))
+                if contour_area>largest_area and contour_area > average_contour_area_from_last_frame*0.8:
                     largest_area=contour_area
                     largest_contour_index=i
-            contours_to_return.append(contours[largest_contour_index])
+                    #we dont want contours that are too small to affect the audio
+                    #and
+                    #we only want to show the biggest contour in our masks for each color
+            if largest_area>0:
+                contours_to_return.append(contours[largest_contour_index])
+            average_contour_area_from_last_frame = sum_of_all_contour_areas/total_number_of_contours
     combined_mask = cv2.add(mask[1],mask[0])
     combined_mask = cv2.add(combined_mask,mask[2])
     if len(contours_to_return)>0:
