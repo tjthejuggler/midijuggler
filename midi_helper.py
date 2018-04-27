@@ -12,7 +12,6 @@ pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
 pg.mixer.set_num_channels(19)
-column_sounds = [pg.mixer.Sound("hhat2.wav"), pg.mixer.Sound("snare.wav")]
 play_peak_notes = True
 using_height_as_magnitude = True
 using_midi = True
@@ -50,12 +49,9 @@ def positional_selecter(ball_index, list_of_notes):
         stretched_note_positions.append(int(i*section_size+section_size*.5))
     triggered_section_position = min(stretched_note_positions, key=lambda x:abs(x-all_cx[ball_index][-1]))
     triggered_section_index = stretched_note_positions.index(triggered_section_position)
-    print('triggered_section')
-    midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]+=1
-    cur_arpeggio_index = midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
-    print(cur_arpeggio_index)
-    print(triggered_section_index)
+    midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]+=1    
     if settings.play_chords_as_arpeggio:
+        cur_arpeggio_index = midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
         notes_to_return = list_of_notes[triggered_section_index][cur_arpeggio_index]
     else:
         notes_to_return = list_of_notes[triggered_section_index]
@@ -481,10 +477,6 @@ def turn_midi_note_off(channel,note):
     except:
         pass
 def send_midi_note(channel,note,magnitude):                  
-    print(channel)   
-    print(note)
-    print(magnitude)
-    print('note')        
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
     midiout.send_message(note_on)
     midi_channel_to_off = channel
@@ -541,7 +533,7 @@ def create_audio(index,soundscape_image):
             if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
                     channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
                     modulators = get_midi_modulation(index,path_phase,path_type)
-                    send_midi_messages(channel, notes, magnitude, modulators)
+                    send_midi_messages(channel+index, notes, magnitude, modulators)
             elif 'all phases' in midi_associations: # i think this should be replaced with
             #   some kind of function that makes all the associations
                     channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         

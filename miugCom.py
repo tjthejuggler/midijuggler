@@ -67,11 +67,11 @@ def calculate_kinematics(frame_count):
                 all_vx[i].append(0)
                 all_vy[i].append(0)
         else:
-            all_vx[i].append('X')
-            all_vy[i].append('X')
+            all_vx[i].append(0)
+            all_vy[i].append(0)
             #all_time_vx[i].append('X')
             #all_time_vy[i].append('X')    
-            all_ay[i].append('X')
+            all_ay[i].append(0)
 def determine_relative_positions():
     relative_positions = [[] for _ in range(max_balls)]
     last_cxs = []
@@ -99,33 +99,6 @@ def ball_at_peak(vy_window):
         return True
     else:
         return False
-def peak_checker(index):
-    global average_peak_height
-    at_peak = False
-    min_peak_period = .4
-    current_all_vy = all_vy[index]
-    if len(current_all_vy) > 2:
-        if time.time()-last_peak_time[index] > min_peak_period:
-            if ball_at_peak(current_all_vy) and time.time() - last_peak_time[index] > .5:
-                last_peak_time[index] = time.time()
-                current_all_cy = all_cy[index]
-                past_peak_heights.append(current_all_cy[-1])
-                average_peak_height = sum(past_peak_heights)/len(past_peak_heights)
-                at_peak = True
-    return at_peak
-def catch_detected(index):
-    number_of_frames_up = 4
-    current_all_vy = all_vy[index]
-    vy_window = current_all_vy[-(number_of_frames_up):]
-    return (all(j < 0 for j in vy_window[-4:-1]) and vy_window[-1] >= 0)
-def throw_detected(index):
-    number_of_frames_up = 3
-    #print(all_vy[index])
-    current_all_vy = all_vy[index]
-    #vy_window = collections.deque(itertools.islice(all_vy[index], 30-number_of_frames_up, 30)))
-    vy_window = current_all_vy[-(number_of_frames_up):]
-    if len(vy_window)>1:
-        return (all(j > 0 for j in vy_window[-2:]) and vy_window[0] <= 0)
 def determine_path_phase(index, frame_count):#look up webcam side warping
 #push C to go into callibration mode, callibration starts after 5 seconds, a printout says
 #   when it begins and when it completes. the info from callibration gets saved to a txt,
@@ -139,7 +112,7 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
         if all(isinstance(item, int) for item in all_ay[index][-3:]):
             recent_average_acceleration = sum(all_ay[index][-3:])/3
             if abs((-5)-recent_average_acceleration) < 4:#this 4 and the -5 are to be set with callibration
-                #print('                        NOT IN HAND')
+                #print('                        NOT IN HAND'+str(index))
                 if settings.in_hand[index] == True:
                     settings.path_phase[index] = 'throw'
                 else:                
@@ -148,6 +121,7 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
                     else:
                         if settings.path_phase[index] == 'up':
                             settings.path_phase[index] = 'peak'
+                            #print('PEAK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                         elif settings.path_phase[index] == 'peak':
                             settings.path_phase[index] = 'down'
                 settings.in_hand[index] = False
@@ -163,7 +137,12 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
                 settings.in_hand[index] = True    
         else:
             settings.path_phase[index] = 'none'
-    #print(path_phase[index]+ '       index: '+str(index))  
+    if index == 0:
+        print(str(path_phase[index])+ '       index: '+str(index)) 
+    if index == 1:
+        print('                '+str(path_phase[index])+ '       index: '+str(index))  
+    if index == 2:
+        print('                                  '+str(path_phase[index])+ '       index: '+str(index))  
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if all_vx[index][-1] != 'X':
@@ -280,7 +259,7 @@ def run_camera():
             for i in range(max_balls):
                 if settings.all_cx[i][-1] != 'X':          
                     analyze_trajectory(i,relative_positions[i],frame_count)
-                    cv2.imshow('ss',soundscape_image)
+                    #cv2.imshow('ss',soundscape_image)
                     create_audio(i,soundscape_image)
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame

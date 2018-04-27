@@ -50,8 +50,6 @@ def load_colors_to_track_from_txt():
             colors_to_track[i][j] = float(split_lines[j])
 def setup_camera():
     load_colors_to_track_from_txt()
-    if using_individual_color_tracking:
-        load_colors_to_track_from_txt()
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
@@ -135,7 +133,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
                 contour_area = cv2.contourArea(contours[j])
                 sum_of_all_contour_areas += contour_area
                 total_number_of_contours += 1
-                if contour_area>largest_area and contour_area > average_contour_area_from_last_frame*0.8:
+                if contour_area>largest_area and contour_area > average_contour_area_from_last_frame*0.6:
                     largest_area=contour_area
                     largest_contour_index=j
         if largest_area>0:            
@@ -143,7 +141,6 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
             settings.all_cx[i].append(x)
             settings.all_cy[i].append(y)
             number_of_contours_seen = number_of_contours_seen+1
-
         else:
             #print('i is '+str(i))
             settings.all_cx[i].append('X')

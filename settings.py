@@ -30,8 +30,6 @@ grid_type_to_show = ""
 
 path_type, path_phase, in_hand = [""]*20,[""]*20, [False]*20
 
-using_individual_color_tracking = False
-
 max_balls = 3
 all_cx, all_cy = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)]
 
