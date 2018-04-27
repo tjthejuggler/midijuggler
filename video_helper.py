@@ -89,16 +89,36 @@ def diff_remove_bg(img,img0,img1):
     d2 = diff(img,img1)
     return cv2.bitwise_xor(d1,d2)
 average_contour_area_from_last_frame = 0
-def get_contours(frame, previous_frame,two_frames_ago, contour_count_window):
+def get_contour_center(contour):
+    cx,cy,moments = [],[],[]
+    M = cv2.moments(contour)
+    if M['m00'] > 0:
+        x,y,w,height = cv2.boundingRect(contour)
+    return x,y
+def trim_old_histories():
+    for index in range(settings.max_balls):
+        if len(all_cx) > 59:
+            settings.all_cx[index]=settings.all_cx[index][-30:]
+            settings.all_cy[index]=settings.all_cy[index][-30:]
+            miugCom.all_vx[index]=miugCom.all_vx[index][-30:]
+            miugCom.all_vy[index]=miugCom.all_vy[index][-30:]
+            miugCom.all_ay[index]=miugCom.all_ay[index][-30:]
+            #miugCom.all_time_vx[index]=miugCom.all_time_vx[index][-30:]
+            #miugCom.all_time_vy[index]=miugCom.all_time_vy[index][-30:]
+def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count_window):
     global average_contour_area_from_last_frame
     current_framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    contours_to_return = []
     lower_range = [0]*3
     upper_range = [0]*3
-    mask = [frame]*3
+    mask = [frame]*settings.max_balls
+    number_of_contours_seen = 0
     erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(2,2))
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
-    for i in range(0,3):
+    for i in range(settings.max_balls):
+        largest_area = 0
+        largest_contour_index=0
+        sum_of_all_contour_areas = 0
+        total_number_of_contours = 0
         h = float(colors_to_track[i][0])*255
         low_h=h-15
         high_h=h+15
@@ -111,31 +131,29 @@ def get_contours(frame, previous_frame,two_frames_ago, contour_count_window):
             cv2.imshow('mask'+str(i),mask[i])
         _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
-            largest_area = 0
-            largest_contour_index=0
-            sum_of_all_contour_areas = 0
-            total_number_of_contours = 0
-            for i in range(0,len(contours)):
-                contour_area = cv2.contourArea(contours[i])
-                sum_of_all_contour_areas =+ contour_area
-                total_number_of_contours =+ 1
-                print('cont  '+str(contour_area))
+            for j in range(len(contours)):
+                contour_area = cv2.contourArea(contours[j])
+                sum_of_all_contour_areas += contour_area
+                total_number_of_contours += 1
                 if contour_area>largest_area and contour_area > average_contour_area_from_last_frame*0.8:
                     largest_area=contour_area
-                    largest_contour_index=i
-                    #we dont want contours that are too small to affect the audio
-                    #and
-                    #we only want to show the biggest contour in our masks for each color
-            if largest_area>0:
-                contours_to_return.append(contours[largest_contour_index])
-            average_contour_area_from_last_frame = sum_of_all_contour_areas/total_number_of_contours
+                    largest_contour_index=j
+        if largest_area>0:            
+            x, y = get_contour_center(contours[largest_contour_index])
+            settings.all_cx[i].append(x)
+            settings.all_cy[i].append(y)
+            number_of_contours_seen = number_of_contours_seen+1
+
+        else:
+            #print('i is '+str(i))
+            settings.all_cx[i].append('X')
+            settings.all_cy[i].append('X')
+    if total_number_of_contours > 0:
+        average_contour_area_from_last_frame = sum_of_all_contour_areas/total_number_of_contours
     combined_mask = cv2.add(mask[1],mask[0])
     combined_mask = cv2.add(combined_mask,mask[2])
-    if len(contours_to_return)>0:
-        contour_count_window.append(len(contours_to_return))   
-    else:
-        contour_count_window.append(0)    
-    return contours_to_return, combined_mask, combined_mask, contour_count_window
+    trim_old_histories()
+    return number_of_contours_seen, combined_mask, combined_mask, contour_count_window
 def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     if settings.grid_type_to_show == 'positional':
         use_path_type_coloring = True

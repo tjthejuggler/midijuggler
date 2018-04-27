@@ -39,20 +39,26 @@ def rotational_selecter(list_of_notes):
     if rotating_sound_num >= len(list_of_notes):
         rotating_sound_num = 0
     return list_of_notes[rotating_sound_num]
-def positional_selecter(index, list_of_notes):
+def positional_selecter(ball_index, list_of_notes):
     positional_selecter_is_in_use = True
     rounded_to_list = True
     max_position = settings.frame_width
     notes_to_return = []
-    if rounded_to_list:
-        stretched_note_positions = []
-        section_size = max_position/len(list_of_notes)
-        for i in range(0,len(list_of_notes)):
-            stretched_note_positions.append(int(i*section_size+section_size*.5))
-        closest_stretched_note = min(stretched_note_positions, key=lambda x:abs(x-all_cx[index][-1]))
-        notes_to_return = list_of_notes[stretched_note_positions.index(closest_stretched_note)]
+    stretched_note_positions = []
+    section_size = max_position/len(list_of_notes)
+    for i in range(0,len(list_of_notes)):
+        stretched_note_positions.append(int(i*section_size+section_size*.5))
+    triggered_section_position = min(stretched_note_positions, key=lambda x:abs(x-all_cx[ball_index][-1]))
+    triggered_section_index = stretched_note_positions.index(triggered_section_position)
+    print('triggered_section')
+    midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]+=1
+    cur_arpeggio_index = midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
+    print(cur_arpeggio_index)
+    print(triggered_section_index)
+    if settings.play_chords_as_arpeggio:
+        notes_to_return = list_of_notes[triggered_section_index][cur_arpeggio_index]
     else:
-        notes_to_return = position_to_midi_value(all_cx[index][-1],max_position,0)
+        notes_to_return = list_of_notes[triggered_section_index]
     return notes_to_return
 def honeycomb_selecter(index, list_of_notes):
     notes_to_return = []
@@ -117,6 +123,17 @@ def get_midi_from_letter(letter, current_octave):
         return flat_letters.index(letter)+(current_octave - 4 )*12 + 60
     else:
         return sharp_letters.index(letter)+(current_octave - 4 )*12 + 60
+loop_creator_counter = 0
+def loop_creator(note):
+    global loop_creator_counter
+    if loop_creator_counter == 0:
+        send_midi_note_on_only(2,note,100)
+    if loop_creator_counter == 1:
+        send_midi_note_on_only(2,note,100)
+        settings.in_melody = True
+        create_association_object()
+    loop_creator_counter =+ 1
+    return note 
 def create_association_object():
     if settings.using_loop:
         if settings.in_melody:
@@ -135,20 +152,20 @@ def create_association_object():
                     current_octave = 5
                 else:
                     current_octave = 4
-                last_note_gotten = 0      
+                last_note = 0      
                 for n in cur_notes:
-                    note_gotten = get_midi_from_letter(n,current_octave)
-                    if note_gotten < last_note_gotten:
-                        note_gotten = note_gotten + 12
-                    midi_notes[i].append(note_gotten)
-                    last_note_gotten = note_gotten
-                    last_chord_with_voicing_gotten = 0
+                    note = get_midi_from_letter(n,current_octave)
+                    if note < last_note:
+                        note = note + 12
+                    midi_notes[i].append(note)
+                    last_note = note
+                    last_chord_with_voicing = 0
                 for d in voicing[i]:
-                    chord_with_voicing_gotten = midi_notes[i][int(math.floor(d/2))]
-                    if chord_with_voicing_gotten < last_chord_with_voicing_gotten:
-                        chord_with_voicing_gotten = chord_with_voicing_gotten + 12                   
-                    midi_notes_with_voicing[i].append(chord_with_voicing_gotten)
-                    last_chord_with_voicing_gotten = chord_with_voicing_gotten
+                    chord_with_voicing = midi_notes[i][int(math.floor(d/2))]
+                    if chord_with_voicing < last_chord_with_voicing:
+                        chord_with_voicing = chord_with_voicing + 12                   
+                    midi_notes_with_voicing[i].append(chord_with_voicing)
+                    last_chord_with_voicing = chord_with_voicing
             settings.scale_to_use = midi_notes_with_voicing
     else:
         settings.scale_to_use = get_notes_in_scale("F",[3,4],"Major",1)
@@ -159,7 +176,7 @@ def create_association_object():
     cross_notes_to_use = settings.scale_to_use
     column_notes_to_use = settings.scale_to_use
 
-    settings.scale_to_use = get_notes_in_scale("F",[1,2,3,4],"Major",1)
+    #settings.scale_to_use = get_notes_in_scale("F",[1,2,3,4],"Major",1)
     #settings.scale_to_use = [50,60,70,80]
 
 
@@ -170,7 +187,7 @@ def create_association_object():
     midi_associations['all phases']['all types']["notes"] = settings.scale_to_use
     midi_associations['all phases']['all types']["magnitude"] = midi_magnitude  ''' 
 
-    midi_associations["throw"] = {}
+    '''midi_associations["throw"] = {}
     midi_associations["throw"]["mid column"] = {}
     midi_associations["throw"]["mid column"]["channel"] = 2
     midi_associations["throw"]["mid column"]["note_selection_mode"] = column_selection_mode
@@ -211,13 +228,14 @@ def create_association_object():
     midi_associations["throw"]["right cross"]["note_selection_mode"] = cross_selection_mode
     midi_associations["throw"]["right cross"]["notes"] = cross_notes_to_use
     midi_associations["throw"]["right cross"]["magnitude"] = midi_magnitude
-    #midi_associations["throw"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    #midi_associations["throw"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]'''
 
 
     midi_associations["peak"] = {}
     midi_associations["peak"]["mid column"] = {}
-    midi_associations["peak"]["mid column"]["channel"] = 1
+    midi_associations["peak"]["mid column"]["channel"] = 0
     midi_associations["peak"]["mid column"]["note_selection_mode"] = column_selection_mode
+    midi_associations["peak"]["mid column"]["times_position_triggered"] = [-1]*len(settings.scale_to_use)
     midi_associations["peak"]["mid column"]["notes"] = column_notes_to_use
     midi_associations["peak"]["mid column"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
@@ -227,80 +245,130 @@ def create_association_object():
     #midi_associations["peak"]["mid column"]["notes"]["root"] = 
     #midi_associations["peak"]["mid column"]["notes"][""] = chord/scale/individual   
     midi_associations["peak"]["left column"] = {}
-    midi_associations["peak"]["left column"]["channel"] = 1
+    midi_associations["peak"]["left column"]["channel"] = 0
     midi_associations["peak"]["left column"]["note_selection_mode"] = column_selection_mode
+    midi_associations["peak"]["mid column"]["times_position_triggered"] = [-1]*len(settings.scale_to_use)
     midi_associations["peak"]["left column"]["notes"] = column_notes_to_use
     midi_associations["peak"]["left column"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
     midi_associations["peak"]["right column"] = {}
-    midi_associations["peak"]["right column"]["channel"] = 1
+    midi_associations["peak"]["right column"]["channel"] = 0
     midi_associations["peak"]["right column"]["note_selection_mode"] = column_selection_mode
+    midi_associations["peak"]["mid column"]["times_position_triggered"] = [-1]*len(settings.scale_to_use)
     midi_associations["peak"]["right column"]["notes"] = column_notes_to_use
     midi_associations["peak"]["right column"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]    
     midi_associations["peak"]["mid cross"] = {}
-    midi_associations["peak"]["mid cross"]["channel"] = 1
+    midi_associations["peak"]["mid cross"]["channel"] = 0
     midi_associations["peak"]["mid cross"]["note_selection_mode"] = cross_selection_mode
+    midi_associations["peak"]["mid column"]["times_position_triggered"] = [-1]*len(settings.scale_to_use)
     midi_associations["peak"]["mid cross"]["notes"] = cross_notes_to_use
     midi_associations["peak"]["mid cross"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
     midi_associations["peak"]["left cross"] = {}
-    midi_associations["peak"]["left cross"]["channel"] = 1
+    midi_associations["peak"]["left cross"]["channel"] = 0
     midi_associations["peak"]["left cross"]["note_selection_mode"] = cross_selection_mode
+    midi_associations["peak"]["mid column"]["times_position_triggered"] = [-1]*len(settings.scale_to_use)
     midi_associations["peak"]["left cross"]["notes"] = cross_notes_to_use
     midi_associations["peak"]["left cross"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
     midi_associations["peak"]["right cross"] = {}
-    midi_associations["peak"]["right cross"]["channel"] = 1
+    midi_associations["peak"]["right cross"]["channel"] = 0
     midi_associations["peak"]["right cross"]["note_selection_mode"] = cross_selection_mode
+    midi_associations["peak"]["mid column"]["times_position_triggered"] = [-1]*len(settings.scale_to_use)
     midi_associations["peak"]["right cross"]["notes"] = cross_notes_to_use
     midi_associations["peak"]["right cross"]["magnitude"] = midi_magnitude
     #midi_associations["peak"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
 
 
 
-    midi_associations["catch"] = {}
-    midi_associations["catch"]["mid column"] = {}
-    midi_associations["catch"]["mid column"]["channel"] = 0
-    midi_associations["catch"]["mid column"]["note_selection_mode"] = column_selection_mode
-    midi_associations["catch"]["mid column"]["notes"] = column_notes_to_use
-    midi_associations["catch"]["mid column"]["magnitude"] = midi_magnitude
-    #midi_associations["catch"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
-    #midi_associations["catch"]["mid column"] = {}
-    #midi_associations["catch"]["mid column"]["channel"] = 0
-    #midi_associations["catch"]["mid column"]["notes"]["scale_type"] = 
-    #midi_associations["catch"]["mid column"]["notes"]["root"] = 
-    #midi_associations["catch"]["mid column"]["notes"][""] = chord/scale/individual   
-    midi_associations["catch"]["left column"] = {}
-    midi_associations["catch"]["left column"]["channel"] = 0
-    midi_associations["catch"]["left column"]["note_selection_mode"] = column_selection_mode
-    midi_associations["catch"]["left column"]["notes"] = column_notes_to_use
-    midi_associations["catch"]["left column"]["magnitude"] = midi_magnitude
-    #midi_associations["catch"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
-    midi_associations["catch"]["right column"] = {}
-    midi_associations["catch"]["right column"]["channel"] = 0
-    midi_associations["catch"]["right column"]["note_selection_mode"] = column_selection_mode
-    midi_associations["catch"]["right column"]["notes"] = column_notes_to_use
-    midi_associations["catch"]["right column"]["magnitude"] = midi_magnitude
-    #midi_associations["catch"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]    
-    midi_associations["catch"]["mid cross"] = {}
-    midi_associations["catch"]["mid cross"]["channel"] = 0
-    midi_associations["catch"]["mid cross"]["note_selection_mode"] = cross_selection_mode
-    midi_associations["catch"]["mid cross"]["notes"] = cross_notes_to_use
-    midi_associations["catch"]["mid cross"]["magnitude"] = midi_magnitude
-    #midi_associations["catch"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
-    midi_associations["catch"]["left cross"] = {}
-    midi_associations["catch"]["left cross"]["channel"] = 0
-    midi_associations["catch"]["left cross"]["note_selection_mode"] = cross_selection_mode
-    midi_associations["catch"]["left cross"]["notes"] = cross_notes_to_use
-    midi_associations["catch"]["left cross"]["magnitude"] = midi_magnitude
-    #midi_associations["catch"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
-    midi_associations["catch"]["right cross"] = {}
-    midi_associations["catch"]["right cross"]["channel"] = 0
-    midi_associations["catch"]["right cross"]["note_selection_mode"] = cross_selection_mode
-    midi_associations["catch"]["right cross"]["notes"] = cross_notes_to_use
-    midi_associations["catch"]["right cross"]["magnitude"] = midi_magnitude
-    #midi_associations["catch"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+    midi_associations["chop"] = {}
+    midi_associations["chop"]["mid column"] = {}
+    midi_associations["chop"]["mid column"]["channel"] = 0
+    midi_associations["chop"]["mid column"]["note_selection_mode"] = column_selection_mode
+    midi_associations["chop"]["mid column"]["notes"] = column_notes_to_use
+    midi_associations["chop"]["mid column"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    #midi_associations["chop"]["mid column"] = {}
+    #midi_associations["chop"]["mid column"]["channel"] = 0
+    #midi_associations["chop"]["mid column"]["notes"]["scale_type"] = 
+    #midi_associations["chop"]["mid column"]["notes"]["root"] = 
+    #midi_associations["chop"]["mid column"]["notes"][""] = chord/scale/individual   
+    midi_associations["chop"]["left column"] = {}
+    midi_associations["chop"]["left column"]["channel"] = 0
+    midi_associations["chop"]["left column"]["note_selection_mode"] = column_selection_mode
+    midi_associations["chop"]["left column"]["notes"] = column_notes_to_use
+    midi_associations["chop"]["left column"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["right column"] = {}
+    midi_associations["chop"]["right column"]["channel"] = 0
+    midi_associations["chop"]["right column"]["note_selection_mode"] = column_selection_mode
+    midi_associations["chop"]["right column"]["notes"] = column_notes_to_use
+    midi_associations["chop"]["right column"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["mid cross"] = {}
+    midi_associations["chop"]["mid cross"]["channel"] = 0
+    midi_associations["chop"]["mid cross"]["note_selection_mode"] = cross_selection_mode
+    midi_associations["chop"]["mid cross"]["notes"] = cross_notes_to_use
+    midi_associations["chop"]["mid cross"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["left cross"] = {}
+    midi_associations["chop"]["left cross"]["channel"] = 0
+    midi_associations["chop"]["left cross"]["note_selection_mode"] = cross_selection_mode
+    midi_associations["chop"]["left cross"]["notes"] = cross_notes_to_use
+    midi_associations["chop"]["left cross"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["right cross"] = {}
+    midi_associations["chop"]["right cross"]["channel"] = 0
+    midi_associations["chop"]["right cross"]["note_selection_mode"] = cross_selection_mode
+    midi_associations["chop"]["right cross"]["notes"] = cross_notes_to_use
+    midi_associations["chop"]["right cross"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]
+
+
+    '''midi_associations["chop"] = {}
+    midi_associations["chop"]["mid column"] = {}
+    midi_associations["chop"]["mid column"]["channel"] = 0
+    midi_associations["chop"]["mid column"]["note_selection_mode"] = loop_creator
+    midi_associations["chop"]["mid column"]["notes"] = [10]
+    midi_associations["chop"]["mid column"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    #midi_associations["chop"]["mid column"] = {}
+    #midi_associations["chop"]["mid column"]["channel"] = 0
+    #midi_associations["chop"]["mid column"]["notes"]["scale_type"] = 
+    #midi_associations["chop"]["mid column"]["notes"]["root"] = 
+    #midi_associations["chop"]["mid column"]["notes"][""] = chord/scale/individual   
+    midi_associations["chop"]["left column"] = {}
+    midi_associations["chop"]["left column"]["channel"] = 0
+    midi_associations["chop"]["left column"]["note_selection_mode"] = loop_creator
+    midi_associations["chop"]["left column"]["notes"] = [10]
+    midi_associations["chop"]["left column"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["left column"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["right column"] = {}
+    midi_associations["chop"]["right column"]["channel"] = 0
+    midi_associations["chop"]["right column"]["note_selection_mode"] = loop_creator
+    midi_associations["chop"]["right column"]["notes"] = [10]
+    midi_associations["chop"]["right column"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["right column"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["mid cross"] = {}
+    midi_associations["chop"]["mid cross"]["channel"] = 0
+    midi_associations["chop"]["mid cross"]["note_selection_mode"] = loop_creator
+    midi_associations["chop"]["mid cross"]["notes"] = [10]
+    midi_associations["chop"]["mid cross"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["mid cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["left cross"] = {}
+    midi_associations["chop"]["left cross"]["channel"] = 0
+    midi_associations["chop"]["left cross"]["note_selection_mode"] = loop_creator
+    midi_associations["chop"]["left cross"]["notes"] = [10]
+    midi_associations["chop"]["left cross"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["left cross"]["modulator"] = [["width",0,0], ["height",0,1]]    
+    midi_associations["chop"]["right cross"] = {}
+    midi_associations["chop"]["right cross"]["channel"] = 2
+    midi_associations["chop"]["right cross"]["note_selection_mode"] = loop_creator
+    midi_associations["chop"]["right cross"]["notes"] = [10]
+    midi_associations["chop"]["right cross"]["magnitude"] = midi_magnitude
+    #midi_associations["chop"]["right cross"]["modulator"] = [["width",0,0], ["height",0,1]]'''
+
 def setup_midi():
     create_association_object()
     available_ports = midiout.get_ports()
@@ -374,22 +442,14 @@ def get_midi_modulation(index,path_phase,path_type):
                 for i in midi_associations[this_path_phase][this_path_type]['modulator']:
                     modulators.append(midi_modulator(index, i[0], i[1], i[2]))
     return modulators
-def send_midi_messages(channel, notes, magnitude, modulators):    
+def send_midi_messages(channel, notes, magnitude, modulators): 
     for i in modulators:
         send_midi_cc(i[0],i[1],i[2])
     try:
         send_midi_note(channel,notes,magnitude)
     except TypeError:
-        if play_chords_as_appegios:
-            for n in range(0,len(notes)):
-                if n == 0:
-                    send_midi_note(channel,notes[n],magnitude)
-                else:
-                    play = th.Timer(n*0.05,send_midi_note, args = [channel,notes[n],magnitude])     
-                    play.start()
-        else:
-            for n in notes:
-                send_midi_note(channel,n,magnitude)
+        for n in notes:
+            send_midi_note(channel,n,magnitude)
 def get_wav_sample(index):
     note = 1
     return note, magnitude
@@ -420,7 +480,11 @@ def turn_midi_note_off(channel,note):
         midiout.send_message(note_off)
     except:
         pass
-def send_midi_note(channel,note,magnitude):                          
+def send_midi_note(channel,note,magnitude):                  
+    print(channel)   
+    print(note)
+    print(magnitude)
+    print('note')        
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
     midiout.send_message(note_on)
     midi_channel_to_off = channel
@@ -477,7 +541,7 @@ def create_audio(index,soundscape_image):
             if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
                     channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
                     modulators = get_midi_modulation(index,path_phase,path_type)
-                    send_midi_messages(channel+index, notes, magnitude, modulators)
+                    send_midi_messages(channel, notes, magnitude, modulators)
             elif 'all phases' in midi_associations: # i think this should be replaced with
             #   some kind of function that makes all the associations
                     channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
