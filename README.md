@@ -54,3 +54,14 @@ You're done!
 PS: Sometimes LoopBe1 might mute itself (e.g. when a feedback loop occurs). 
 This happens in rare cases. If no MIDI data is coming through, you should right-click 
 the LoopBe tray icon and see whether it is muted.
+
+Instructions for using individual color calibration:
+1)Run Miug.py
+2)Press 'A'
+3)Press 'S' to open your camera settings
+4)Find the exposure setting and change it so that the color of the balls is easily seen and not too bright
+5)Close the camera settings
+6)In the camera window named 'frame_copy', click and drag a square inside the ball you want to set the color of, then press 'Z', 'X', or 'C' to put it one of the 3 color slots
+7)Press 'N' and 'M' to move the range of color to be tracked around until it shows up in one of the 3 mask windows. Make sure that the ball is the only thing showing up in the mask.
+8)Repeat steps 6 and 7 using the other color slots for other colored balls.
+9)Press 'A' to return to the main miug window.
