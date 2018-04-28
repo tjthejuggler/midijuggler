@@ -201,11 +201,11 @@ def check_for_keyboard_input(camera,frame):
     if video_helper.show_camera:
         if key == ord('s'):       
             camera.set(cv2.CAP_PROP_SETTINGS,0.0) 
-        if key == ord('z'):
+        if key == ord('1'):
             set_color_to_track(frame,0)
-        if key == ord('x'):
+        if key == ord('2'):
             set_color_to_track(frame,1)
-        if key == ord('c'):
+        if key == ord('3'):
             set_color_to_track(frame,2)
         if key == ord('n'):
             video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] -= (1/255)

@@ -61,7 +61,7 @@ Instructions for using individual color calibration:
 3)Press 'S' to open your camera settings
 4)Find the exposure setting and change it so that the color of the balls is easily seen and not too bright
 5)Close the camera settings
-6)In the camera window named 'frame_copy', click and drag a square inside the ball you want to set the color of, then press 'Z', 'X', or 'C' to put it one of the 3 color slots
+6)In the camera window named 'frame_copy', click and drag a square inside the ball you want to set the color of, then press '1', '2', or '3' to put it one of the 3 color slots
 7)Press 'N' and 'M' to move the range of color to be tracked around until it shows up in one of the 3 mask windows. Make sure that the ball is the only thing showing up in the mask.
 8)Repeat steps 6 and 7 using the other color slots for other colored balls.
 9)Press 'A' to return to the main miug window.

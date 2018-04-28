@@ -126,7 +126,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
         if show_camera:   
-            cv2.imshow('mask'+str(i),mask[i])
+            cv2.imshow('individual color #'+str(i+1),mask[i])
         _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
             for j in range(len(contours)):
@@ -142,7 +142,6 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
             settings.all_cy[i].append(y)
             number_of_contours_seen = number_of_contours_seen+1
         else:
-            #print('i is '+str(i))
             settings.all_cx[i].append('X')
             settings.all_cy[i].append('X')
     if total_number_of_contours > 0:
@@ -238,14 +237,14 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         record_frame(frame, out, start, average_fps)
     if show_camera:
         frame_copy = show_color_selecter(frame)
-        cv2.imshow('frame_copy', frame_copy)
-        cv2.setMouseCallback('frame_copy', on_mouse_click, frame_copy)
+        cv2.imshow('individual color calibration', frame_copy)
+        cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
     if show_mask:
         if show_scale_grid:# and midi_note_based_on_position_is_in_use:
             mask_copy = mask
             mask_copy = create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
             mask_copy = cv2.flip(mask_copy,1)
-            cv2.imshow('mask_copy',mask_copy)
+            cv2.imshow('miug',mask_copy)
         else:
             cv2.imshow('mask',mask)
     if show_overlay: 

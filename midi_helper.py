@@ -45,11 +45,14 @@ def positional_selecter(ball_index, list_of_notes):
     notes_to_return = []
     stretched_note_positions = []
     section_size = max_position/len(list_of_notes)
-    for i in range(0,len(list_of_notes)):
+    for i in range(len(list_of_notes)):
         stretched_note_positions.append(int(i*section_size+section_size*.5))
     triggered_section_position = min(stretched_note_positions, key=lambda x:abs(x-all_cx[ball_index][-1]))
     triggered_section_index = stretched_note_positions.index(triggered_section_position)
-    midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]+=1    
+    midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]+=1
+    for i in range(4):
+        if i != triggered_section_index:
+            midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]=0
     if settings.play_chords_as_arpeggio:
         cur_arpeggio_index = midi_associations["peak"]["mid column"]["times_position_triggered"][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
         notes_to_return = list_of_notes[triggered_section_index][cur_arpeggio_index]
@@ -145,9 +148,9 @@ def create_association_object():
                 c = Chord(chords[i])
                 cur_notes = c.components()
                 if "9" in chords[i]:
-                    current_octave = 5
-                else:
                     current_octave = 4
+                else:
+                    current_octave = 3
                 last_note = 0      
                 for n in cur_notes:
                     note = get_midi_from_letter(n,current_octave)
