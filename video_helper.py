@@ -13,7 +13,7 @@ show_camera = False
 record_video = False
 show_mask = True
 show_overlay = False
-video_name = "3Bshower.avi"
+video_name = '3Bshower.avi'
 increase_fps = True
 rotating_sound_num,all_mask = 0,[]
 mouse_down = False
@@ -32,16 +32,16 @@ def do_arguments_stuff():
     if PY3:#find out if this stuff is needed or not
         xrange = range'''
     ap = argparse.ArgumentParser()
-    ap.add_argument("-v", "--video",
-            help="path to the (optional) video file")
-    ap.add_argument("-b", "--buffer", type=int, default=64,
-            help="max buffer size")
+    ap.add_argument('-v', '--video',
+            help='path to the (optional) video file')
+    ap.add_argument('-b', '--buffer', type=int, default=64,
+            help='max buffer size')
     args = vars(ap.parse_args())
-    pts = deque(maxlen=args["buffer"])   
+    pts = deque(maxlen=args['buffer'])   
     return args
 def load_colors_to_track_from_txt():
     global colors_to_track
-    read_text_file = open("tracked_colors.txt", "r")
+    read_text_file = open('tracked_colors.txt', 'r')
     lines = read_text_file.readlines()
     read_text_file.close()
     for i in range(0,len(lines)):
@@ -71,7 +71,7 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
     settings.frame_height, settings.frame_width, channels = frame.shape
     loop_count = loop_count + 1
     break_for_no_video = False
-    if args.get("video") and not grabbed:
+    if args.get('video') and not grabbed:
         break_for_no_video = True 
     return average_fps, grabbed, frame, loop_count, break_for_no_video
     #these are some attempts at frame differencing to help with the color tracking,
@@ -110,7 +110,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
     upper_range = [0]*3
     mask = [frame]*settings.max_balls
     number_of_contours_seen = 0
-    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(2,2))
+    erode_kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(1,1))
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
     for i in range(settings.max_balls):
         largest_area = 0
@@ -120,7 +120,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         h = float(colors_to_track[i][0])*255
         low_h=h-15
         high_h=h+15
-        lower_range = np.array([float(low_h), float(30), float(30)])
+        lower_range = np.array([float(low_h), float(70), float(70)])
         upper_range = np.array([float(high_h), float(255), float(255)])
         mask[i] = cv2.inRange(current_framehsv, lower_range, upper_range)
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)

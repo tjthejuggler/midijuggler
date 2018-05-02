@@ -29,7 +29,7 @@ def show_subplot(duration_at_end,index_multiplier,lines,subplot_num):
             tick_index.append(s*index_multiplier)
     index = 0        
     for line in lines:        
-        labels = ["x0","y0","x1","y1","x2","y2","x3","y3","x4","y4","x5","y5","x6","y6","x7","y7","x8","y8","x9"]                
+        labels = ['x0','y0','x1','y1','x2','y2','x3','y3','x4','y4','x5','y5','x6','y6','x7','y7','x8','y8','x9']                
         line1 = plt.plot(line, '.', label=labels[index])
         index = index + 1    
     plt.xticks(tick_index, tick_label, rotation='horizontal')
@@ -37,7 +37,7 @@ def show_subplot(duration_at_end,index_multiplier,lines,subplot_num):
 def make_dif_plot(duration_at_end, frames, subplot_num, subplot_num_used, time_between_difs):
     lines = []
     number_of_points = duration_at_end/time_between_difs
-    print("number_of_points :"+str(number_of_points))
+    print('number_of_points :'+str(number_of_points))
     for i in range(0,len(all_cx)): 
         frames_to_use_x = []
         frames_to_use_y = []

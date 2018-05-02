@@ -8,11 +8,11 @@ slot_system = [0,1,0,1] #single note,5th,5th,single note,5th,5th, = 1 full famil
 family_size = len(slot_system)
 family_count = len(family_identities)
 
-play_chords_as_arpeggio = True
+play_chords_as_arpeggio = False
 
 in_melody = False 
 
-using_loop = True
+using_loop = False
 
 family_notes = []
 
@@ -26,9 +26,9 @@ midi_note_hybrid_current_family = 0
 
 number_of_honeycomb_rows = 5
 
-grid_type_to_show = ""
+grid_type_to_show = ''
 
-path_type, path_phase, in_hand = [""]*20,[""]*20, [False]*20
+path_type, path_phase, in_hand = ['']*20,['']*20, [False]*20
 
 max_balls = 3
 all_cx, all_cy = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)]

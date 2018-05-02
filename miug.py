@@ -29,9 +29,8 @@ show_time = False
 print_peaks = True
 average_min_height = 30
 max_balls = 3
-can_lift = [True]*20
-can_lift_master = True#not sure but this master may not be needed now that we have different 
-                    #colored balls
+can_lift,last_chop_time = [True]*20,[0]*20
+minimum_time_between_chops = 1
 max_balls = settings.max_balls
 all_vx,all_vy,all_time_vx,all_time_vy,all_ay = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)]
 last_peak_time,peak_count = [-.25]*20,0
@@ -56,8 +55,6 @@ def calculate_kinematics(frame_count):
             if len(last_two_cx) > 1:
                 all_vx[i].append(calculate_velocity(last_two_cx))
                 all_vy[i].append(calculate_velocity(last_two_cy))
-                #all_time_vx[i].append(calculate_time_velocity(all_vx[i][-1],time_since_previous_frame))
-                #all_time_vy[i].append(calculate_time_velocity(all_vy[i][-1],time_since_previous_frame))            
                 if len(all_vy[i]) > 2:
                     if all_vy[i][-1] != 'X' and all_vy[i][-2] != 'X':
                         all_ay[i].append(calculate_acceleration([all_vy[i][-2],all_vy[i][-1]]))
@@ -69,8 +66,6 @@ def calculate_kinematics(frame_count):
         else:
             all_vx[i].append(0)
             all_vy[i].append(0)
-            #all_time_vx[i].append('X')
-            #all_time_vy[i].append('X')    
             all_ay[i].append(0)
 def determine_relative_positions():
     relative_positions = [[] for _ in range(max_balls)]
@@ -82,28 +77,16 @@ def determine_relative_positions():
     ranked_list_x = ss.rankdata(last_cxs)
     if len(last_cxs)>0:
         for i in range(0,len(last_cxs)):
-            if ranked_list_x[i] == min(s for s in ranked_list_x):
+            if ranked_list_x[i] == min(ranked_list_x):
                 relative_positions[i]= 'left'
-            elif ranked_list_x[i] == max(s for s in ranked_list_x):
+            elif ranked_list_x[i] == max(ranked_list_x):
                 relative_positions[i]= 'right'
             else:
                 relative_positions[i]= 'mid'
     return ['left', 'mid', 'right']
-def ball_at_peak(vy_window):
+fall_acceleration_from_calibration = -5
+def determine_path_phase(index, frame_count):
     global peak_count
-    number_of_frames_up = 4
-    vy_window = vy_window[-(number_of_frames_up):] 
-    if all(j > 0 for j in vy_window[-4:-1]) and vy_window[-1] <= 0 and abs(sum(vy_window[-4:-1])/3)>4:
-        peak_count = peak_count+1
-        print('ball at peak')
-        return True
-    else:
-        return False
-def determine_path_phase(index, frame_count):#look up webcam side warping
-#push C to go into callibration mode, callibration starts after 5 seconds, a printout says
-#   when it begins and when it completes. the info from callibration gets saved to a txt,
-#   maybe the same txt that is used for the colors.
-#when the program runs it gets its callibration info from the text file
     if len(all_ay[index]) > 0 and all_vy[index][-1]!='X':
         if path_phase[index] == 'throw' and all_vy[index][-1] > 0:
             settings.path_phase[index] = 'up'
@@ -111,7 +94,8 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
             settings.path_phase[index] = 'held'
         if all(isinstance(item, int) for item in all_ay[index][-3:]):
             recent_average_acceleration = sum(all_ay[index][-3:])/3
-            if abs((-5)-recent_average_acceleration) < 4:#this 4 and the -5 are to be set with callibration
+            fall_acceleration_threshold = -fall_acceleration_from_calibration*0.8
+            if abs((fall_acceleration_from_calibration)-recent_average_acceleration) < fall_acceleration_threshold:
                 #print('                        NOT IN HAND'+str(index))
                 if settings.in_hand[index] == True:
                     settings.path_phase[index] = 'throw'
@@ -121,6 +105,7 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
                     else:
                         if settings.path_phase[index] == 'up':
                             settings.path_phase[index] = 'peak'
+                            peak_count = peak_count+1
                             #print('PEAK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                         elif settings.path_phase[index] == 'peak':
                             settings.path_phase[index] = 'down'
@@ -131,18 +116,15 @@ def determine_path_phase(index, frame_count):#look up webcam side warping
                     settings.path_phase[index] = 'catch' 
                 else:
                     settings.path_phase[index] = 'held'
-                    if abs(all_ay[index][-1]) > 80 and settings.path_phase[index] != 'chop':
+                    if abs(all_ay[index][-1]) > 15 and settings.path_phase[index] != 'chop' and time.time() - last_chop_time[index] > minimum_time_between_chops:
+                        last_chop_time[index] = time.time()
                         settings.path_phase[index] = 'chop'
                         print('CHOP!!')
                 settings.in_hand[index] = True    
         else:
             settings.path_phase[index] = 'none'
-    if index == 0:
-        print(str(path_phase[index])+ '       index: '+str(index)) 
-    if index == 1:
-        print('                '+str(path_phase[index])+ '       index: '+str(index))  
-    if index == 2:
-        print('                                  '+str(path_phase[index])+ '       index: '+str(index))  
+    tab=' '*20
+    #print(tab*index + str(path_phase[index]))
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if all_vx[index][-1] != 'X':
@@ -160,7 +142,7 @@ def analyze_trajectory(index,relative_position, frame_count):
         determine_path_type(index,relative_position)
 def write_colors_to_text_file():
     text_to_write = ''
-    text_file = open("tracked_colors.txt", "w+")
+    text_file = open('tracked_colors.txt', 'w+')
     for c in video_helper.colors_to_track:
         for i in c:
             text_to_write = ','.join((str(i) for i in c))
@@ -221,8 +203,8 @@ def should_break(start,break_for_no_video,q_pressed):
     return what_to_return
 def closing_operations(average_fps,vs,camera,out,all_mask):
     global midiout
-    print("average fps: "+str(average_fps))
-    print("peaks: "+str(peak_count))
+    print('average fps: '+str(average_fps))
+    print('peaks: '+str(peak_count))
     if using_midi:
         midiout = None
     if increase_fps:
@@ -259,7 +241,6 @@ def run_camera():
             for i in range(max_balls):
                 if settings.all_cx[i][-1] != 'X':          
                     analyze_trajectory(i,relative_positions[i],frame_count)
-                    #cv2.imshow('ss',soundscape_image)
                     create_audio(i,soundscape_image)
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame
