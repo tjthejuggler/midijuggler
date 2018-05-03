@@ -1,4 +1,5 @@
 import math
+
 def letter_note_as_number(letter):
     if letter == 'C':
         number = 0
@@ -25,6 +26,7 @@ def letter_note_as_number(letter):
     if letter == 'B':
         number = 11
     return number
+
 def get_scale_from_root(root, scale_type):
     steps = []
     scale_type = scale_type.upper()
@@ -69,6 +71,7 @@ def get_scale_from_root(root, scale_type):
     #print(scale)
     #print(steps)
     return scale  
+
 def get_notes_in_scale(letter,octave,scale_type,chord_type):
     notes = []
     if octave == 'all':

@@ -21,11 +21,14 @@ current_color_selecter_color = [0,0,0]
 color_selecter_pos = [0,0,0,0]
 colors_to_track = [[100,100,100],[12,13,14],[150,170,190]]
 most_recently_set_color_to_track = 0
+
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
+
 def setup_record_camera(video_name):        
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     return cv2.VideoWriter(video_name,fourcc, 20.0, (settings.frame_width,settings.frame_height))
+
 def do_arguments_stuff():
     ap = argparse.ArgumentParser()
     ap.add_argument('-v', '--video',
@@ -35,6 +38,7 @@ def do_arguments_stuff():
     args = vars(ap.parse_args())
     pts = deque(maxlen=args['buffer'])   
     return args
+
 def load_colors_to_track_from_txt():
     global colors_to_track
     read_text_file = open('tracked_colors.txt', 'r')
@@ -44,6 +48,7 @@ def load_colors_to_track_from_txt():
         split_lines = lines[i].split(',') 
         for j in range(0,3):
             colors_to_track[i][j] = float(split_lines[j])
+
 def setup_camera():
     load_colors_to_track_from_txt()
     if increase_fps:
@@ -54,6 +59,7 @@ def setup_camera():
     else:
         out = None
     return vs, args, out
+
 def analyze_video(start,loop_count,vs,camera,args,frame_count):
     if time.time()-start > 0:
         average_fps = frame_count/(time.time()-start)
@@ -73,8 +79,10 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
     #these are some attempts at frame differencing to help with the color tracking,
         #but may not be so useful since frame differencing wouldt tell us about balls
         #we are holding still
+
 def diff(img,img1):
     return cv2.absdiff(img,img1)
+
 def diff_remove_bg(img,img0,img1):
     img0 = cv2.cvtColor(img0, cv2.COLOR_BGR2GRAY)
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
@@ -83,12 +91,14 @@ def diff_remove_bg(img,img0,img1):
     d2 = diff(img,img1)
     return cv2.bitwise_xor(d1,d2)
 average_contour_area_from_last_frame = 0
+
 def get_contour_center(contour):
     cx,cy,moments = [],[],[]
     M = cv2.moments(contour)
     if M['m00'] > 0:
         x,y,w,height = cv2.boundingRect(contour)
     return x,y
+
 def trim_old_histories():
     for index in range(settings.max_balls):
         if len(all_cx) > 59:
@@ -99,6 +109,7 @@ def trim_old_histories():
             miugCom.all_ay[index]=miugCom.all_ay[index][-30:]
             #miugCom.all_time_vx[index]=miugCom.all_time_vx[index][-30:]
             #miugCom.all_time_vy[index]=miugCom.all_time_vy[index][-30:]
+
 def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count_window):
     global average_contour_area_from_last_frame
     current_framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -146,6 +157,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
     combined_mask = cv2.add(combined_mask,mask[2])
     trim_old_histories()
     return number_of_contours_seen, combined_mask, combined_mask, contour_count_window
+
 def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     if settings.grid_type_to_show == 'positional':
         use_path_type_coloring = True
@@ -194,6 +206,7 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     elif settings.grid_type_to_show == 'honeycomb':
         mask_copy = create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
     return mask_copy
+
 def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     honeycomb_diameter = int(settings.frame_width/settings.number_of_honeycomb_rows)
     honeycomb_radius = int(honeycomb_diameter/2)
@@ -207,6 +220,7 @@ def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_cou
                 cv2.circle(mask_copy,(r*honeycomb_diameter+honeycomb_radius,c*honeycomb_diameter), honeycomb_radius, (255,255,255), 2)
             
     return mask_copy
+
 def on_mouse_click(event, x, y, flags, frame):
     global mouse_down, mouse_x, mouse_y, color_selecter_pos
     mouse_x = x
@@ -219,6 +233,7 @@ def on_mouse_click(event, x, y, flags, frame):
     elif event == cv2.EVENT_LBUTTONUP:
         mouse_down = False
         color_selecter_pos[2],color_selecter_pos[3] = x,y
+
 def show_color_selecter(frame):
     frame_copy = frame 
     if show_camera:
@@ -227,6 +242,7 @@ def show_color_selecter(frame):
         else:
             cv2.rectangle(frame_copy,(color_selecter_pos[0],color_selecter_pos[1]),(color_selecter_pos[2],color_selecter_pos[3]),(255,255,255),2)
     return frame_copy
+
 def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,notes_in_scale_count):    
     show_scale_grid = True            
     if record_video:
@@ -246,6 +262,7 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask
+
 def record_frame(frame, out, start, average_fps):    
     if average_fps>20:
         fpsdif = average_fps/20 #20 is the average_fps of our avi

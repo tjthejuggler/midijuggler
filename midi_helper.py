@@ -20,6 +20,7 @@ midiout = rtmidi.MidiOut()
 midi_associations = {}
 use_adjust_song_magnitude = False
 use_override_notes,override_notes = False,[]
+
 def position_to_midi_value(current_position, max_position, edge_buffer):
     value = 0
     if current_position<edge_buffer:
@@ -30,6 +31,7 @@ def position_to_midi_value(current_position, max_position, edge_buffer):
         value = int(127*((current_position-edge_buffer)/(max_position-edge_buffer*2)))
     return value
 rotating_sound_num = 0
+
 def rotational_selecter(ball_index, list_of_notes):
     global rotating_sound_num
     skip_random_note = True    
@@ -40,6 +42,7 @@ def rotational_selecter(ball_index, list_of_notes):
     if rotating_sound_num >= len(list_of_notes):
         rotating_sound_num = 0
     return list_of_notes[rotating_sound_num]
+
 def positional_selecter(ball_index, list_of_notes):
     positional_selecter_is_in_use = True
     rounded_to_list = True
@@ -61,6 +64,7 @@ def positional_selecter(ball_index, list_of_notes):
     else:
         notes_to_return = list_of_notes[triggered_section_index]
     return notes_to_return
+
 def honeycomb_selecter(index, list_of_notes):
     notes_to_return = []
     honeycomb_diameter = settings.frame_width/settings.number_of_honeycomb_rows
@@ -82,6 +86,7 @@ def honeycomb_selecter(index, list_of_notes):
         return list_of_notes[index_to_use]
     else:
         return 0
+
 def hybrid_selecter(index, list_of_notes):
     global use_override_notes,override_notes
     settings.midi_note_hybrid_current_slot = settings.midi_note_hybrid_current_slot + 1
@@ -108,8 +113,10 @@ def hybrid_selecter(index, list_of_notes):
     number_of_notes_to_use = settings.slot_system[settings.midi_note_hybrid_current_slot]
     notes_to_return = notes_retrieved[0:number_of_notes_to_use+1]
     return notes_to_return
+
 def midi_magnitude(index):
     return 112
+
 def midi_modulator(index, type, channel, controller_num):
     value = 0
     if type == 'width':
@@ -117,6 +124,7 @@ def midi_modulator(index, type, channel, controller_num):
     if type == 'height':
         value = position_to_midi_value(all_cy[index][-1],480,0)
     return [channel, controller_num, value]
+
 def get_midi_from_letter(letter, current_octave):
     sharp_letters = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
     flat_letters = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
@@ -125,6 +133,7 @@ def get_midi_from_letter(letter, current_octave):
     else:
         return sharp_letters.index(letter)+(current_octave - 4 )*12 + 60
 loop_creator_counter = 0
+
 def loop_creator(note):
     print('p')
     global loop_creator_counter
@@ -136,6 +145,7 @@ def loop_creator(note):
         create_association_object()
     loop_creator_counter =+ 1
     return note 
+
 def create_association_object():
     if settings.using_loop:
         if settings.in_melody:
@@ -171,28 +181,20 @@ def create_association_object():
             settings.scale_to_use = midi_notes_with_voicing
     else:
         settings.scale_to_use = get_notes_in_scale('F',[3,4],'Major',1)
-
     cross_selection_mode = 'positional'
     column_selection_mode = 'positional'
     settings.grid_type_to_show = 'positional'
-
-
-
     settings.scale_to_use = get_notes_in_scale('F',[1,2,3,4],'Major',1)
     #print(settings.scale_to_use)
     #settings.scale_to_use = [60,62,64,66,68,74,70,74,68,66,66,64,64,62,62,60]
-
-
     cross_notes_to_use = settings.scale_to_use
     column_notes_to_use = settings.scale_to_use
-
     '''midi_associations['all phases'] = {}
     midi_associations['all phases']['all types'] = {}
     midi_associations['all phases']['all types']['channel'] = 2
     midi_associations['all phases']['all types']['note_selection_mode'] = 'honeycomb'
     midi_associations['all phases']['all types']['notes'] = settings.scale_to_use
     midi_associations['all phases']['all types']['magnitude'] = midi_magnitude  ''' 
-
     '''midi_associations['throw'] = {}
     midi_associations['throw']['mid column'] = {}
     midi_associations['throw']['mid column']['channel'] = 2
@@ -379,6 +381,7 @@ def setup_midi():
         midiout.open_port(1)
     else:
         midiout.open_virtual_port('My virtual output')
+
 def setup_peak_notes():
     sounds = []
     sounds.append(pg.mixer.Sound('notes01.wav'))
@@ -386,6 +389,7 @@ def setup_peak_notes():
     sounds.append(pg.mixer.Sound('notes03.wav'))
     sounds.append(pg.mixer.Sound('notes04.wav'))
     return sounds
+
 def setup_adjust_song_magnitude():
     pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
     pg.mixer.init()
@@ -394,6 +398,7 @@ def setup_adjust_song_magnitude():
     song=pg.mixer.Sound('song.wav')
     song.play()
     return song
+
 def setup_audio():
     if play_peak_notes:
         sounds = setup_peak_notes()
@@ -406,6 +411,7 @@ def setup_audio():
     if using_midi:
         setup_midi()
     return sounds, song
+
 def get_midi_note(index,path_phase,path_type):
     channel = 0
     notes = []
@@ -437,6 +443,7 @@ def get_midi_note(index,path_phase,path_type):
             magnitude = midi_associations['all phases']['all types']['magnitude'](index)
             channel = midi_associations['all phases']['all types']['channel']
     return channel, notes, magnitude, is_ongoing
+
 def get_midi_modulation(index,path_phase,path_type):
     this_path_phase = path_phase[index]
     this_path_type = path_type[index]
@@ -447,6 +454,7 @@ def get_midi_modulation(index,path_phase,path_type):
                 for i in midi_associations[this_path_phase][this_path_type]['modulator']:
                     modulators.append(midi_modulator(index, i[0], i[1], i[2]))
     return modulators
+
 def send_midi_messages(channel, notes, magnitude, modulators):
     #print(notes) 
     for i in modulators:
@@ -456,14 +464,18 @@ def send_midi_messages(channel, notes, magnitude, modulators):
     except TypeError:
         for n in notes:
             send_midi_note(channel,n,magnitude)
+
 def get_wav_sample(index):
     note = 1
     return note, magnitude
+
 def get_wav_modulation(index):
     modulation = 1
     return modulation
+
 def send_wav_messages(note, magnitude, modulation):
     nothing = 0
+
 def midi_note_channel_num(channel,on_or_off):
     if on_or_off == 'on':
         i = int('0x90', 16)
@@ -471,12 +483,14 @@ def midi_note_channel_num(channel,on_or_off):
         i = int('0x80', 16)     
     i += int(channel)
     return i
+
 def midi_cc_channel_num(channel):
     i = int('0xB0', 16)
     i += int(channel)
     return i
 midi_channel_to_off = 0
 midi_note_to_off = 0
+
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
     '''print('lll')
@@ -484,12 +498,14 @@ def send_midi_note_on_only(channel,note,magnitude):
     print(note)
     print(magnitude)'''
     midiout.send_message(note_on)
+
 def turn_midi_note_off(channel,note):
     note_off = [midi_note_channel_num(channel,'off'), note, 0]
     try:
         midiout.send_message(note_off)
     except:
         pass
+
 def send_midi_note(channel,note,magnitude):                  
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
     midiout.send_message(note_on)
@@ -497,11 +513,14 @@ def send_midi_note(channel,note,magnitude):
     midi_note_to_off = note
     off = th.Timer(0.4,turn_midi_note_off, args = [channel,note])     
     off.start()
+
 def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
+
 def send_midi_cc(channel,controller_num,value):
     send_cc = [midi_cc_channel_num(channel), controller_num, value]
     midiout.send_message(send_cc)
+
 def adjust_song_magnitude(axis,edge_buffer,position,song):
     if axis == 'y':
         size = settings.frame_height        
@@ -512,6 +531,7 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
     if position>frame_height-edge_buffer:
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
+
 def average_position(all_axis, window_length, window_end_frame):
     average_pos = 0
     count = 0
@@ -527,10 +547,12 @@ def average_position(all_axis, window_length, window_end_frame):
         average_pos = average_pos/count
     return average_pos
 last_note_sent = 0
+
 def send_midi_note_from_soundscape_color(soundscape_color):
     soundscape_color = np.array(soundscape_color).tolist()
     average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
     send_midi_messages(2,average_soundscape_color,40,[])
+
 def create_audio(index,soundscape_image):
     global use_override_notes,override_notes,last_note_sent
     is_ongoing = False

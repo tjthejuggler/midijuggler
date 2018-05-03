@@ -36,14 +36,18 @@ all_vx,all_vy,all_time_vx,all_time_vy,all_ay = [[] for _ in range(max_balls)],[[
 last_peak_time,peak_count = [-.25]*20,0
 midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),-1 
 average_catch_height = -1
+
 def calculate_velocity(last_two_positions):
     return last_two_positions[0] - last_two_positions[1]
+
 def calculate_time_velocity(velocity,time_since_previous_frame):
     return velocity / max(time_since_previous_frame,0.0001)
+
 def calculate_acceleration(last_two_velocities):    
     return last_two_velocities[1] - last_two_velocities[0]
 previous_frame_time = 0
 temp_count = 0
+
 def calculate_kinematics(frame_count):
     global previous_frame_time,temp_count
     time_since_previous_frame = time.clock() - previous_frame_time
@@ -67,6 +71,7 @@ def calculate_kinematics(frame_count):
             all_vx[i].append(0)
             all_vy[i].append(0)
             all_ay[i].append(0)
+
 def determine_relative_positions():
     relative_positions = [[] for _ in range(max_balls)]
     last_cxs = []
@@ -85,6 +90,7 @@ def determine_relative_positions():
                 relative_positions[i]= 'mid'
     return ['left', 'mid', 'right']
 fall_acceleration_from_calibration = -5
+
 def determine_path_phase(index, frame_count):
     global peak_count
     if len(all_ay[index]) > 0 and all_vy[index][-1]!='X':
@@ -131,6 +137,7 @@ def determine_path_phase(index, frame_count):
             settings.path_phase[index] = 'none'
     tab=' '*20
     #print(tab*index + str(path_phase[index]))
+
 def determine_path_type(index,position):
     settings.path_type[index] = position
     if all_vx[index][-1] != 'X':
@@ -142,10 +149,12 @@ def determine_path_type(index,position):
             #path_type[index] = 'one'
     else:
         settings.path_type[index] = 'none'
+
 def analyze_trajectory(index,relative_position, frame_count):
     if len(all_vx[index]) > 0:
         determine_path_phase(index, frame_count)
         determine_path_type(index,relative_position)
+
 def write_colors_to_text_file():
     text_to_write = ''
     text_file = open('tracked_colors.txt', 'w+')
@@ -155,6 +164,7 @@ def write_colors_to_text_file():
         text_file.write(text_to_write+'\n')
         text_to_write = ''
     text_file.close() 
+
 def set_color_to_track(frame,index):
     b,g,r = 0.0, 0.0, 0.0
     count = 0
@@ -177,6 +187,7 @@ def set_color_to_track(frame,index):
     print('write')
     write_colors_to_text_file()
     load_colors_to_track_from_txt()
+
 def check_for_keyboard_input(camera,frame):
     key = cv2.waitKey(1) & 0xFF
     q_pressed = False
@@ -202,11 +213,13 @@ def check_for_keyboard_input(camera,frame):
             video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] += (1/255)
             write_colors_to_text_file()
     return q_pressed
+
 def should_break(start,break_for_no_video,q_pressed):      
     what_to_return = False
     if time.time() - start > duration or break_for_no_video or q_pressed:
         what_to_return = True
     return what_to_return
+
 def closing_operations(average_fps,vs,camera,out,all_mask):
     global midiout
     print('average fps: '+str(average_fps))
@@ -222,6 +235,7 @@ def closing_operations(average_fps,vs,camera,out,all_mask):
     if show_overlay:        
         cv2.imshow('overlay',sum(all_mask))
     return time.time()
+
 def run_camera():
     global all_mask,all_vx,all_vy,all_ay
     camera = cv2.VideoCapture(0)
