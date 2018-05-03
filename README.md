@@ -65,3 +65,8 @@ Instructions for using individual color calibration:
 7)Press 'N' and 'M' to move the range of color to be tracked around until it shows up in one of the 3 mask windows. Make sure that the ball is the only thing showing up in the mask.
 8)Repeat steps 6 and 7 using the other color slots for other colored balls.
 9)Press 'A' to return to the main miug window.
+
+
+Links to ML related stuff are here:
+---
+https://openjuggle.com/neural-net-pattern-detection
