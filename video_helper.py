@@ -27,10 +27,6 @@ def setup_record_camera(video_name):
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     return cv2.VideoWriter(video_name,fourcc, 20.0, (settings.frame_width,settings.frame_height))
 def do_arguments_stuff():
-    #IF WE DONT HAVE RANGE PROBELMS THIS STUFF CAN BE SELETED
-    '''PY3 = sys.version_info[0] == 3
-    if PY3:#find out if this stuff is needed or not
-        xrange = range'''
     ap = argparse.ArgumentParser()
     ap.add_argument('-v', '--video',
             help='path to the (optional) video file')

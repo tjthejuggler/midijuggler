@@ -179,7 +179,7 @@ def create_association_object():
 
 
     settings.scale_to_use = get_notes_in_scale('F',[1,2,3,4],'Major',1)
-    print(settings.scale_to_use)
+    #print(settings.scale_to_use)
     #settings.scale_to_use = [60,62,64,66,68,74,70,74,68,66,66,64,64,62,62,60]
 
 
@@ -448,7 +448,7 @@ def get_midi_modulation(index,path_phase,path_type):
                     modulators.append(midi_modulator(index, i[0], i[1], i[2]))
     return modulators
 def send_midi_messages(channel, notes, magnitude, modulators):
-    print(notes) 
+    #print(notes) 
     for i in modulators:
         send_midi_cc(i[0],i[1],i[2])
     try:
@@ -479,10 +479,10 @@ midi_channel_to_off = 0
 midi_note_to_off = 0
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    print('lll')
+    '''print('lll')
     print(midi_note_channel_num(channel,'on'))
     print(note)
-    print(magnitude)
+    print(magnitude)'''
     midiout.send_message(note_on)
 def turn_midi_note_off(channel,note):
     note_off = [midi_note_channel_num(channel,'off'), note, 0]

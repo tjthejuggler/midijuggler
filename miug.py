@@ -116,6 +116,12 @@ def determine_path_phase(index, frame_count):
                     settings.path_phase[index] = 'catch' 
                 else:
                     settings.path_phase[index] = 'held'
+                    #instead of all_ay[ind..][] needing to be greater than 15, 
+                    #   we could use a distance between any point and where it was a 
+                    #   certain number of frames ago, the number of frames to be determined by
+                    #   the current fps.
+                    #   Make sure the distance that is required over that amount of time is 
+                    #       set based on frame_width and height, not hard set.
                     if abs(all_ay[index][-1]) > 15 and settings.path_phase[index] != 'chop' and time.time() - last_chop_time[index] > minimum_time_between_chops:
                         last_chop_time[index] = time.time()
                         settings.path_phase[index] = 'chop'
