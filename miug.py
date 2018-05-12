@@ -91,7 +91,30 @@ def determine_relative_positions():
     return ['left', 'mid', 'right']
 fall_acceleration_from_calibration = -5
 
-def determine_path_phase(index, frame_count):
+
+def chop_checker(index,average_fps):
+
+    #it isnt great, things to try:
+    #       print everything
+    #       change the variables, 
+    enough_time_since_last_chop = time.time() - last_chop_time[index] > minimum_time_between_chops
+    fraction_of_a_second_to_look_back = 10
+    number_of_frames_ago_to_use = math.ceil(average_fps/fraction_of_a_second_to_look_back)
+    times_faster_than_gravity_required = 5
+    minimum_distance_to_trigger_chop = abs(fall_acceleration_from_calibration*number_of_frames_ago_to_use*times_faster_than_gravity_required)
+    
+    if all_cx[index][-number_of_frames_ago_to_use] != 'X':
+        chop_is_downward = all_cy[index][-1] > all_cy[index][-number_of_frames_ago_to_use]
+        distance_between_frames = math.sqrt((all_cx[index][-1] - all_cx[index][-number_of_frames_ago_to_use])**2 + (all_cy[index][-1] - all_cy[index][-number_of_frames_ago_to_use])**2)
+        return distance_between_frames>minimum_distance_to_trigger_chop and enough_time_since_last_chop and chop_is_downward
+    else:
+        return False
+
+
+    #if we have issues with the above, then something to think about is what to do if either of the positions we try to use are Xs, we may want to not do it if the current position is an X, but if the position from Y frames ago could be slid up to the most recent non X frame. this might not even be needed, first we should try and just ignore any that have an X in it.
+
+
+def determine_path_phase(index, frame_count,average_fps):
     global peak_count
     if len(all_ay[index]) > 0 and all_vy[index][-1]!='X':
         if path_phase[index] == 'throw' and all_vy[index][-1] > 0:
@@ -122,13 +145,7 @@ def determine_path_phase(index, frame_count):
                     settings.path_phase[index] = 'catch' 
                 else:
                     settings.path_phase[index] = 'held'
-                    #instead of all_ay[ind..][] needing to be greater than 15, 
-                    #   we could use a distance between any point and where it was a 
-                    #   certain number of frames ago, the number of frames to be determined by
-                    #   the current fps.
-                    #   Make sure the distance that is required over that amount of time is 
-                    #       set based on frame_width and height, not hard set.
-                    if abs(all_ay[index][-1]) > 15 and settings.path_phase[index] != 'chop' and time.time() - last_chop_time[index] > minimum_time_between_chops:
+                    if chop_checker(index,average_fps):                
                         last_chop_time[index] = time.time()
                         settings.path_phase[index] = 'chop'
                         print('CHOP!!')
@@ -150,19 +167,19 @@ def determine_path_type(index,position):
     else:
         settings.path_type[index] = 'none'
 
-def analyze_trajectory(index,relative_position, frame_count):
+def analyze_trajectory(index,relative_position, frame_count,average_fps):
     if len(all_vx[index]) > 0:
-        determine_path_phase(index, frame_count)
+        determine_path_phase(index, frame_count,average_fps)
         determine_path_type(index,relative_position)
 
-def write_colors_to_text_file():
+def write_track_ranges_to_text_file():
     text_to_write = ''
     text_file = open('tracked_colors.txt', 'w+')
-    for c in video_helper.colors_to_track:
-        for i in c:
-            text_to_write = ','.join((str(i) for i in c))
-        text_file.write(text_to_write+'\n')
-        text_to_write = ''
+    text_to_write = ','.join(map(str,video_helper.low_track_range_hue))+'\n'
+    text_to_write += ','.join(map(str,video_helper.high_track_range_hue))+'\n'
+    text_to_write += ','.join(map(str,video_helper.low_track_range_value))+'\n'
+    text_to_write += ','.join(map(str,video_helper.high_track_range_value))
+    text_file.write(text_to_write)
     text_file.close() 
 
 def set_color_to_track(frame,index):
@@ -181,12 +198,12 @@ def set_color_to_track(frame,index):
             count += 1
     count = max(1,count)
     hsv_color = list(colorsys.rgb_to_hsv(((r/count)/255), ((g/count)/255), ((b/count)/255)))
-    video_helper.colors_to_track[index] = hsv_color
-    video_helper.most_recently_set_color_to_track = index
-    #print(video_helper.colors_to_track[index][0]*255, video_helper.colors_to_track[index][1]*255, video_helper.colors_to_track[index][2]*255)
+    print(hsv_color)
+    video_helper.low_track_range_hue[index] = hsv_color[0]*255-15
+    video_helper.high_track_range_hue[index] = hsv_color[0]*255+15
     print('write')
-    write_colors_to_text_file()
-    load_colors_to_track_from_txt()
+    write_track_ranges_to_text_file()
+    load_track_ranges_from_txt_file()
 
 def check_for_keyboard_input(camera,frame):
     key = cv2.waitKey(1) & 0xFF
@@ -198,20 +215,86 @@ def check_for_keyboard_input(camera,frame):
         video_helper.show_mask = not video_helper.show_mask
         video_helper.show_camera = not video_helper.show_camera
     if video_helper.show_camera:
-        if key == ord('s'):       
-            camera.set(cv2.CAP_PROP_SETTINGS,0.0) 
         if key == ord('1'):
             set_color_to_track(frame,0)
         if key == ord('2'):
             set_color_to_track(frame,1)
         if key == ord('3'):
             set_color_to_track(frame,2)
+        if key == ord('s'):       
+            camera.set(cv2.CAP_PROP_SETTINGS,0.0) 
+        if key == ord('e'):
+            video_helper.low_track_range_hue[0] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('r'):
+            video_helper.low_track_range_hue[0] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('t'):
+            video_helper.high_track_range_hue[0] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('y'):
+            video_helper.high_track_range_hue[0] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('u'):
+            video_helper.low_track_range_value[0] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('i'):
+            video_helper.low_track_range_value[0] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('o'):
+            video_helper.high_track_range_value[0] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('p'):
+            video_helper.high_track_range_value[0] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('d'):
+            video_helper.low_track_range_hue[1] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('f'):
+            video_helper.low_track_range_hue[1] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('g'):
+            video_helper.high_track_range_hue[1] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('h'):
+            video_helper.high_track_range_hue[1] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('j'):
+            video_helper.low_track_range_value[1] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('k'):
+            video_helper.low_track_range_value[1] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('l'):
+            video_helper.high_track_range_value[1] -=1
+            write_track_ranges_to_text_file()
+        if key == ord(';'):
+            video_helper.high_track_range_value[1] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('c'):
+            video_helper.low_track_range_hue[2] -=1
+            write_track_ranges_to_text_file()
+        if key == ord('v'):
+            video_helper.low_track_range_hue[2] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('b'):
+            video_helper.high_track_range_hue[2] -=1
+            write_track_ranges_to_text_file()
         if key == ord('n'):
-            video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] -= (1/255)
-            write_colors_to_text_file()
+            video_helper.high_track_range_hue[2] +=1
+            write_track_ranges_to_text_file()
         if key == ord('m'):
-            video_helper.colors_to_track[video_helper.most_recently_set_color_to_track][0] += (1/255)
-            write_colors_to_text_file()
+            video_helper.low_track_range_value[2] -=1
+            write_track_ranges_to_text_file()
+        if key == ord(','):
+            video_helper.low_track_range_value[2] +=1
+            write_track_ranges_to_text_file()
+        if key == ord('.'):
+            video_helper.high_track_range_value[2] -=1
+            write_track_ranges_to_text_file()
+        if key == ord(','):
+            video_helper.high_track_range_value[2] += 1
+            write_track_ranges_to_text_file()
     return q_pressed
 
 def should_break(start,break_for_no_video,q_pressed):      
@@ -260,7 +343,7 @@ def run_camera():
             relative_positions = determine_relative_positions()
             for i in range(max_balls):
                 if settings.all_cx[i][-1] != 'X':          
-                    analyze_trajectory(i,relative_positions[i],frame_count)
+                    analyze_trajectory(i,relative_positions[i],frame_count,average_fps)
                     create_audio(i,soundscape_image)
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame

@@ -7,25 +7,31 @@ import argparse # for tracking balls
 from collections import deque # for tracking balls
 import time #for sending midi
 import math
+from random import randint
+import random
 from settings import *
 import settings
 show_camera = False
-record_video = False
+record_video = True
 show_mask = True
 show_overlay = False
-video_name = '3Bshower.avi'
+video_name = 'test.avi'
 increase_fps = True
 rotating_sound_num,all_mask = 0,[]
 mouse_down = False
 current_color_selecter_color = [0,0,0]
 color_selecter_pos = [0,0,0,0]
 colors_to_track = [[100,100,100],[12,13,14],[150,170,190]]
+low_track_range_hue= [0,0,0]
+high_track_range_hue= [0,0,0]
+low_track_range_value= [0,0,0]
+high_track_range_value= [0,0,0]
 most_recently_set_color_to_track = 0
 
 def frames_are_similar(image1, image2):
     return image1.shape == image2.shape and not(np.bitwise_xor(image1,image2).any())
 
-def setup_record_camera(video_name):        
+def setup_record_camera():        
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     return cv2.VideoWriter(video_name,fourcc, 20.0, (settings.frame_width,settings.frame_height))
 
@@ -39,23 +45,24 @@ def do_arguments_stuff():
     pts = deque(maxlen=args['buffer'])   
     return args
 
-def load_colors_to_track_from_txt():
-    global colors_to_track
+def load_track_ranges_from_txt_file():
+    global low_track_range_hue,low_track_range_value,low_track_range_value,high_track_range_value
     read_text_file = open('tracked_colors.txt', 'r')
     lines = read_text_file.readlines()
     read_text_file.close()
-    for i in range(0,len(lines)):
-        split_lines = lines[i].split(',') 
-        for j in range(0,3):
-            colors_to_track[i][j] = float(split_lines[j])
+    for i in range(3):
+        low_track_range_hue[i] = float(lines[0].split(',')[i])
+        high_track_range_hue[i] = float(lines[1].split(',')[i])
+        low_track_range_value[i] = float(lines[2].split(',')[i])
+        high_track_range_value[i] = float(lines[3].split(',')[i])
 
 def setup_camera():
-    load_colors_to_track_from_txt()
+    load_track_ranges_from_txt_file()
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
     if record_video:
-        out = setup_record_camera(video_name)
+        out = setup_record_camera()
     else:
         out = None
     return vs, args, out
@@ -124,16 +131,18 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         largest_contour_index=0
         sum_of_all_contour_areas = 0
         total_number_of_contours = 0
-        h = float(colors_to_track[i][0])*255
-        low_h=h-15
-        high_h=h+15
-        lower_range = np.array([float(low_h), float(70), float(70)])
-        upper_range = np.array([float(high_h), float(255), float(255)])
+        lower_range = np.array([float(low_track_range_hue[i]), float(70), float(low_track_range_value[i])])
+        upper_range = np.array([float(high_track_range_hue[i]), float(255),  float(high_track_range_value[i])])
         mask[i] = cv2.inRange(current_framehsv, lower_range, upper_range)
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
-        if show_camera:   
-            cv2.imshow('individual color #'+str(i+1),mask[i])
+        if show_camera:
+            mask_with_tracking_number = mask[i]
+            cv2.putText(mask_with_tracking_number, 'hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
+            cv2.putText(mask_with_tracking_number, 'hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
+            cv2.putText(mask_with_tracking_number, 'value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
+            cv2.putText(mask_with_tracking_number, 'value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
+            cv2.imshow('individual color #'+str(i+1),mask_with_tracking_number)
         _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
             for j in range(len(contours)):
@@ -263,8 +272,9 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         all_mask.append(original_mask)
     return all_mask
 
-def record_frame(frame, out, start, average_fps):    
-    if average_fps>20:
+def record_frame(frame, out, start, average_fps):   
+    out.write(frame) 
+    '''if average_fps>20:
         fpsdif = average_fps/20 #20 is the average_fps of our avi
         if randint(0, 100)<fpsdif*10: #this random is used to keep our video from having too many frames and playing slow
             out.write(frame)
@@ -272,4 +282,4 @@ def record_frame(frame, out, start, average_fps):
         for i in range(math.floor(20/average_fps)):
             out.write(frame)
         if randint(0, 100)<((20/average_fps)-math.floor(20/average_fps)*100):
-            out.write(frame)
+            out.write(frame)'''

@@ -331,7 +331,7 @@ def create_association_object():
     midi_associations['chop']['right cross']['magnitude'] = midi_magnitude
     #midi_associations['chop']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
 
-    midi_associations['chop'] = {}
+    '''midi_associations['chop'] = {}
     midi_associations['chop']['mid column'] = {}
     midi_associations['chop']['mid column']['channel'] = 0
     midi_associations['chop']['mid column']['note_selection_mode'] = 'loop'
@@ -372,7 +372,7 @@ def create_association_object():
     midi_associations['chop']['right cross']['note_selection_mode'] = 'loop'
     midi_associations['chop']['right cross']['notes'] = 10
     midi_associations['chop']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
+    #midi_associations['chop']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
 
 def setup_midi():
     create_association_object()
