@@ -26,6 +26,7 @@ low_track_range_hue= [0,0,0]
 high_track_range_hue= [0,0,0]
 low_track_range_value= [0,0,0]
 high_track_range_value= [0,0,0]
+camera_exposure_number = -7
 most_recently_set_color_to_track = 0
 
 def frames_are_similar(image1, image2):
@@ -138,10 +139,21 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
         if show_camera:
             mask_with_tracking_number = mask[i]
-            cv2.putText(mask_with_tracking_number, 'hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, 'hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, 'value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, 'value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,1,(255,255,255),1)
+            if i == 0:
+                cv2.putText(mask_with_tracking_number, '(-E/+R)hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-T/+Y)hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-U/+I)value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-O/+P)value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            if i == 1:
+                cv2.putText(mask_with_tracking_number, '(-D/+F)hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-G/+H)hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-J/+K)value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-L/+;)value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            if i == 2:
+                cv2.putText(mask_with_tracking_number, '(-C/+V)hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-B/+N)hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-M/+,)value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+                cv2.putText(mask_with_tracking_number, '(-./+?)value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
             cv2.imshow('individual color #'+str(i+1),mask_with_tracking_number)
         _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
@@ -258,6 +270,7 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         record_frame(frame, out, start, average_fps)
     if show_camera:
         frame_copy = show_color_selecter(frame)
+        cv2.putText(frame_copy, '(-Z/+X)exposure: '+str(camera_exposure_number),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
         cv2.imshow('individual color calibration', frame_copy)
         cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
     if show_mask:

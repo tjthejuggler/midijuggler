@@ -148,7 +148,7 @@ def determine_path_phase(index, frame_count,average_fps):
                     if chop_checker(index,average_fps):                
                         last_chop_time[index] = time.time()
                         settings.path_phase[index] = 'chop'
-                        print('CHOP!!')
+                        #print('CHOP!!')
                 settings.in_hand[index] = True    
         else:
             settings.path_phase[index] = 'none'
@@ -221,8 +221,18 @@ def check_for_keyboard_input(camera,frame):
             set_color_to_track(frame,1)
         if key == ord('3'):
             set_color_to_track(frame,2)
-        if key == ord('s'):       
+        if key == ord('s'):
             camera.set(cv2.CAP_PROP_SETTINGS,0.0) 
+        if key == ord('z'):
+            video_helper.camera_exposure_number += 1
+            if video_helper.camera_exposure_number == 1:
+                video_helper.camera_exposure_number = 0
+            camera.set(cv2.CAP_PROP_EXPOSURE, video_helper.camera_exposure_number)        
+        if key == ord('x'):       
+            video_helper.camera_exposure_number -= 1
+            if video_helper.camera_exposure_number == -11:
+                video_helper.camera_exposure_number = -10
+            camera.set(cv2.CAP_PROP_EXPOSURE, video_helper.camera_exposure_number)        
         if key == ord('e'):
             video_helper.low_track_range_hue[0] -=1
             write_track_ranges_to_text_file()
@@ -321,6 +331,7 @@ def closing_operations(average_fps,vs,camera,out,all_mask):
 
 def run_camera():
     global all_mask,all_vx,all_vy,all_ay
+    print('Press A to enter color calibration mode')
     camera = cv2.VideoCapture(0)
     soundscape_image = cv2.imread('soundscape.png',1)
     ret, previous_frame = camera.read()
