@@ -32,6 +32,7 @@ path_type, path_phase, in_hand = ['']*20,['']*20, [False]*20
 
 max_balls = 3
 all_cx, all_cy = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)]
+all_vx,all_vy,all_time_vx,all_time_vy,all_ay = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)]
 
 frame_height, frame_width = 0,0
 
