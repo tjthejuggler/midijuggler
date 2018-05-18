@@ -8,6 +8,8 @@ slot_system = [0,1,0,1] #single note,5th,5th,single note,5th,5th, = 1 full famil
 family_size = len(slot_system)
 family_count = len(family_identities)
 
+last_peak_time,peak_count = [-.25]*20,0
+
 play_chords_as_arpeggio = False
 
 in_melody = False 

@@ -18,11 +18,11 @@ import settings
 import trajectory_helper
 from trajectory_helper import *
 import input_helper
+from input_helper import check_for_keyboard_input
 show_time = False
 print_peaks = True
 max_balls = 3
 max_balls = settings.max_balls
-last_peak_time,peak_count = [-.25]*20,0
 midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),-1 
 average_catch_height = -1
 
@@ -78,10 +78,11 @@ def run_camera():
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame
         previous_frame = frame
-        q_pressed = input_helper.check_for_keyboard_input(camera,frame)
+        q_pressed = check_for_keyboard_input(camera,frame)
         if should_break(start,break_for_no_video,q_pressed):
             break
     end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
+
 run_camera()
 
