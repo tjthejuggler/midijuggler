@@ -9,6 +9,7 @@ from pychord import Chord
 import math
 import numpy as np #for webcam
 import random
+import platform
 pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
@@ -380,7 +381,12 @@ def setup_midi():
     print('hereeeee')
     if available_ports:
         try:
-            midiout.open_port(1)
+
+            if platform.system().lower() == "darwin":
+                port_num = 0
+            else:
+                port_num = 1
+            midiout.open_port(port_num)
         except:
             pass
     else:
