@@ -19,7 +19,7 @@ import trajectory_helper
 from trajectory_helper import *
 import input_helper
 from input_helper import check_for_keyboard_input
-import UI_helper
+'''import UI_helper
 from UI_helper import *
 from tkinter import * #for widgets
 import tkinter as ttk #for widgets
@@ -28,7 +28,7 @@ from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 import win32com.client
 from settings import *
-import settings
+import settings'''
 
 #used for sending keypresses
 shell = win32com.client.Dispatch("WScript.Shell")
@@ -109,7 +109,9 @@ def run_camera():
     end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
 
-def start_camera():
+run_camera()
+
+'''def start_camera():
     run_camera()
 
 def save_everything():
@@ -149,11 +151,11 @@ button = ttk.Button(mainframe,
                    command=start_camera)
 button.grid(row = 1, column = 1)
 
-'''button = ttk.Button(mainframe, 
+button = ttk.Button(mainframe, 
                    text="Video", 
                    fg="red",
                    command=video_dialog)
-button.grid(row = 1, column = 2)'''
+button.grid(row = 1, column = 2)
 
 button2 = ttk.Button(mainframe, 
                    text="Save", 
@@ -172,7 +174,7 @@ button2.grid(row = 2, column = 3)
 
 root.mainloop()
 
-'''#create our 3 midi dropdown menus 
+#create our 3 midi dropdown menus 
 popupMenu = OptionMenu(mainframe, notevar, *notevarCoices)
 Label(mainframe, text="note").grid(row = 11, column = 8)
 popupMenu.grid(row = 12, column = 8)
