@@ -84,6 +84,7 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
     if args.get('video') and not grabbed:
         break_for_no_video = True 
     return average_fps, grabbed, frame, loop_count, break_for_no_video
+
     #these are some attempts at frame differencing to help with the color tracking,
         #but may not be so useful since frame differencing wouldt tell us about balls
         #we are holding still
@@ -223,7 +224,6 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
                 cv2.rectangle(mask_copy,(left_corner,0),(right_corner,settings.frame_height),color_to_use,thickness=cv2.FILLED)
             else:
                 cv2.rectangle(mask_copy,(left_corner,0),(right_corner,settings.frame_height),(255,255,255),2)
-    
     elif settings.grid_type_to_show == 'honeycomb':
         mask_copy = create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
     return mask_copy

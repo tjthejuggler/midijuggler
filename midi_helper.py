@@ -377,8 +377,12 @@ def create_association_object():
 def setup_midi():
     create_association_object()
     available_ports = midiout.get_ports()
+    print('hereeeee')
     if available_ports:
-        midiout.open_port(1)
+        try:
+            midiout.open_port(1)
+        except:
+            pass
     else:
         midiout.open_virtual_port('My virtual output')
 
