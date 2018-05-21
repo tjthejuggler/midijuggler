@@ -28,7 +28,7 @@ from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
 import win32com.client
 from settings import *
-import settings'''
+import settings
 
 #used for sending keypresses
 shell = win32com.client.Dispatch("WScript.Shell")
@@ -41,7 +41,7 @@ mainframe = Frame(root)
 mainframe.grid(column=0,row=0, sticky=(N,W,E,S) ) #??????WHAT IS THIS (N,W,E,S)
 mainframe.columnconfigure(0, weight = 1)
 mainframe.rowconfigure(0, weight = 1)
-mainframe.pack(pady = 50, padx = 50)
+mainframe.pack(pady = 50, padx = 50)'''
 
 
 show_time = False
