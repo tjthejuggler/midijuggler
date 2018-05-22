@@ -50,6 +50,7 @@ max_balls = 3
 max_balls = settings.max_balls
 midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = False,deque(maxlen=6),-1 
 average_catch_height = -1
+selected_ball_num = 0
 
 def should_break(start,break_for_no_video,q_pressed):      
     what_to_return = False
@@ -74,7 +75,7 @@ def closing_operations(average_fps,vs,camera,out,all_mask):
     return time.time()
 
 def run_camera():
-    global all_mask,all_vx,all_vy,all_ay,setup_has_been_done
+    global all_mask,all_vx,all_vy,all_ay,setup_has_been_done, selected_ball_num
     print('Press A to enter color calibration mode')
     camera = cv2.VideoCapture(0)
     soundscape_image = cv2.imread('soundscape.png',1)
@@ -92,7 +93,7 @@ def run_camera():
         else:
             frame_count = frame_count+1
         old_frame,matched_indices_count = frame,0
-        number_of_contours_seen, mask, original_mask, contour_count_window = update_contour_histories(frame,previous_frame,two_frames_ago,contour_count_window)
+        number_of_contours_seen, mask, original_mask, contour_count_window = update_contour_histories(frame,previous_frame,two_frames_ago,contour_count_window, selected_ball_num)
         if number_of_contours_seen > 0 and frame_count > 10:   
             calculate_kinematics(frame_count)             
             relative_positions = determine_relative_positions()
@@ -103,8 +104,13 @@ def run_camera():
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame
         previous_frame = frame
-        q_pressed = check_for_keyboard_input(camera,frame)
-        if should_break(start,break_for_no_video,q_pressed):
+        key_pressed = check_for_keyboard_input(camera,frame, selected_ball_num)
+        if key_pressed == ord("n"):
+            selected_ball_num = (selected_ball_num + 1) % 3
+        print("key pressed")
+        print(key_pressed)
+        print(selected_ball_num)
+        if should_break(start,break_for_no_video,key_pressed == ord("q")):
             break
     end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
