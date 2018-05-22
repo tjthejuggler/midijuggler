@@ -119,7 +119,7 @@ def trim_old_histories():
             #miugCom.all_time_vx[index]=miugCom.all_time_vx[index][-30:]
             #miugCom.all_time_vy[index]=miugCom.all_time_vy[index][-30:]
 
-def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count_window):
+def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count_window,selected_ball_num):
     global average_contour_area_from_last_frame
     current_framehsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_range = [0]*3
@@ -139,24 +139,20 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
         if show_camera:
-            mask_with_tracking_number = mask[i]
-            if i == 0:
-                cv2.putText(mask_with_tracking_number, '(-E/+R)hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-T/+Y)hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-U/+I)value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-O/+P)value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            if i == 1:
-                cv2.putText(mask_with_tracking_number, '(-D/+F)hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-G/+H)hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-J/+K)value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-L/+;)value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            if i == 2:
-                cv2.putText(mask_with_tracking_number, '(-C/+V)hue low:'+str(low_track_range_hue[i]),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-B/+N)hue high:'+str(high_track_range_hue[i]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-M/+,)value low:'+str(low_track_range_value[i]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-                cv2.putText(mask_with_tracking_number, '(-./+?)value high:'+str(high_track_range_value[i]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.imshow('individual color #'+str(i+1),mask_with_tracking_number)
-        _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+            print("show camera")
+            mask_with_tracking_number = mask[selected_ball_num]
+            cv2.putText(mask_with_tracking_number, 'Calibrating ball '+str(selected_ball_num),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+
+            cv2.putText(mask_with_tracking_number, '(-E/+R)hue low:'+str(low_track_range_hue[selected_ball_num]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            cv2.putText(mask_with_tracking_number, '(-T/+Y)hue high:'+str(high_track_range_hue[selected_ball_num]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            cv2.putText(mask_with_tracking_number, '(-U/+I)value low:'+str(low_track_range_value[selected_ball_num]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            cv2.putText(mask_with_tracking_number, '(-O/+P)value high:'+str(high_track_range_value[selected_ball_num]),(50,170), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            print(low_track_range_hue)
+            cv2.imshow('Calibration',mask_with_tracking_number)
+            continue
+        else:
+            _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
         if len(contours) > 0:
             for j in range(len(contours)):
                 contour_area = cv2.contourArea(contours[j])

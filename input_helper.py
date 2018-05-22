@@ -37,23 +37,18 @@ def set_color_to_track(frame,index):
     write_track_ranges_to_text_file()
     load_track_ranges_from_txt_file()
 
-def check_for_keyboard_input(camera,frame):
+def check_for_keyboard_input(camera,frame, ball_num):
     key = cv2.waitKey(1) & 0xFF
-    q_pressed = False
     if key == ord('q'):            
-        q_pressed = True
         UI_helper.in_camera_mode = False
     if key == ord('a'):
         cv2.destroyAllWindows()            
         video_helper.show_mask = not video_helper.show_mask
         video_helper.show_camera = not video_helper.show_camera
     if video_helper.show_camera:
-        if key == ord('1'):
-            set_color_to_track(frame,0)
-        if key == ord('2'):
-            set_color_to_track(frame,1)
-        if key == ord('3'):
-            set_color_to_track(frame,2)
+        if key == ord('b'):
+            print("Setting box color")
+            set_color_to_track(frame,ball_num)
         if key == ord('s'):
             camera.set(cv2.CAP_PROP_SETTINGS,0.0) 
         if key == ord('z'):
@@ -66,76 +61,32 @@ def check_for_keyboard_input(camera,frame):
             if video_helper.camera_exposure_number == -11:
                 video_helper.camera_exposure_number = -10
             camera.set(cv2.CAP_PROP_EXPOSURE, video_helper.camera_exposure_number)        
+        #Hues low
         if key == ord('e'):
-            video_helper.low_track_range_hue[0] -=1
+            video_helper.low_track_range_hue[ball_num] -=1
             write_track_ranges_to_text_file()
         if key == ord('r'):
-            video_helper.low_track_range_hue[0] +=1
+            video_helper.low_track_range_hue[ball_num] +=1
             write_track_ranges_to_text_file()
+        #Hues high
         if key == ord('t'):
-            video_helper.high_track_range_hue[0] -=1
+            video_helper.high_track_range_hue[ball_num] -=1
             write_track_ranges_to_text_file()
         if key == ord('y'):
-            video_helper.high_track_range_hue[0] +=1
+            video_helper.high_track_range_hue[ball_num] +=1
             write_track_ranges_to_text_file()
+        #Values low
         if key == ord('u'):
-            video_helper.low_track_range_value[0] -=1
+            video_helper.low_track_range_value[ball_num] -=1
             write_track_ranges_to_text_file()
         if key == ord('i'):
-            video_helper.low_track_range_value[0] +=1
+            video_helper.low_track_range_value[ball_num] +=1
             write_track_ranges_to_text_file()
+        #Values low
         if key == ord('o'):
-            video_helper.high_track_range_value[0] -=1
+            video_helper.high_track_range_value[ball_num] -=1
             write_track_ranges_to_text_file()
         if key == ord('p'):
-            video_helper.high_track_range_value[0] +=1
+            video_helper.high_track_range_value[ball_num] +=1
             write_track_ranges_to_text_file()
-        if key == ord('d'):
-            video_helper.low_track_range_hue[1] -=1
-            write_track_ranges_to_text_file()
-        if key == ord('f'):
-            video_helper.low_track_range_hue[1] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('g'):
-            video_helper.high_track_range_hue[1] -=1
-            write_track_ranges_to_text_file()
-        if key == ord('h'):
-            video_helper.high_track_range_hue[1] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('j'):
-            video_helper.low_track_range_value[1] -=1
-            write_track_ranges_to_text_file()
-        if key == ord('k'):
-            video_helper.low_track_range_value[1] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('l'):
-            video_helper.high_track_range_value[1] -=1
-            write_track_ranges_to_text_file()
-        if key == ord(';'):
-            video_helper.high_track_range_value[1] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('c'):
-            video_helper.low_track_range_hue[2] -=1
-            write_track_ranges_to_text_file()
-        if key == ord('v'):
-            video_helper.low_track_range_hue[2] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('b'):
-            video_helper.high_track_range_hue[2] -=1
-            write_track_ranges_to_text_file()
-        if key == ord('n'):
-            video_helper.high_track_range_hue[2] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('m'):
-            video_helper.low_track_range_value[2] -=1
-            write_track_ranges_to_text_file()
-        if key == ord(','):
-            video_helper.low_track_range_value[2] +=1
-            write_track_ranges_to_text_file()
-        if key == ord('.'):
-            video_helper.high_track_range_value[2] -=1
-            write_track_ranges_to_text_file()
-        if key == ord(','):
-            video_helper.high_track_range_value[2] += 1
-            write_track_ranges_to_text_file()
-    return q_pressed
+    return key

@@ -147,6 +147,223 @@ def loop_creator(note):
     loop_creator_counter =+ 1
     return note 
 
+
+def setup_midi():
+    create_association_object()
+    available_ports = midiout.get_ports()
+    print('hereeeee')
+    if available_ports:
+        try:
+            if platform.system().lower() == "darwin":
+                port_num = 0
+            else:
+                port_num = 1
+            midiout.open_port(port_num)
+        except:
+            pass
+    else:
+        midiout.open_virtual_port('My virtual output')
+
+def setup_peak_notes():
+    sounds = []
+    sounds.append(pg.mixer.Sound('notes01.wav'))
+    sounds.append(pg.mixer.Sound('notes02.wav'))
+    sounds.append(pg.mixer.Sound('notes03.wav'))
+    sounds.append(pg.mixer.Sound('notes04.wav'))
+    return sounds
+
+def setup_adjust_song_magnitude():
+    pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
+    pg.mixer.init()
+    pg.init()
+    pg.mixer.set_num_channels(19)
+    song=pg.mixer.Sound('song.wav')
+    song.play()
+    return song
+
+def setup_audio():
+    if play_peak_notes:
+        sounds = setup_peak_notes()
+    else:
+        sounds = None
+    if use_adjust_song_magnitude:
+        song = setup_adjust_song_magnitude()
+    else:
+        song = None
+    if using_midi:
+        setup_midi()
+    return sounds, song
+
+def get_midi_note(index,path_phase,path_type):
+    channel = 0
+    notes = []
+    magnitude = 0
+    this_path_phase = path_phase[index]
+    this_path_type = path_type[index]
+    is_ongoing = False
+    if this_path_phase in midi_associations:
+        if this_path_type in midi_associations[this_path_phase]:
+            if 'channel' in midi_associations[this_path_phase][this_path_type]:
+                channel = midi_associations[this_path_phase][this_path_type]['channel']           
+            if 'notes' in midi_associations[this_path_phase][this_path_type]:
+                all_possible_notes = midi_associations[this_path_phase][this_path_type]['notes']
+                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'rotational':
+                        notes = rotational_selecter(index,all_possible_notes)
+                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'positional':
+                        notes = positional_selecter(index,all_possible_notes)
+                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'hybrid':
+                        notes = hybrid_selecter(index,all_possible_notes)
+                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'loop':
+                        notes = loop_creator(all_possible_notes)
+            if 'magnitude' in midi_associations[this_path_phase][this_path_type]:
+                magnitude = midi_associations[this_path_phase][this_path_type]['magnitude'](index)    
+    if 'all phases' in midi_associations:
+        if midi_associations['all phases']['all types']['note_selection_mode'] == 'honeycomb':
+            is_ongoing = True
+            all_possible_notes = midi_associations['all phases']['all types']['notes']
+            notes = honeycomb_selecter(index,all_possible_notes)
+            magnitude = midi_associations['all phases']['all types']['magnitude'](index)
+            channel = midi_associations['all phases']['all types']['channel']
+    return channel, notes, magnitude, is_ongoing
+
+def get_midi_modulation(index,path_phase,path_type):
+    this_path_phase = path_phase[index]
+    this_path_type = path_type[index]
+    modulators = []
+    if this_path_phase in midi_associations:
+        if this_path_type in midi_associations[this_path_phase]:
+            if 'modulator' in midi_associations[this_path_phase][this_path_type]:
+                for i in midi_associations[this_path_phase][this_path_type]['modulator']:
+                    modulators.append(midi_modulator(index, i[0], i[1], i[2]))
+    return modulators
+
+def send_midi_messages(channel, notes, magnitude, modulators):
+    #print(notes) 
+    for i in modulators:
+        send_midi_cc(i[0],i[1],i[2])
+    try:
+        send_midi_note(channel,notes,magnitude)
+    except TypeError:
+        for n in notes:
+            send_midi_note(channel,n,magnitude)
+
+def get_wav_sample(index):
+    note = 1
+    return note, magnitude
+
+def get_wav_modulation(index):
+    modulation = 1
+    return modulation
+
+def send_wav_messages(note, magnitude, modulation):
+    nothing = 0
+
+def midi_note_channel_num(channel,on_or_off):
+    if on_or_off == 'on':
+        i = int('0x90', 16)
+    elif on_or_off == 'off':     
+        i = int('0x80', 16)     
+    i += int(channel)
+    return i
+
+def midi_cc_channel_num(channel):
+    i = int('0xB0', 16)
+    i += int(channel)
+    return i
+midi_channel_to_off = 0
+midi_note_to_off = 0
+
+def send_midi_note_on_only(channel,note,magnitude):
+    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
+    '''print('lll')
+    print(midi_note_channel_num(channel,'on'))
+    print(note)
+    print(magnitude)'''
+    midiout.send_message(note_on)
+
+def turn_midi_note_off(channel,note):
+    note_off = [midi_note_channel_num(channel,'off'), note, 0]
+    try:
+        midiout.send_message(note_off)
+    except:
+        pass
+
+def send_midi_note(channel,note,magnitude):                  
+    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
+    midiout.send_message(note_on)
+    midi_channel_to_off = channel
+    midi_note_to_off = note
+    off = th.Timer(0.4,turn_midi_note_off, args = [channel,note])     
+    off.start()
+
+def use_as_midi_signal(current_num,max_num):
+    return 127*(current_num/max_num)
+
+def send_midi_cc(channel,controller_num,value):
+    send_cc = [midi_cc_channel_num(channel), controller_num, value]
+    midiout.send_message(send_cc)
+
+def adjust_song_magnitude(axis,edge_buffer,position,song):
+    if axis == 'y':
+        size = settings.frame_height        
+    if axis == 'x':
+        size = settings.frame_width
+    if position<edge_buffer:
+        song.set_magnitude(1)
+    if position>frame_height-edge_buffer:
+        song.set_magnitude(0)
+    song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
+
+def average_position(all_axis, window_length, window_end_frame):
+    average_pos = 0
+    count = 0
+    average_duration = min(len(all_axis[0]), window_length)
+    for i in range(0, len(all_axis)):
+        for j in range(0, average_duration):
+            index = window_end_frame-j
+            if abs(index)<len(all_axis[i]):
+                if all_axis[i][-index] > 0:
+                    count = count+1
+                    average_pos = average_pos + all_axis[i][index]
+    if count > 0:
+        average_pos = average_pos/count
+    return average_pos
+last_note_sent = 0
+
+def send_midi_note_from_soundscape_color(soundscape_color):
+    soundscape_color = np.array(soundscape_color).tolist()
+    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
+    send_midi_messages(2,average_soundscape_color,40,[])
+
+def create_audio(index,soundscape_image):
+    global use_override_notes,override_notes,last_note_sent
+    is_ongoing = False
+    if use_adjust_song_magnitude:
+        adjust_song_magnitude('y',120,average_position(all_cy, 10, -1),song)
+    if using_midi:
+        if path_phase[index] == 'putt':
+            override_notes = positional_selecter(index,settings.scale_to_use)
+            use_override_notes = True
+        if settings.using_soundscape:
+            soundscape_color = soundscape_image[all_cy[index][-1],all_cx[index][-1]]
+            send_midi_note_from_soundscape_color(soundscape_color)
+        else:
+            if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
+                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
+                    modulators = get_midi_modulation(index,path_phase,path_type)
+                    send_midi_messages(channel+index, notes, magnitude, modulators)
+            elif 'all phases' in midi_associations: # i think this should be replaced with
+            #   some kind of function that makes all the associations
+                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
+                    if last_note_sent != notes:
+                        turn_midi_note_off(channel,last_note_sent)
+                        send_midi_note_on_only(channel, notes, magnitude)
+                        last_note_sent = notes        
+    else:
+        note, magnitude = get_wav_sample(index)
+        modulation = get_wav_modulation(index)
+        send_wav_messages(note, magnitude, modulation)
+
 def create_association_object():
     if settings.using_loop:
         if settings.in_melody:
@@ -374,220 +591,3 @@ def create_association_object():
     midi_associations['chop']['right cross']['notes'] = 10
     midi_associations['chop']['right cross']['magnitude'] = midi_magnitude
     #midi_associations['chop']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
-
-def setup_midi():
-    create_association_object()
-    available_ports = midiout.get_ports()
-    print('hereeeee')
-    if available_ports:
-        try:
-
-            if platform.system().lower() == "darwin":
-                port_num = 0
-            else:
-                port_num = 1
-            midiout.open_port(port_num)
-        except:
-            pass
-    else:
-        midiout.open_virtual_port('My virtual output')
-
-def setup_peak_notes():
-    sounds = []
-    sounds.append(pg.mixer.Sound('notes01.wav'))
-    sounds.append(pg.mixer.Sound('notes02.wav'))
-    sounds.append(pg.mixer.Sound('notes03.wav'))
-    sounds.append(pg.mixer.Sound('notes04.wav'))
-    return sounds
-
-def setup_adjust_song_magnitude():
-    pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
-    pg.mixer.init()
-    pg.init()
-    pg.mixer.set_num_channels(19)
-    song=pg.mixer.Sound('song.wav')
-    song.play()
-    return song
-
-def setup_audio():
-    if play_peak_notes:
-        sounds = setup_peak_notes()
-    else:
-        sounds = None
-    if use_adjust_song_magnitude:
-        song = setup_adjust_song_magnitude()
-    else:
-        song = None
-    if using_midi:
-        setup_midi()
-    return sounds, song
-
-def get_midi_note(index,path_phase,path_type):
-    channel = 0
-    notes = []
-    magnitude = 0
-    this_path_phase = path_phase[index]
-    this_path_type = path_type[index]
-    is_ongoing = False
-    if this_path_phase in midi_associations:
-        if this_path_type in midi_associations[this_path_phase]:
-            if 'channel' in midi_associations[this_path_phase][this_path_type]:
-                channel = midi_associations[this_path_phase][this_path_type]['channel']           
-            if 'notes' in midi_associations[this_path_phase][this_path_type]:
-                all_possible_notes = midi_associations[this_path_phase][this_path_type]['notes']
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'rotational':
-                        notes = rotational_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'positional':
-                        notes = positional_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'hybrid':
-                        notes = hybrid_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'loop':
-                        notes = loop_creator(all_possible_notes)
-            if 'magnitude' in midi_associations[this_path_phase][this_path_type]:
-                magnitude = midi_associations[this_path_phase][this_path_type]['magnitude'](index)    
-    if 'all phases' in midi_associations:
-        if midi_associations['all phases']['all types']['note_selection_mode'] == 'honeycomb':
-            is_ongoing = True
-            all_possible_notes = midi_associations['all phases']['all types']['notes']
-            notes = honeycomb_selecter(index,all_possible_notes)
-            magnitude = midi_associations['all phases']['all types']['magnitude'](index)
-            channel = midi_associations['all phases']['all types']['channel']
-    return channel, notes, magnitude, is_ongoing
-
-def get_midi_modulation(index,path_phase,path_type):
-    this_path_phase = path_phase[index]
-    this_path_type = path_type[index]
-    modulators = []
-    if this_path_phase in midi_associations:
-        if this_path_type in midi_associations[this_path_phase]:
-            if 'modulator' in midi_associations[this_path_phase][this_path_type]:
-                for i in midi_associations[this_path_phase][this_path_type]['modulator']:
-                    modulators.append(midi_modulator(index, i[0], i[1], i[2]))
-    return modulators
-
-def send_midi_messages(channel, notes, magnitude, modulators):
-    #print(notes) 
-    for i in modulators:
-        send_midi_cc(i[0],i[1],i[2])
-    try:
-        send_midi_note(channel,notes,magnitude)
-    except TypeError:
-        for n in notes:
-            send_midi_note(channel,n,magnitude)
-
-def get_wav_sample(index):
-    note = 1
-    return note, magnitude
-
-def get_wav_modulation(index):
-    modulation = 1
-    return modulation
-
-def send_wav_messages(note, magnitude, modulation):
-    nothing = 0
-
-def midi_note_channel_num(channel,on_or_off):
-    if on_or_off == 'on':
-        i = int('0x90', 16)
-    elif on_or_off == 'off':     
-        i = int('0x80', 16)     
-    i += int(channel)
-    return i
-
-def midi_cc_channel_num(channel):
-    i = int('0xB0', 16)
-    i += int(channel)
-    return i
-midi_channel_to_off = 0
-midi_note_to_off = 0
-
-def send_midi_note_on_only(channel,note,magnitude):
-    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    '''print('lll')
-    print(midi_note_channel_num(channel,'on'))
-    print(note)
-    print(magnitude)'''
-    midiout.send_message(note_on)
-
-def turn_midi_note_off(channel,note):
-    note_off = [midi_note_channel_num(channel,'off'), note, 0]
-    try:
-        midiout.send_message(note_off)
-    except:
-        pass
-
-def send_midi_note(channel,note,magnitude):                  
-    note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    midiout.send_message(note_on)
-    midi_channel_to_off = channel
-    midi_note_to_off = note
-    off = th.Timer(0.4,turn_midi_note_off, args = [channel,note])     
-    off.start()
-
-def use_as_midi_signal(current_num,max_num):
-    return 127*(current_num/max_num)
-
-def send_midi_cc(channel,controller_num,value):
-    send_cc = [midi_cc_channel_num(channel), controller_num, value]
-    midiout.send_message(send_cc)
-
-def adjust_song_magnitude(axis,edge_buffer,position,song):
-    if axis == 'y':
-        size = settings.frame_height        
-    if axis == 'x':
-        size = settings.frame_width
-    if position<edge_buffer:
-        song.set_magnitude(1)
-    if position>frame_height-edge_buffer:
-        song.set_magnitude(0)
-    song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
-
-def average_position(all_axis, window_length, window_end_frame):
-    average_pos = 0
-    count = 0
-    average_duration = min(len(all_axis[0]), window_length)
-    for i in range(0, len(all_axis)):
-        for j in range(0, average_duration):
-            index = window_end_frame-j
-            if abs(index)<len(all_axis[i]):
-                if all_axis[i][-index] > 0:
-                    count = count+1
-                    average_pos = average_pos + all_axis[i][index]
-    if count > 0:
-        average_pos = average_pos/count
-    return average_pos
-last_note_sent = 0
-
-def send_midi_note_from_soundscape_color(soundscape_color):
-    soundscape_color = np.array(soundscape_color).tolist()
-    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
-    send_midi_messages(2,average_soundscape_color,40,[])
-
-def create_audio(index,soundscape_image):
-    global use_override_notes,override_notes,last_note_sent
-    is_ongoing = False
-    if use_adjust_song_magnitude:
-        adjust_song_magnitude('y',120,average_position(all_cy, 10, -1),song)
-    if using_midi:
-        if path_phase[index] == 'putt':
-            override_notes = positional_selecter(index,settings.scale_to_use)
-            use_override_notes = True
-        if settings.using_soundscape:
-            soundscape_color = soundscape_image[all_cy[index][-1],all_cx[index][-1]]
-            send_midi_note_from_soundscape_color(soundscape_color)
-        else:
-            if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
-                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
-                    modulators = get_midi_modulation(index,path_phase,path_type)
-                    send_midi_messages(channel+index, notes, magnitude, modulators)
-            elif 'all phases' in midi_associations: # i think this should be replaced with
-            #   some kind of function that makes all the associations
-                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
-                    if last_note_sent != notes:
-                        turn_midi_note_off(channel,last_note_sent)
-                        send_midi_note_on_only(channel, notes, magnitude)
-                        last_note_sent = notes        
-    else:
-        note, magnitude = get_wav_sample(index)
-        modulation = get_wav_modulation(index)
-        send_wav_messages(note, magnitude, modulation)
