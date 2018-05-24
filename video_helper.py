@@ -11,6 +11,7 @@ from random import randint
 import random
 from settings import *
 import settings
+from calibration_helper import *
 show_camera = False
 record_video = True
 show_mask = True
@@ -139,20 +140,10 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
         if show_camera:
-            print("show camera")
-            mask_with_tracking_number = mask[selected_ball_num]
-            cv2.putText(mask_with_tracking_number, 'Calibrating ball '+str(selected_ball_num),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-
-            cv2.putText(mask_with_tracking_number, '(-E/+R)hue low:'+str(low_track_range_hue[selected_ball_num]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, '(-T/+Y)hue high:'+str(high_track_range_hue[selected_ball_num]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, '(-U/+I)value low:'+str(low_track_range_value[selected_ball_num]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, '(-O/+P)value high:'+str(high_track_range_value[selected_ball_num]),(50,170), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            print(low_track_range_hue)
-            cv2.imshow('Calibration',mask_with_tracking_number)
+            show_color_calibration_if_necessary(mask[selected_ball_num],selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value)
             continue
         else:
             _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
         if len(contours) > 0:
             for j in range(len(contours)):
                 contour_area = cv2.contourArea(contours[j])

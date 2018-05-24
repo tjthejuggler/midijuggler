@@ -17,8 +17,8 @@ import video_helper
 #import settings
 import trajectory_helper
 from trajectory_helper import *
-import input_helper
-from input_helper import check_for_keyboard_input
+import calibration_helper
+from calibration_helper import check_for_keyboard_input
 from tkinter import * #for widgets
 import tkinter as ttk #for widgets
 from tkinter.scrolledtext import ScrolledText
@@ -62,7 +62,6 @@ def run_camera():
     global all_mask,all_vx,all_vy,all_ay,setup_has_been_done, selected_ball_num
     print('Press A to enter color calibration mode')
     camera = cv2.VideoCapture(0)
-    soundscape_image = cv2.imread('soundscape.png',1)
     ret, previous_frame = camera.read()
     two_frames_ago = previous_frame
     vs, args, out = setup_camera()
@@ -84,16 +83,16 @@ def run_camera():
             for i in range(max_balls):
                 if settings.all_cx[i][-1] != 'X':          
                     analyze_trajectory(i,relative_positions[i],frame_count,average_fps)
-                    create_audio(i,soundscape_image)
+                    create_audio(i)
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame
         previous_frame = frame
         key_pressed = check_for_keyboard_input(camera,frame, selected_ball_num)
         if key_pressed == ord("n"):
             selected_ball_num = (selected_ball_num + 1) % 3
-        print("key pressed")
-        print(key_pressed)
-        print(selected_ball_num)
+        #print("key pressed")
+        #print(key_pressed)
+        #print(selected_ball_num)
         if should_break(start,break_for_no_video,key_pressed == ord("q")):
             break
     end = closing_operations(average_fps,vs,camera,out,all_mask)

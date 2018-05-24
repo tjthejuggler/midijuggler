@@ -14,12 +14,10 @@ from plot_helper import create_plots
 from midi_helper import *
 from video_helper import *
 import video_helper
-#from settings import *
-#import settings
 import trajectory_helper
 from trajectory_helper import *
-import input_helper
-from input_helper import check_for_keyboard_input
+import calibration_helper
+from calibration_helper import check_for_keyboard_input
 from tkinter import *
 import tkinter as ttk
 from tkinter.scrolledtext import ScrolledText
@@ -29,12 +27,7 @@ from settings import *
 from camera_loop import *
 from PIL import ImageTk, Image
 
-midiout = rtmidi.MidiOut()
-available_ports = midiout.get_ports()
-if available_ports:
-    midiout.open_port(1)
-else:
-    midiout.open_virtual_port("My virtual output")
+setup_midi()
 
 left_column_peak_button_selected = [False, False, False]
 left_column_catch_button_selected = [False, False, False]
@@ -60,6 +53,7 @@ right_cross_peak_button_selected = [False, False, False]
 right_cross_catch_button_selected = [False, False, False]
 right_cross_throw_button_selected = [False, False, False]
 
+selected_config_midi_channels = [0,0,0]
 selected_config = 0
 
 
@@ -94,15 +88,16 @@ def load_everything():
                 h=h+1
 
 def send_midi_message():
-    if selected_midi_type.get() == 'Note':
+    if selected_midi_type_to_send.get() == 'Note':
         h = '0x90'        
     else:
         h = '0xB0'
     i = int(h, 16)
-    i += int(selected_midi_channel.get())
-    note_on = [int(i), int(selected_midi_note.get()), 112]
-    note_off = [int(i), int(selected_midi_note.get()), 0]                            
+    i += int(selected_midi_channel_to_send.get())
+    note_on = [int(i), int(selected_midi_note_to_send.get()), 112]
+    note_off = [int(i), int(selected_midi_note_to_send.get()), 0]                            
     midiout.send_message(note_on)
+    print(note_on)
     midiout.send_message(note_off)
 
 root = Tk() 
@@ -110,27 +105,29 @@ root.title("Miug")
 root.geometry("900x800")
 root.resizable(0, 0)
 
-selected_midi_note = StringVar(root)
-selected_midi_channel = StringVar(root)
-selected_midi_type = StringVar(root)
+selected_midi_note_to_send = StringVar(root)
+selected_midi_channel_to_send = StringVar(root)
+selected_midi_type_to_send = StringVar(root)
 
 midi_note_choices = range(0,128)
-selected_midi_note.set(0)
+selected_midi_note_to_send.set(0)
 midi_channel_choices = range(0,16)
-selected_midi_channel.set(0)
+selected_midi_channel_to_send.set(0)
 midi_type_choices = {'Note','CC'}
-selected_midi_type.set('Note')
+selected_midi_type_to_send.set('Note')
 
 ball_0_chosen_config = StringVar(root)
 ball_1_chosen_config = StringVar(root)
 ball_2_chosen_config = StringVar(root)
 current_config_letter = StringVar(root)
+selected_config_midi_channel = StringVar(root)
  
 ball_config_choices = {'B','A','C'}
 ball_0_chosen_config.set('A')
 ball_1_chosen_config.set('A')
 ball_2_chosen_config.set('A')
 current_config_letter.set('A')
+selected_config_midi_channel.set('0')
 
 start_button = ttk.Button(root,text="Start",fg="red",command=start_camera,height=5,width=15)
 start_button.pack(side=BOTTOM,anchor=SE) 
@@ -145,18 +142,18 @@ save_name = ttk.Entry(root)
 save_name.pack(side=LEFT,anchor=NW)
 
 #create our 3 midi dropdown menus 
-midi_note_dropdown = OptionMenu(root, selected_midi_note, *midi_note_choices)
+midi_note_to_send_dropdown = OptionMenu(root, selected_midi_note_to_send, *midi_note_choices)
 #midi_note_dropdown.pack(side=LEFT,anchor=S)
 Label(root, text="note").place(x=10,y=700)
-midi_note_dropdown.place(x=50,y=700)
+midi_note_to_send_dropdown.place(x=50,y=700)
 
-midi_channel_dropdown = OptionMenu(root, selected_midi_channel, *midi_channel_choices)
+midi_channel_to_send_dropdown = OptionMenu(root, selected_midi_channel_to_send, *midi_channel_choices)
 Label(root, text="channel").place(x=120,y=700)
-midi_channel_dropdown.place(x=180,y=700)
+midi_channel_to_send_dropdown.place(x=180,y=700)
 
-midi_type_dropdown = OptionMenu(root, selected_midi_type, *midi_type_choices)
+midi_type_to_send_dropdown = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
 Label(root, text="type").place(x=250,y=700)
-midi_type_dropdown.place(x=290,y=700)
+midi_type_to_send_dropdown.place(x=290,y=700)
 
 send_midi_message_button = ttk.Button(root,text="Send midi message",fg="purple",command=send_midi_message,height=1,width=18)
 send_midi_message_button.place(x=130,y=760)
@@ -177,6 +174,10 @@ Label(root, text="ball 0").pack(side=RIGHT,anchor=NE)
 possible_configs_dropdown = OptionMenu(root, current_config_letter, *ball_config_choices)
 possible_configs_dropdown.place(x=90,y=50)
 Label(root, text="configs").place(x=30,y=50)
+
+selected_config_midi_channel_dropdown = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
+selected_config_midi_channel_dropdown.place(x=280,y=50)
+Label(root, text="midi channel").place(x=150,y=50)
 
 Label(root, text="left ball",font=("Courier", 10)).place(x=70,y=100)
 path = "juggling_column_image.png"
@@ -537,7 +538,7 @@ def color_path_phase_buttons_based_on_selected_state():
 
 def current_config_letter_changed(*args):
     global selected_config
-    print(current_config_letter.get())
+    #print(current_config_letter.get())
     if current_config_letter.get() == 'A':
         selected_config = 0
     if current_config_letter.get() == 'B':
@@ -545,11 +546,15 @@ def current_config_letter_changed(*args):
     if current_config_letter.get() == 'C':
         selected_config = 2
     color_path_phase_buttons_based_on_selected_state()
-    print('mmmm')
-
+    selected_config_midi_channel.set(selected_config_midi_channels[selected_config])
 
 current_config_letter.trace('w', current_config_letter_changed)
 
+def selected_config_midi_channel_changed(*args):
+    global selected_config
+    selected_config_midi_channels[selected_config] = selected_config_midi_channel.get()
+
+selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 
 root.mainloop()
 

@@ -79,8 +79,6 @@ def chop_checker(index,average_fps):
         return distance_between_frames>minimum_distance_to_trigger_chop and enough_time_since_last_chop and chop_is_downward
     else:
         return False
-
-
     #if we have issues with the above, then something to think about is what to do if 
     #either of the positions we try to use are Xs, we may want to not do it if the 
     #current position is an X, but if the position from Y frames ago could be slid 

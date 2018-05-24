@@ -10,6 +10,7 @@ import math
 import numpy as np #for webcam
 import random
 import platform
+import cv2
 pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
 pg.mixer.init()
 pg.init()
@@ -21,6 +22,7 @@ midiout = rtmidi.MidiOut()
 midi_associations = {}
 use_adjust_song_magnitude = False
 use_override_notes,override_notes = False,[]
+soundscape_image = cv2.imread('soundscape.png',1)
 
 def position_to_midi_value(current_position, max_position, edge_buffer):
     value = 0
@@ -147,11 +149,8 @@ def loop_creator(note):
     loop_creator_counter =+ 1
     return note 
 
-
-def setup_midi():
-    create_association_object()
+def setup_midi():    
     available_ports = midiout.get_ports()
-    print('hereeeee')
     if available_ports:
         try:
             if platform.system().lower() == "darwin":
@@ -191,7 +190,7 @@ def setup_audio():
     else:
         song = None
     if using_midi:
-        setup_midi()
+        create_association_object()
     return sounds, song
 
 def get_midi_note(index,path_phase,path_type):
@@ -237,8 +236,7 @@ def get_midi_modulation(index,path_phase,path_type):
                     modulators.append(midi_modulator(index, i[0], i[1], i[2]))
     return modulators
 
-def send_midi_messages(channel, notes, magnitude, modulators):
-    #print(notes) 
+def send_midi_messages(channel, notes, magnitude, modulators): 
     for i in modulators:
         send_midi_cc(i[0],i[1],i[2])
     try:
@@ -275,10 +273,6 @@ midi_note_to_off = 0
 
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    '''print('lll')
-    print(midi_note_channel_num(channel,'on'))
-    print(note)
-    print(magnitude)'''
     midiout.send_message(note_on)
 
 def turn_midi_note_off(channel,note):
@@ -290,6 +284,7 @@ def turn_midi_note_off(channel,note):
 
 def send_midi_note(channel,note,magnitude):                  
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
+    print(note_on)
     midiout.send_message(note_on)
     midi_channel_to_off = channel
     midi_note_to_off = note
@@ -335,7 +330,7 @@ def send_midi_note_from_soundscape_color(soundscape_color):
     average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
     send_midi_messages(2,average_soundscape_color,40,[])
 
-def create_audio(index,soundscape_image):
+def create_audio(index):
     global use_override_notes,override_notes,last_note_sent
     is_ongoing = False
     if use_adjust_song_magnitude:
@@ -351,7 +346,7 @@ def create_audio(index,soundscape_image):
             if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
                     channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
                     modulators = get_midi_modulation(index,path_phase,path_type)
-                    send_midi_messages(channel+index, notes, magnitude, modulators)
+                    send_midi_messages(channel+index, notes, magnitude, modulators)                    
             elif 'all phases' in midi_associations: # i think this should be replaced with
             #   some kind of function that makes all the associations
                     channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
@@ -473,35 +468,35 @@ def create_association_object():
     midi_associations['peak']['left column'] = {}
     midi_associations['peak']['left column']['channel'] = 0
     midi_associations['peak']['left column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['peak']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
     midi_associations['peak']['left column']['notes'] = column_notes_to_use
     midi_associations['peak']['left column']['magnitude'] = midi_magnitude
     #midi_associations['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
     midi_associations['peak']['right column'] = {}
     midi_associations['peak']['right column']['channel'] = 0
     midi_associations['peak']['right column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['peak']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
     midi_associations['peak']['right column']['notes'] = column_notes_to_use
     midi_associations['peak']['right column']['magnitude'] = midi_magnitude
     #midi_associations['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
     midi_associations['peak']['mid cross'] = {}
     midi_associations['peak']['mid cross']['channel'] = 0
     midi_associations['peak']['mid cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['peak']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
     midi_associations['peak']['mid cross']['notes'] = cross_notes_to_use
     midi_associations['peak']['mid cross']['magnitude'] = midi_magnitude
     #midi_associations['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
     midi_associations['peak']['left cross'] = {}
     midi_associations['peak']['left cross']['channel'] = 0
     midi_associations['peak']['left cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['peak']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
     midi_associations['peak']['left cross']['notes'] = cross_notes_to_use
     midi_associations['peak']['left cross']['magnitude'] = midi_magnitude
     #midi_associations['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
     midi_associations['peak']['right cross'] = {}
     midi_associations['peak']['right cross']['channel'] = 0
     midi_associations['peak']['right cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['peak']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
     midi_associations['peak']['right cross']['notes'] = cross_notes_to_use
     midi_associations['peak']['right cross']['magnitude'] = midi_magnitude
     #midi_associations['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]

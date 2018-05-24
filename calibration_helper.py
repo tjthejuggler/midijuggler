@@ -28,12 +28,20 @@ def set_color_to_track(frame,index):
             count += 1
     count = max(1,count)
     hsv_color = list(colorsys.rgb_to_hsv(((r/count)/255), ((g/count)/255), ((b/count)/255)))
-    print(hsv_color)
+    #print(hsv_color)
     video_helper.low_track_range_hue[index] = hsv_color[0]*255-15
     video_helper.high_track_range_hue[index] = hsv_color[0]*255+15
     print('write')
     write_track_ranges_to_text_file()
     load_track_ranges_from_txt_file()
+
+def show_color_calibration_if_necessary(mask_with_tracking_number,selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value):
+    cv2.putText(mask_with_tracking_number, 'Calibrating ball '+str(selected_ball_num),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    cv2.putText(mask_with_tracking_number, '(-E/+R)hue low:'+str(low_track_range_hue[selected_ball_num]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    cv2.putText(mask_with_tracking_number, '(-T/+Y)hue high:'+str(high_track_range_hue[selected_ball_num]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    cv2.putText(mask_with_tracking_number, '(-U/+I)value low:'+str(low_track_range_value[selected_ball_num]),(50,170), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    cv2.putText(mask_with_tracking_number, '(-O/+P)value high:'+str(high_track_range_value[selected_ball_num]),(50,200), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    cv2.imshow('Calibration',mask_with_tracking_number)
 
 def check_for_keyboard_input(camera,frame, ball_num):
     key = cv2.waitKey(1) & 0xFF
