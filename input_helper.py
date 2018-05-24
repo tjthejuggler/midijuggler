@@ -1,8 +1,6 @@
 from video_helper import *
 import video_helper
 import colorsys
-from UI_helper import *
-import UI_helper
 
 def write_track_ranges_to_text_file():
     text_to_write = ''
@@ -40,7 +38,7 @@ def set_color_to_track(frame,index):
 def check_for_keyboard_input(camera,frame, ball_num):
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):            
-        UI_helper.in_camera_mode = False
+        in_camera_mode = False
     if key == ord('a'):
         cv2.destroyAllWindows()            
         video_helper.show_mask = not video_helper.show_mask
