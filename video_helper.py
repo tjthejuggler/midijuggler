@@ -12,22 +12,16 @@ import random
 from settings import *
 import settings
 from calibration_helper import *
-show_camera = False
 record_video = True
-show_mask = True
 show_overlay = False
 video_name = 'test.avi'
 increase_fps = True
 rotating_sound_num,all_mask = 0,[]
 mouse_down = False
 current_color_selecter_color = [0,0,0]
-color_selecter_pos = [0,0,0,0]
+
 colors_to_track = [[100,100,100],[12,13,14],[150,170,190]]
-low_track_range_hue= [0,0,0]
-high_track_range_hue= [0,0,0]
-low_track_range_value= [0,0,0]
-high_track_range_value= [0,0,0]
-camera_exposure_number = -7
+
 most_recently_set_color_to_track = 0
 
 def frames_are_similar(image1, image2):
@@ -46,17 +40,6 @@ def do_arguments_stuff():
     args = vars(ap.parse_args())
     pts = deque(maxlen=args['buffer'])   
     return args
-
-def load_track_ranges_from_txt_file():
-    global low_track_range_hue,low_track_range_value,low_track_range_value,high_track_range_value
-    read_text_file = open('tracked_colors.txt', 'r')
-    lines = read_text_file.readlines()
-    read_text_file.close()
-    for i in range(3):
-        low_track_range_hue[i] = float(lines[0].split(',')[i])
-        high_track_range_hue[i] = float(lines[1].split(',')[i])
-        low_track_range_value[i] = float(lines[2].split(',')[i])
-        high_track_range_value[i] = float(lines[3].split(',')[i])
 
 def setup_camera():
     load_track_ranges_from_txt_file()
@@ -139,7 +122,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         mask[i] = cv2.inRange(current_framehsv, lower_range, upper_range)
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
-        if show_camera:
+        if settings.show_camera:
             show_color_calibration_if_necessary(mask[selected_ball_num],selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value)
             continue
         else:
@@ -235,7 +218,7 @@ def on_mouse_click(event, x, y, flags, frame):
     mouse_y = y
     #if event == cv2.EVENT_RBUTTONDOWN:
     if event == cv2.EVENT_LBUTTONDOWN:
-        if show_camera:
+        if settings.show_camera:
             color_selecter_pos[0],color_selecter_pos[1] = min(settings.frame_width,x),min(settings.frame_height,y)
         mouse_down = True
     elif event == cv2.EVENT_LBUTTONUP:
@@ -244,7 +227,7 @@ def on_mouse_click(event, x, y, flags, frame):
 
 def show_color_selecter(frame):
     frame_copy = frame 
-    if show_camera:
+    if settings.show_camera:
         if mouse_down:
             cv2.rectangle(frame_copy,(color_selecter_pos[0],color_selecter_pos[1]),(mouse_x,mouse_y),(255,255,255),2)
         else:
@@ -255,12 +238,12 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
     show_scale_grid = True            
     if record_video:
         record_frame(frame, out, start, average_fps)
-    if show_camera:
+    if settings.show_camera:
         frame_copy = show_color_selecter(frame)
         cv2.putText(frame_copy, '(-Z/+X)exposure: '+str(camera_exposure_number),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
         cv2.imshow('individual color calibration', frame_copy)
         cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
-    if show_mask:
+    if settings.show_mask:
         if show_scale_grid:# and midi_note_based_on_position_is_in_use:
             mask_copy = mask
             mask_copy = create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)

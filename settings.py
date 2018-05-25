@@ -39,3 +39,16 @@ all_vx,all_vy,all_time_vx,all_time_vy,all_ay = [[] for _ in range(max_balls)],[[
 frame_height, frame_width = 0,0
 
 scale_to_use = []
+
+low_track_range_hue= [0,0,0]
+high_track_range_hue= [0,0,0]
+low_track_range_value= [0,0,0]
+high_track_range_value= [0,0,0]
+
+show_camera = False
+
+show_mask = True
+
+color_selecter_pos = [0,0,0,0]
+
+camera_exposure_number = -7

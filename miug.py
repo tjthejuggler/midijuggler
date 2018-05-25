@@ -56,7 +56,6 @@ right_cross_throw_button_selected = [False, False, False]
 selected_config_midi_channels = [0,0,0]
 selected_config = 0
 
-
 def start_camera():
     run_camera()
 
@@ -79,7 +78,6 @@ def load_everything():
     with open(saveName.get()+"sqr.txt","r+") as g:
         for line in g:
             if h == 0:
-                #print(line.split(",")[0])
                 refPt = [(int(''.join(filter(str.isdigit, line.split(",")[0]))),int(''.join(filter(str.isdigit, line.split(",")[1]))))]
                 #refPt = [int(filter(str.isdigit, [line].split(",")[0]),int(filter(str.isdigit, [line].split(",")[1])]
                 h=h+1
@@ -140,10 +138,8 @@ load_button.pack(side=LEFT,anchor=NW)
 
 save_name = ttk.Entry(root)
 save_name.pack(side=LEFT,anchor=NW)
-
-#create our 3 midi dropdown menus 
+ 
 midi_note_to_send_dropdown = OptionMenu(root, selected_midi_note_to_send, *midi_note_choices)
-#midi_note_dropdown.pack(side=LEFT,anchor=S)
 Label(root, text="note").place(x=10,y=700)
 midi_note_to_send_dropdown.place(x=50,y=700)
 
@@ -158,7 +154,6 @@ midi_type_to_send_dropdown.place(x=290,y=700)
 send_midi_message_button = ttk.Button(root,text="Send midi message",fg="purple",command=send_midi_message,height=1,width=18)
 send_midi_message_button.place(x=130,y=760)
 
-#create our 3 midi dropdown menus
 ball_2_config_dropdown = OptionMenu(root, ball_2_chosen_config, *ball_config_choices)
 ball_2_config_dropdown.pack(side=RIGHT,anchor=NE)
 Label(root, text="ball 2").pack(side=RIGHT,anchor=NE)
@@ -177,7 +172,7 @@ Label(root, text="configs").place(x=30,y=50)
 
 selected_config_midi_channel_dropdown = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
 selected_config_midi_channel_dropdown.place(x=280,y=50)
-Label(root, text="midi channel").place(x=150,y=50)
+Label(root, text="midi channel").place(x=180,y=50)
 
 Label(root, text="left ball",font=("Courier", 10)).place(x=70,y=100)
 path = "juggling_column_image.png"
@@ -209,9 +204,6 @@ juggling_cross_image_right = ImageTk.PhotoImage(Image.open(path))
 juggling_cross_image_panel_right = ttk.Label(root, image = juggling_cross_image_right)
 juggling_cross_image_panel_right.place(x=550,y=130)
 
-
-#these need to be clickable
-#Label(root, text="all peaks",font=("Courier", 10)).place(x=750,y=160)
 path = "ui_red_ball.png"
 ui_red_ball = ImageTk.PhotoImage(Image.open(path))
 path = "ui_yellow_ball.png"
@@ -566,8 +558,7 @@ miditypevar.trace('w', change_dropdown)'''
 
 del midiout
 #TODO
-#make all balls clickable so that they get toggled on and off red
-#make 'all' buttons do it as well
+#every time a ui_ball is selected or the selected_config changes, 
 
 #if a ui_ball is selected it should be red
 #if a ui_ball is not seleceted, but has been configurated, it should be yellow
@@ -575,3 +566,6 @@ del midiout
 
 #set colors of the text of ball 0, ball 1, and ball 2 to the colors that those balls are
 #   set at in the calibration mode
+
+#once i select a ball that causes a conflict, it tells me there is a conflict and it gives me possible
+    #resolutions for the conflict and forces me to pick one before it shows me mappings

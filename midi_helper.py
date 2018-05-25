@@ -407,7 +407,7 @@ def create_association_object():
     midi_associations['all phases']['all types']['channel'] = 2
     midi_associations['all phases']['all types']['note_selection_mode'] = 'honeycomb'
     midi_associations['all phases']['all types']['notes'] = settings.scale_to_use
-    midi_associations['all phases']['all types']['magnitude'] = midi_magnitude  ''' 
+    midi_associations['all phases']['all types']['magnitude'] = midi_magnitude''' 
     '''midi_associations['throw'] = {}
     midi_associations['throw']['mid column'] = {}
     midi_associations['throw']['mid column']['channel'] = 2
