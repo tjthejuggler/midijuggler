@@ -10,7 +10,7 @@ from scipy import ndimage
 import datetime
 import rtmidi #for sending midi
 from music_helper import get_notes_in_scale
-from plot_helper import create_plots
+#from plot_helper import create_plots
 from midi_helper import *
 from video_helper import *
 import video_helper
@@ -80,7 +80,7 @@ def load_config_dialog():
         lines = read_text_file.readlines()
         read_text_file.close()
         current_file_name_label.config(text=str(load_config_file_name.split("/")[-1]))
-        print(lines)
+        #print(lines)
     except FileNotFoundError:
         pass   
 
@@ -97,7 +97,7 @@ def send_midi_message():
     note_on = [int(i), int(selected_midi_note_to_send.get()), 112]
     note_off = [int(i), int(selected_midi_note_to_send.get()), 0]                            
     midiout.send_message(note_on)
-    print(note_on)
+    #print(note_on)
     midiout.send_message(note_off)
 
 

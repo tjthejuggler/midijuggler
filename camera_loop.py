@@ -69,7 +69,7 @@ def run_camera():
     start,loop_count,num_high,previous_frame_time = time.time(),0,0,1.0
     at_peak, break_for_no_video = [-.25]*20,False
     contour_count_window, min_height_window,frame_count = deque(maxlen=3), deque(maxlen=60), 0
-    while True:
+    while True:        
         average_fps, grabbed, frame, loop_count, break_for_no_video = analyze_video(start,loop_count,vs,camera,args,frame_count)
         if loop_count>1 and frames_are_similar(frame, previous_frame):
             continue

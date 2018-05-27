@@ -21,9 +21,6 @@ def load_track_ranges_from_txt_file():
     lines = read_text_file.readlines()
     read_text_file.close()
     for i in range(3):
-        print(i)
-        print(len(low_track_range_hue))
-        print(len(lines[0].split(',')))
         low_track_range_hue[i] = float(lines[0].split(',')[i])
         high_track_range_hue[i] = float(lines[1].split(',')[i])
         low_track_range_value[i] = float(lines[2].split(',')[i])

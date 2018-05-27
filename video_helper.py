@@ -43,6 +43,7 @@ def do_arguments_stuff():
 
 def setup_camera():
     load_track_ranges_from_txt_file()
+    print('loopin')
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
