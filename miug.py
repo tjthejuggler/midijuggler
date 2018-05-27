@@ -559,6 +559,10 @@ del midiout
 #   Position - buffer size, this may be different for x and y
 #   Speed - we need a way to map how fast/slow it gets, we could use the actual throws per
 #       second to set the beats per second
+#   Maybe instead of just 'all balls' and 'individual balls' we could have 'individual balls'
+#       and 'multiple balls'
+#       another thing that would fit into multiple balls would be a synchronous throw,
+#           two balls that get thrown up at the same time and peak together
 #
 #set colors of the text of ball 0, ball 1, and ball 2 to the colors that those balls are
 #   set at in the calibration mode. each 'ball #' should be on a black button and the text should
