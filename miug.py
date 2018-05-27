@@ -22,10 +22,16 @@ from tkinter import *
 import tkinter as ttk
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
-from tkinter.filedialog import askopenfilename
+from tkinter import filedialog
+#from tkinter.filedialog import askloadfilename
 from settings import *
 from camera_loop import *
 from PIL import ImageTk, Image
+
+root = Tk() 
+root.title("Miug")
+root.geometry("900x800")
+root.resizable(0, 0)
 
 setup_midi()
 
@@ -59,31 +65,27 @@ selected_config = 0
 def start_camera():
     run_camera()
 
-def save_everything():
-    f = open(saveName.get()+".txt","w+")
-    f.write(userscroll.get(1.0, END))
-    g = open(saveName.get()+"sqr.txt","w+")
-    for i in range(len(refPt)):
-        g.write(str(refPt[i])+"\n")
+def save_config_dialog():
+    config_to_save = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
+    current_file_name_label.config(text=str(config_to_save.name.split("/")[-1]))
+    text_in_config_to_save = ''
+    config_to_save.write(text_in_config_to_save)
+    config_to_save.close()    
 
-def load_everything():
-    global refPt
-    f = open(saveName.get()+".txt","r+")
-    userscroll.delete(1.0, END)
-    userscroll.insert(ttk.INSERT,f.read())
-    #g = open(saveName.get()+"sqr.txt","w+")
-    refPt = [(0, 0)]
-    refPt.clear()
-    h=0
-    with open(saveName.get()+"sqr.txt","r+") as g:
-        for line in g:
-            if h == 0:
-                refPt = [(int(''.join(filter(str.isdigit, line.split(",")[0]))),int(''.join(filter(str.isdigit, line.split(",")[1]))))]
-                #refPt = [int(filter(str.isdigit, [line].split(",")[0]),int(filter(str.isdigit, [line].split(",")[1])]
-                h=h+1
-            else:
-                refPt.append((int(''.join(filter(str.isdigit, line.split(",")[0]))),int(''.join(filter(str.isdigit, line.split(",")[1])))))
-                h=h+1
+def load_config_dialog():
+    global current_file_name_label
+    load_config_file_name = askopenfilename()
+    try:
+        read_text_file = open(load_config_file_name, 'r')
+        lines = read_text_file.readlines()
+        read_text_file.close()
+        current_file_name_label.config(text=str(load_config_file_name.split("/")[-1]))
+        print(lines)
+    except FileNotFoundError:
+        pass   
+
+current_file_name_label = ttk.Label(root, text="original")
+current_file_name_label.place(x=200,y=10) 
 
 def send_midi_message():
     if selected_midi_type_to_send.get() == 'Note':
@@ -98,10 +100,7 @@ def send_midi_message():
     print(note_on)
     midiout.send_message(note_off)
 
-root = Tk() 
-root.title("Miug")
-root.geometry("900x800")
-root.resizable(0, 0)
+
 
 selected_midi_note_to_send = StringVar(root)
 selected_midi_channel_to_send = StringVar(root)
@@ -130,14 +129,11 @@ selected_config_midi_channel.set('0')
 start_button = ttk.Button(root,text="Start",fg="red",command=start_camera,height=5,width=15)
 start_button.pack(side=BOTTOM,anchor=SE) 
 
-save_button = ttk.Button(root,text="Save",fg="blue",command=save_everything,height=1,width=9)
-save_button.pack(side=LEFT,anchor=NW)
+save_button = ttk.Button(root,text="Save",fg="blue",command=save_config_dialog,height=1,width=9)
+save_button.place(x=100,y=10)
 
-load_button = ttk.Button(root,text="Load",fg="green",command=load_everything,height=1,width=9)
-load_button.pack(side=LEFT,anchor=NW)
-
-save_name = ttk.Entry(root)
-save_name.pack(side=LEFT,anchor=NW)
+load_button = ttk.Button(root,text="Load",fg="green",command=load_config_dialog,height=1,width=9)
+load_button.place(x=10,y=10)
  
 midi_note_to_send_dropdown = OptionMenu(root, selected_midi_note_to_send, *midi_note_choices)
 Label(root, text="note").place(x=10,y=700)
@@ -558,14 +554,50 @@ miditypevar.trace('w', change_dropdown)'''
 
 del midiout
 #TODO
-#every time a ui_ball is selected or the selected_config changes, 
-
-#if a ui_ball is selected it should be red
-#if a ui_ball is not seleceted, but has been configurated, it should be yellow
-#if a ui_ball is not seelceted, and has not been configurated, it should be white
-
+#next to ball config dropdown, we have a midi type radio button for 'all balls' and 'individual balls',
+#   if 'indiv balls' is clicked, then we show our current path_point setup, if 'all balls' is clicked,
+#   then we show all the possible things that could control cc messages such as speed, average 
+#   position(both on the x and the y), gather(maybe stop moving overrides the need for this one)
+#   apart, stop moving, start moving. We need to figure out what stuff can be based on these and
+#   how to have the user input what they want to use.
+#   Position - buffer size, this may be different for x and y
+#   Speed - we need a way to map how fast/slow it gets, we could use the actual throws per
+#       second to set the beats per second
+#
 #set colors of the text of ball 0, ball 1, and ball 2 to the colors that those balls are
-#   set at in the calibration mode
+#   set at in the calibration mode. each 'ball #' should be on a black button and the text should
+#   be big enough so the colors really stick out, they should be buttons so that they can
+#   be clicked to enter their color calibration mode
 
-#once i select a ball that causes a conflict, it tells me there is a conflict and it gives me possible
-    #resolutions for the conflict and forces me to pick one before it shows me mappings
+#every time a point is clicked in the ui_path_images, it cycles to the next point_config that has 
+#   a setup associated to it, and goes 1 past the last point config that has a point that has
+#   config that has been associated. the point config section below should also change based on
+#   which one is currently clicked, it should indicate which of the point configs it is down there,
+#   but the only way to change which one it is is by changing the selected point config of
+#   one of the points above in the point images.
+
+# the channel should also be set based on points, not based on ball, this way all right peaks
+#   can be drums, and all left peaks could be piano
+
+#gravity calibration is next to load/save
+
+#all_peaks, all_catches, and all_throws should be changed from buttons to dropdowns that show
+#   each of the point config letters that already have associations tied to them as well as one
+#   new one, just like how the points in the ui_image cycles as you click on them.
+#           OR
+#   they could be buttons that behave just like clicking a point button, except they do it to all
+#       the points in their category
+
+#point configs for one ball can be used on another ball
+
+#so far as left and right balls go, if they are close calls, then they should be rounded to left
+#   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
+#   line of the other actual extreme left/right ball, then they themselves should be considered
+#   left/right
+
+#eventual:
+#   in the camera screen, while juggling, when a ball sends a note or chord or midi message, 
+#       whatever it sends should float out of the ball when it sends it
+
+
+#   

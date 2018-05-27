@@ -24,7 +24,7 @@ import tkinter as ttk #for widgets
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
-import win32com.client
+#import win32com.client
 from settings import *
 
 
