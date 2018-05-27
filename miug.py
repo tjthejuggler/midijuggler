@@ -10,7 +10,8 @@ from scipy import ndimage
 import datetime
 import rtmidi #for sending midi
 from music_helper import get_notes_in_scale
-#from plot_helper import create_plots
+from settings import *
+from camera_loop import *
 from midi_helper import *
 from video_helper import *
 import video_helper
@@ -23,17 +24,16 @@ import tkinter as ttk
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
 from tkinter import filedialog
-#from tkinter.filedialog import askloadfilename
-from settings import *
-from camera_loop import *
 from PIL import ImageTk, Image
+
+setup_midi()
+
+#run_camera()
 
 root = Tk() 
 root.title("Miug")
 root.geometry("900x800")
 root.resizable(0, 0)
-
-setup_midi()
 
 left_column_peak_button_selected = [False, False, False]
 left_column_catch_button_selected = [False, False, False]
@@ -546,11 +546,7 @@ selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 
 root.mainloop()
 
-'''# link function to change dropdown so that our midi notes get
-# sent whenever one of the dropdowns change
-notevar.trace('w', change_dropdown)
-channelvar.trace('w', change_dropdown)
-miditypevar.trace('w', change_dropdown)'''
+
 
 del midiout
 #TODO
