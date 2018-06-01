@@ -110,8 +110,6 @@ def ungather_event(timeAveDist,curGath,totPer):
     #note_off = [0xB0, 60, 112] # I think we do not need to do this since we are just
                         # using this for colaboration
 
-
-
 def locationh_event(timeAve):
     for line in userscroll.get(1.0,END).splitlines():
         if "Locationh" in line:
@@ -128,7 +126,6 @@ def locationh_event(timeAve):
 #IF THIS SEEMS OFF THEN IT IS PROBABLY BECCAUSE OF THE RESIZING TO 600, THE NUMBERS HERE ARE FOR 640
             #note_on = [int(i), int(midisig.split('.')[1][:-1]), min(128,int((timeAve/600)*128))] # channel 1, middle C, velocity 112
             midiout.send_message(note_on)
-
 
 def locationv_event(timeAve):
     for line in userscroll.get(1.0,END).splitlines():
