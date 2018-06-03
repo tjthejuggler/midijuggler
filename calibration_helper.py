@@ -61,10 +61,6 @@ def check_for_keyboard_input(camera,frame, ball_num):
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):            
         in_camera_mode = False
-    if key == ord('a'):
-        cv2.destroyAllWindows()            
-        settings.show_mask = not settings.show_mask
-        settings.show_camera = not settings.show_camera
     if settings.show_camera:
         if key == ord('b'):
             print("Setting box color")

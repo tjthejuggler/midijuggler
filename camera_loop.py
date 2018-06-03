@@ -60,7 +60,6 @@ def closing_operations(average_fps,vs,camera,out,all_mask):
 
 def run_camera():
     global all_mask,all_vx,all_vy,all_ay,setup_has_been_done, selected_ball_num
-    print('Press A to enter color calibration mode')
     camera = cv2.VideoCapture(0)
     ret, previous_frame = camera.read()
     two_frames_ago = previous_frame
