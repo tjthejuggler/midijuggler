@@ -28,7 +28,7 @@ midi_note_hybrid_current_family = 0
 
 number_of_honeycomb_rows = 5
 
-grid_type_to_show = ''
+grid_type_to_show = 'positional'
 
 path_type, path_phase, in_hand = ['']*20,['']*20, [False]*20
 

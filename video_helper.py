@@ -159,10 +159,12 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
         rectangles_with_peaks = []
         rectangles_with_peaks_path_types = []
         color_to_use = (0,0,0)
+        print(str(matched_indices_count))
         for i in range(0,matched_indices_count):
             if path_phase[i] == 'peak' or path_phase[i] == 'lift':
-                rectangles_with_peaks.append(math.floor(all_cx[i][-1]/rectangle_width))
-                rectangles_with_peaks_path_types.append(path_type[i])  
+                if all_cx[i][-1] != 'X':
+                    rectangles_with_peaks.append(math.floor(int(all_cx[i][-1])/int(rectangle_width)))
+                    rectangles_with_peaks_path_types.append(path_type[i])  
         for i in range(0,notes_in_scale_count):
             left_corner = i*rectangle_width
             right_corner = (i+1)*rectangle_width

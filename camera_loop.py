@@ -74,7 +74,7 @@ def run_camera():
             continue
         else:
             frame_count = frame_count+1
-        old_frame,matched_indices_count = frame,0
+        old_frame,matched_indices_count = frame,3
         number_of_contours_seen, mask, original_mask, contour_count_window = update_contour_histories(frame,previous_frame,two_frames_ago,contour_count_window, selected_ball_num)
         if number_of_contours_seen > 0 and frame_count > 10:   
             calculate_kinematics(frame_count)             
@@ -89,9 +89,6 @@ def run_camera():
         key_pressed = check_for_keyboard_input(camera,frame, selected_ball_num)
         if key_pressed == ord("n"):
             selected_ball_num = (selected_ball_num + 1) % 3
-        #print("key pressed")
-        #print(key_pressed)
-        #print(selected_ball_num)
         if should_break(start,break_for_no_video,key_pressed == ord("q")):
             break
     end = closing_operations(average_fps,vs,camera,out,all_mask)

@@ -145,19 +145,6 @@ def color_calibration_window():
 current_file_name_label = ttk.Label(root, text='original.txt',font=('Courier', 16))
 current_file_name_label.place(x=200,y=10) 
 
-def send_midi_message():
-    midi_to_send_note_or_number_entry_lost_focus()
-    if selected_midi_type_to_send.get() == 'ON/OFF':
-        h = '0x90'        
-    elif selected_midi_type_to_send.get() == 'CO/CHG':
-        h = '0xB0'
-    i = int(h, 16)
-    i += int(selected_midi_channel_to_send.get())
-    note_on = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]
-    note_off = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                            
-    midiout.send_message(note_on)
-    midiout.send_message(note_off)
-
 ball_0_selected_config = StringVar(root)
 ball_1_selected_config = StringVar(root)
 ball_2_selected_config = StringVar(root)
@@ -347,20 +334,53 @@ bottom_separator2.place(x=651, y=710, relheight=1)
 
 selected_number_of_balls.trace('w', selected_number_of_balls_changed)
 
+def send_midi_on():
+    midi_to_send_note_or_number_entry_lost_focus()
+    h = '0x90'        
+    i = int(h, 16)
+    i += int(selected_midi_channel_to_send.get())
+    note_on = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
+    midiout.send_message(note_on)
+
+send_midi_on_button = ttk.Button(root,text='SEND MIDI\nON',fg='purple',command=send_midi_on,height=3,width=10)
+send_midi_on_button.place(x=10,y=720)
+
+def send_midi_off():
+    midi_to_send_note_or_number_entry_lost_focus()
+    h = '0x80'        
+    i = int(h, 16)
+    i += int(selected_midi_channel_to_send.get())
+    note_off = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                            
+    midiout.send_message(note_off)
+
+send_midi_off_button = ttk.Button(root,text='SEND MIDI\nOFF',fg='purple',command=send_midi_off,height=3,width=10)
+send_midi_off_button.place(x=110,y=720)
+
+def send_midi_controller_change():
+    midi_to_send_note_or_number_entry_lost_focus()       
+    h = '0xB0'
+    i = int(h, 16)
+    i += int(selected_midi_channel_to_send.get())
+    controller_change_message = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
+    midiout.send_message(controller_change_message)
+
+send_midi_controller_change_button = ttk.Button(root,text='SEND MIDI\nCONTROLLER CHANGE',fg='purple',command=send_midi_controller_change,height=3,width=22)
+send_midi_controller_change_button.place(x=10,y=1720)
+
 selected_midi_channel_to_send = StringVar(root)
 midi_channel_choices = range(0,16)
 selected_midi_channel_to_send.set(0)
 midi_channel_to_send_optionmenu = OptionMenu(root, selected_midi_channel_to_send, *midi_channel_choices)
-Label(root, text='CHANNEL:', fg='purple').place(x=175,y=720)
-midi_channel_to_send_optionmenu.place(x=180,y=750)
+Label(root, text='CHANNEL:', fg='purple').place(x=225,y=720)
+midi_channel_to_send_optionmenu.place(x=230,y=750)
 
 selected_midi_type_to_send = StringVar(root)
 
 midi_type_choices = {'ON/OFF','CO/CHG'}
 selected_midi_type_to_send.set('ON/OFF')
 midi_type_to_send_optionmenu = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
-Label(root, text='TYPE:', fg='purple').place(x=280,y=720)
-midi_type_to_send_optionmenu.place(x=250,y=750)
+Label(root, text='TYPE:', fg='purple').place(x=330,y=720)
+midi_type_to_send_optionmenu.place(x=300,y=750)
 
 def midi_to_send_velocity_or_value_entry_lost_focus(*args):
     entry_is_integer = False
@@ -390,16 +410,21 @@ def midi_to_send_note_or_number_entry_lost_focus(*args):
             if user_entry < 0:
                 midi_to_send_note_or_number.set('0')
             if user_entry > 127:
-                midi_to_send_note_or_number.set('127')        
-
+                midi_to_send_note_or_number.set('127')
 
 def selected_midi_type_to_send_changed(*args):
     if selected_midi_type_to_send.get() == 'ON/OFF':
         midi_to_send_note_or_number_entry_label_text.set('NOTE:')
         midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
+        send_midi_on_button.place(x=10,y=720)
+        send_midi_off_button.place(x=110,y=720)
+        send_midi_controller_change_button.place(x=10,y=1720)
     if selected_midi_type_to_send.get() == 'CO/CHG':
         midi_to_send_note_or_number_entry_label_text.set('NUMBER:')
         midi_to_send_velocity_or_value_entry_label_text.set('VALUE:')
+        send_midi_on_button.place(x=10,y=1720)
+        send_midi_off_button.place(x=110,y=1720)
+        send_midi_controller_change_button.place(x=10,y=720)
 
 midi_to_send_note_or_number = StringVar(root)
 midi_to_send_note_or_number.set(60)
@@ -408,8 +433,8 @@ midi_to_send_note_or_number_entry_label_text.set('NOTE:')
 midi_to_send_note_or_number_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_note_or_number)
 midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
 midi_to_send_note_or_number_entry_label = Label(root, textvariable=midi_to_send_note_or_number_entry_label_text, fg='purple')
-midi_to_send_note_or_number_entry_label.place(x=372,y=720)
-midi_to_send_note_or_number_entry.place(x=380,y=753)
+midi_to_send_note_or_number_entry_label.place(x=422,y=720)
+midi_to_send_note_or_number_entry.place(x=430,y=753)
 
 midi_to_send_velocity_or_value = StringVar(root)
 midi_to_send_velocity_or_value.set(60)
@@ -418,29 +443,10 @@ midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
 midi_to_send_velocity_or_value_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_velocity_or_value)
 midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
 midi_to_send_velocity_or_value_entry_label = Label(root, textvariable=midi_to_send_velocity_or_value_entry_label_text, fg='purple')
-midi_to_send_velocity_or_value_entry_label.place(x=447,y=720)
-midi_to_send_velocity_or_value_entry.place(x=460,y=753)
+midi_to_send_velocity_or_value_entry_label.place(x=497,y=720)
+midi_to_send_velocity_or_value_entry.place(x=510,y=753)
 
 selected_midi_type_to_send.trace('w', selected_midi_type_to_send_changed)
-
-#get rid of this note/chord stuff, instead make it
-#   on/off --> note, velocity
-#   or              all four of these numbers can be from 0-127, might as well make them entrys that 
-#                   dont allow the user to put stuff in other than numbers from 0-127, maybe even apopup
-#                   that tells them if they try to put something in that they are not allowed
-#   cc --> number, value  
-
-
-
-#todo
-#make a big purple 'INPUT' and put midi,note,chord underneath it, they should only be shown
-#   when on/off is selected
-#make the dropdown that is the list of midis,notes, or chords OR number(for cc)
-#make another dropdown that is either value or velocity, maybe just call it velocity no matter what(0-127)
-
-
-send_midi_message_button = ttk.Button(root,text='SEND MIDI\nMESSAGE',fg='purple',command=send_midi_message,height=3,width=18)
-send_midi_message_button.place(x=10,y=720)
 
 ####### BEGIN stuff shown if selected_number_of_balls.get() == 1: #######
 ball_2_config_optionmenu = OptionMenu(root, ball_2_selected_config, *ball_config_choices)
@@ -484,6 +490,7 @@ def note_selection_type_changed(*args):
         arpeggio_input_type.place(x=280,y=540)
     if note_selection_type.get() == 'rotational':
         arpeggio_input_type.place(x=1280,y=540)
+        input_type.set('chord')
     point_setups_note_selection_type[int(current_point_config_index.get())] = note_selection_type.get()
 
 note_selection_type.trace('w', note_selection_type_changed)
@@ -930,7 +937,7 @@ root.mainloop()
 
 del midiout
 #TODO
-#tell user in color calibration that Q will leave calibration mode
+#tell user in color calibration that Q will leave calibration mode, maybe at the bottom of the calibration windows
 #make load/save load & save all the user defined specifics that make up our arrays
 #make arpeggio be several single line entries, not a scrolling text
 #   -should there be a certain number of entries out there and however many the user uses is how 
@@ -938,13 +945,13 @@ del midiout
 #       another entry/dropdown that user uses to specify number of slots
 #   
 # if '3 balls' is clicked,
-#   then we show all the possible things that could control cc messages such as speed, average 
+#   then we show all the things that could control cc messages such as speed, average 
 #   position(both on the x and the y), gather(maybe stop moving overrides the need for this one),
 #   stop moving, start moving
 #       Position - buffer size, this may be different for x and y
 #       Speed - we need a way to map how fast/slow it gets, we could use the actual throws per
 #           second to set the beats per second
-#if '2balls' is clicked, we have
+#if '2 balls' is clicked, we have
 #   apart, synch peaks(this will probably just be columns), collisions.
 #
 #set colors of the text of ball 0, ball 1, and ball 2 to the colors that those balls are
@@ -956,22 +963,12 @@ del midiout
 #   which of the three is selected
 
 #every time a point is clicked in the ui_path_images, it cycles to the next point_config that has 
-#   a setup associated to it(if there is any messgae that will be sent), and goes 1 past the last
+#   a setup associated to it(if there is any message that will be sent), and goes 1 past the last
 #   point config that has a point that has config that has been associated. the point config section 
 #   below should also change based on
 #   which one is currently clicked, it should indicate which of the point configs it is down there,
 #   but the only way to change which one it is is by changing the selected point config of
 #   one of the points above in the point images.
-
-# the channel should also be set based on points, not based on ball, this way all right peaks
-#   can be drums, and all left peaks could be piano
-
-#all_peaks, all_catches, and all_throws should be changed from buttons to optionmenus that show
-#   each of the point config letters that already have associations tied to them as well as one
-#   new one, just like how the points in the ui_image cycles as you click on them.
-#           OR
-#   they could be buttons that behave just like clicking a point button, except they do it to all
-#       the points in their category
 
 #so far as left and right balls go, if they are close calls, then they should be rounded to left
 #   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
@@ -984,4 +981,6 @@ del midiout
 #make path point numbers show images of letters instead of their numbers
 #make it so when a point button is clicked, it cycles to the next one that has anything set, 
 #   once it gets to the last one that has something set in it, it shows 1 empty one and then 
-#   goes back to the first one with something set in it  
+#   goes back to the first one with something set in it
+#maybe the channel should also be set based on points, not based on ball, this way all right peaks
+#   can be drums, and all left peaks could be piano
