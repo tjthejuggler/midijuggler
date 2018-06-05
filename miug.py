@@ -98,10 +98,9 @@ right_cross_throw_path_point_configuration_index_of_current_ball_config_index.se
 
 selected_config_midi_channels = [0,0,0]
 
-point_setups_note_selection_type = ['current positional','current positional','current positional','current positional','current positional','current positional','current positional','current positional','current positional']
-point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi','midi','midi']
-point_setups_single_line_input = ['','','','','','','','','']
-point_setups_multi_line_input = ['','','','','','','','','']
+point_setups_note_selection_type = ['current positional','current positional','current positional','current positional','current positional','current positional','current positional']
+point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
+point_setups_single_line_input = ['','','','','','','']
 
 current_ball_config_letter = StringVar()
 current_ball_config_letter.set('X')
@@ -119,7 +118,32 @@ def start_camera():
 def save_config_dialog():
     config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
     current_file_name_label.config(text=str(config_to_save.name.split('/')[-1]))
-    text_in_config_to_save = ''
+    text_in_config_to_save = ball_0_selected_config.get() + '\n' + ball_1_selected_config.get() + '\n' + ball_2_selected_config.get() + '\n'
+    for i in range (3):
+        text_in_config_to_save += str(selected_config_midi_channels[i]) + '\n'       
+        text_in_config_to_save += str(left_column_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_column_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_column_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_cross_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_cross_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_cross_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_column_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_column_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_column_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_cross_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_cross_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_cross_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_column_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_column_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_column_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_cross_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_cross_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_cross_throw_path_point_configuration_index[i]) + '\n'
+    for i in range (7):
+        text_in_config_to_save += str(point_setups_note_selection_type[i]) + '\n'
+        text_in_config_to_save += str(point_setups_input_type[i]) + '\n'
+        text_in_config_to_save += str(point_setups_single_line_input[i]) + '\n'
+    print(text_in_config_to_save)
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()    
 
@@ -129,8 +153,94 @@ def load_config_dialog():
     try:
         read_text_file = open(load_config_file_name, 'r')
         lines = read_text_file.readlines()
+        ball_0_selected_config.set(lines[0].rstrip('\n'))
+        ball_1_selected_config.set(lines[1].rstrip('\n'))
+        ball_2_selected_config.set(lines[2].rstrip('\n'))
+        selected_config_midi_channels[0] = int(lines[3].rstrip('\n'))      
+        left_column_peak_path_point_configuration_index[0] = int(lines[4])
+        left_column_catch_path_point_configuration_index[0] = int(lines[5])
+        left_column_throw_path_point_configuration_index[0] = int(lines[6])
+        left_cross_peak_path_point_configuration_index[0] = int(lines[7])
+        left_cross_catch_path_point_configuration_index[0] = int(lines[8])
+        left_cross_throw_path_point_configuration_index[0] = int(lines[9])
+        mid_column_peak_path_point_configuration_index[0] = int(lines[10])
+        mid_column_catch_path_point_configuration_index[0] = int(lines[11])
+        mid_column_throw_path_point_configuration_index[0] = int(lines[12])
+        mid_cross_peak_path_point_configuration_index[0] = int(lines[13])
+        mid_cross_catch_path_point_configuration_index[0] = int(lines[14])
+        mid_cross_throw_path_point_configuration_index[0] = int(lines[15])
+        right_column_peak_path_point_configuration_index[0] = int(lines[16])
+        right_column_catch_path_point_configuration_index[0] = int(lines[17])
+        right_column_throw_path_point_configuration_index[0] = int(lines[18])
+        right_cross_peak_path_point_configuration_index[0] = int(lines[19])
+        right_cross_catch_path_point_configuration_index[0] = int(lines[20])
+        right_cross_throw_path_point_configuration_index[0] = int(lines[21])
+        selected_config_midi_channels[1] = int(lines[22])       
+        left_column_peak_path_point_configuration_index[1] = int(lines[23])
+        left_column_catch_path_point_configuration_index[1] = int(lines[24])
+        left_column_throw_path_point_configuration_index[1] = int(lines[25])
+        left_cross_peak_path_point_configuration_index[1] = int(lines[26])
+        left_cross_catch_path_point_configuration_index[1] = int(lines[27])
+        left_cross_throw_path_point_configuration_index[1] = int(lines[28])
+        mid_column_peak_path_point_configuration_index[1] = int(lines[29])
+        mid_column_catch_path_point_configuration_index[1] = int(lines[30])
+        mid_column_throw_path_point_configuration_index[1] = int(lines[31])
+        mid_cross_peak_path_point_configuration_index[1] = int(lines[32])
+        mid_cross_catch_path_point_configuration_index[1] = int(lines[33])
+        mid_cross_throw_path_point_configuration_index[1] = int(lines[34])
+        right_column_peak_path_point_configuration_index[1] = int(lines[35])
+        right_column_catch_path_point_configuration_index[1] = int(lines[36])
+        right_column_throw_path_point_configuration_index[1] = int(lines[37])
+        right_cross_peak_path_point_configuration_index[1] = int(lines[38])
+        right_cross_catch_path_point_configuration_index[1] = int(lines[39])
+        right_cross_throw_path_point_configuration_index[1] = int(lines[40])
+        selected_config_midi_channels[2] = int(lines[41])       
+        left_column_peak_path_point_configuration_index[2] = int(lines[42])
+        left_column_catch_path_point_configuration_index[2] = int(lines[43])
+        left_column_throw_path_point_configuration_index[2] = int(lines[44])
+        left_cross_peak_path_point_configuration_index[2] = int(lines[45])
+        left_cross_catch_path_point_configuration_index[2] = int(lines[46])
+        left_cross_throw_path_point_configuration_index[2] = int(lines[47])
+        mid_column_peak_path_point_configuration_index[2] = int(lines[48])
+        mid_column_catch_path_point_configuration_index[2] = int(lines[49])
+        mid_column_throw_path_point_configuration_index[2] = int(lines[50])
+        mid_cross_peak_path_point_configuration_index[2] = int(lines[51])
+        mid_cross_catch_path_point_configuration_index[2] = int(lines[52])
+        mid_cross_throw_path_point_configuration_index[2] = int(lines[53])
+        right_column_peak_path_point_configuration_index[2] = int(lines[54])
+        right_column_catch_path_point_configuration_index[2] = int(lines[55])
+        right_column_throw_path_point_configuration_index[2] = int(lines[56])
+        right_cross_peak_path_point_configuration_index[2] = int(lines[57])
+        right_cross_catch_path_point_configuration_index[2] = int(lines[58])
+        right_cross_throw_path_point_configuration_index[2] = int(lines[59])
+        point_setups_note_selection_type[0] = lines[60].rstrip('\n')
+        point_setups_input_type[0] = lines[61].rstrip('\n')
+        point_setups_single_line_input[0] = lines[62].rstrip('\n')
+        point_setups_note_selection_type[1] = lines[63].rstrip('\n')
+        point_setups_input_type[1] = lines[64].rstrip('\n')
+        point_setups_single_line_input[1] = lines[65].rstrip('\n')
+        point_setups_note_selection_type[2] = lines[66].rstrip('\n')
+        point_setups_input_type[2] = lines[67].rstrip('\n')
+        point_setups_single_line_input[2] = lines[68].rstrip('\n')
+        point_setups_note_selection_type[3] = lines[69].rstrip('\n')
+        point_setups_input_type[3] = lines[70].rstrip('\n')
+        point_setups_single_line_input[3] = lines[71].rstrip('\n')
+        point_setups_note_selection_type[4] = lines[72].rstrip('\n')
+        point_setups_input_type[4] = lines[73].rstrip('\n')
+        point_setups_single_line_input[4] = lines[74].rstrip('\n')
+        point_setups_note_selection_type[5] = lines[75].rstrip('\n')
+        point_setups_input_type[5] = lines[76].rstrip('\n')
+        point_setups_single_line_input[5] = lines[77].rstrip('\n')
+        point_setups_note_selection_type[6] = lines[78].rstrip('\n')
+        point_setups_input_type[6] = lines[79].rstrip('\n')
+        point_setups_single_line_input[6] = lines[80].rstrip('\n')
         read_text_file.close()
         current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
+        selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
+        set_path_point_buttons_based_on_selected_ball()
+        input_type.set(point_setups_input_type[int(current_point_config_index.get())])
+        point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
+        note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
     except FileNotFoundError:
         pass   
 
@@ -295,7 +405,6 @@ def show_point_config_inputs():
     chord_input_type.place(x=280,y=510)
     arpeggio_input_type.place(x=280,y=540)
     point_single_line_input.place(x=400,y=450)
-    point_multi_line_input.place(x=1400,y=450)
 
 def hide_point_config_inputs():
     current_positional_note_selection_type.place(x=1180,y=450)
@@ -307,7 +416,6 @@ def hide_point_config_inputs():
     chord_input_type.place(x=1280,y=510)
     arpeggio_input_type.place(x=1280,y=540)
     point_single_line_input.place(x=1400,y=450)
-    point_multi_line_input.place(x=1400,y=450)
 
 def selected_number_of_balls_changed(*args):
     if selected_number_of_balls.get() == 1:
@@ -482,15 +590,16 @@ rotational_note_selection_type.place(x=80,y=540)
 note_selection_type.set('current positional')
 
 def note_selection_type_changed(*args):
-    if note_selection_type.get() == 'current positional':
+    if note_selection_type.get() == 'current positional' and current_point_config_index.get() != '0':
         arpeggio_input_type.place(x=280,y=540)
-    if note_selection_type.get() == 'previous positional':
+    if note_selection_type.get() == 'previous positional'and current_point_config_index.get() != '0':
         arpeggio_input_type.place(x=280,y=540)
-    if note_selection_type.get() == 'penultimate positional':
+    if note_selection_type.get() == 'penultimate positional'and current_point_config_index.get() != '0':
         arpeggio_input_type.place(x=280,y=540)
-    if note_selection_type.get() == 'rotational':
+    if note_selection_type.get() == 'rotational'and current_point_config_index.get() != '0':
         arpeggio_input_type.place(x=1280,y=540)
-        input_type.set('chord')
+        if input_type.get() == 'arpeggio':
+            input_type.set('chord')
     point_setups_note_selection_type[int(current_point_config_index.get())] = note_selection_type.get()
 
 note_selection_type.trace('w', note_selection_type_changed)
@@ -507,18 +616,6 @@ arpeggio_input_type.place(x=280,y=540)
 input_type.set('midi')
 
 def input_type_changed(*args):
-    if input_type.get() == 'midi':
-        point_single_line_input.place(x=400,y=450)
-        point_multi_line_input.place(x=1400,y=450)
-    if input_type.get() == 'note':
-        point_single_line_input.place(x=400,y=450)
-        point_multi_line_input.place(x=1400,y=450)
-    if input_type.get() == 'chord':
-        point_single_line_input.place(x=400,y=450)
-        point_multi_line_input.place(x=1400,y=450)
-    if input_type.get() == 'arpeggio':
-        point_single_line_input.place(x=1400,y=450)
-        point_multi_line_input.place(x=400,y=450)
     point_setups_input_type[int(current_point_config_index.get())] = input_type.get()
 
 input_type.trace('w', input_type_changed)
@@ -531,15 +628,6 @@ def point_single_line_input_changed(*args):
     point_setups_single_line_input[int(current_point_config_index.get())] = point_single_line_input_text.get()
 
 point_single_line_input_text.trace('w', point_single_line_input_changed)
-
-point_multi_line_input_text = StringVar()
-point_multi_line_input = ScrolledText(root,wrap = ttk.WORD, width  = 45,height = 1)
-point_multi_line_input.place(x=1400,y=450)
-
-def point_multi_line_input_changed(*args):
-    point_setups_multi_line_input[current_point_config_index] = point_multi_line_input_text.get()
-
-point_multi_line_input_text.trace('w', point_multi_line_input_changed)
 
 selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
 selected_config_midi_channel_optionmenu.place(x=780,y=150)
@@ -937,6 +1025,7 @@ root.mainloop()
 
 del midiout
 #TODO
+#if note or velocity entries losing focus while blank causes crash
 #tell user in color calibration that Q will leave calibration mode, maybe at the bottom of the calibration windows
 #make load/save load & save all the user defined specifics that make up our arrays
 #make arpeggio be several single line entries, not a scrolling text
