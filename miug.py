@@ -998,7 +998,6 @@ def ball_2_config_letter_changed(*args):
     set_path_point_buttons_based_on_selected_ball()
     selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
 
-#current_config_letter.trace('w', current_config_letter_changed)
 ball_0_selected_config.trace('w', ball_0_config_letter_changed)
 ball_1_selected_config.trace('w', ball_1_config_letter_changed)
 ball_2_selected_config.trace('w', ball_2_config_letter_changed)
@@ -1025,13 +1024,13 @@ root.mainloop()
 
 del midiout
 #TODO
-#if note or velocity entries losing focus while blank causes crash
+#hook up the midi_associations to the arrays a the top of this file
+#figure out how to handle velocity, maybe for now just leave it to be done on the ableton side of things
+#note or velocity entries losing focus while blank causes crash
 #tell user in color calibration that Q will leave calibration mode, maybe at the bottom of the calibration windows
-#make load/save load & save all the user defined specifics that make up our arrays
-#make arpeggio be several single line entries, not a scrolling text
-#   -should there be a certain number of entries out there and however many the user uses is how 
-#       many the screen gets split into or
-#       another entry/dropdown that user uses to specify number of slots
+#make arpeggio be several single line entries, maybe for now just leave it as one line that is seperated
+#       by slashes or something to indicate the next arpeggio. even if we do that, we still need another
+#       row of optionmenu choices for midi,note,chord. unless we move arpegio over to the first row
 #   
 # if '3 balls' is clicked,
 #   then we show all the things that could control cc messages such as speed, average 
@@ -1047,18 +1046,6 @@ del midiout
 #   set at in the calibration, put them each on colored squares that match their calibration colors and
 #   make their font white or something
 
-#the section at the bottom that sends midi notes should have an option for sending midi, notes, or chords
-#   instead of a optionmenu for note, we should have an optionmenu that is full of every possible input based on
-#   which of the three is selected
-
-#every time a point is clicked in the ui_path_images, it cycles to the next point_config that has 
-#   a setup associated to it(if there is any message that will be sent), and goes 1 past the last
-#   point config that has a point that has config that has been associated. the point config section 
-#   below should also change based on
-#   which one is currently clicked, it should indicate which of the point configs it is down there,
-#   but the only way to change which one it is is by changing the selected point config of
-#   one of the points above in the point images.
-
 #so far as left and right balls go, if they are close calls, then they should be rounded to left
 #   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
 #   line of the other actual extreme left/right ball, then they themselves should be considered
@@ -1073,3 +1060,10 @@ del midiout
 #   goes back to the first one with something set in it
 #maybe the channel should also be set based on points, not based on ball, this way all right peaks
 #   can be drums, and all left peaks could be piano
+#every time a point is clicked in the ui_path_images, it cycles to the next point_config that has 
+#   a setup associated to it(if there is any message that will be sent), and goes 1 past the last
+#   point config that has a point that has config that has been associated. the point config section 
+#   below should also change based on
+#   which one is currently clicked, it should indicate which of the point configs it is down there,
+#   but the only way to change which one it is is by changing the selected point config of
+#   one of the points above in the point images.

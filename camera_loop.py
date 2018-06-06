@@ -79,10 +79,10 @@ def run_camera():
         if number_of_contours_seen > 0 and frame_count > 10:   
             calculate_kinematics(frame_count)             
             relative_positions = determine_relative_positions()
-            for i in range(max_balls):
-                if settings.all_cx[i][-1] != 'X':          
-                    analyze_trajectory(i,relative_positions[i],frame_count,average_fps)
-                    create_audio(i)
+            for ball_index in range(max_balls):
+                if settings.all_cx[ball_index][-1] != 'X':          
+                    analyze_trajectory(ball_index,relative_positions[ball_index],frame_count,average_fps)
+                    create_audio(ball_index)
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame
         previous_frame = frame

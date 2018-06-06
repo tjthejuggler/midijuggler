@@ -57,12 +57,12 @@ def positional_selecter(ball_index, list_of_notes):
         stretched_note_positions.append(int(i*section_size+section_size*.5))
     triggered_section_position = min(stretched_note_positions, key=lambda x:abs(x-all_cx[ball_index][-1]))
     triggered_section_index = stretched_note_positions.index(triggered_section_position)
-    midi_associations['peak']['mid column']['times_position_triggered'][triggered_section_index]+=1
+    midi_associations['ball '+str(ball_index)]['peak']['mid column']['times_position_triggered'][triggered_section_index]+=1
     for i in range(4):
         if i != triggered_section_index:
-            midi_associations['peak']['mid column']['times_position_triggered'][triggered_section_index]=0
+            midi_associations['ball '+str(ball_index)]['peak']['mid column']['times_position_triggered'][triggered_section_index]=0
     if settings.play_chords_as_arpeggio:
-        cur_arpeggio_index = midi_associations['peak']['mid column']['times_position_triggered'][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
+        cur_arpeggio_index = midi_associations['ball '+str(ball_index)]['peak']['mid column']['times_position_triggered'][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
         notes_to_return = list_of_notes[triggered_section_index][cur_arpeggio_index]
     else:
         notes_to_return = list_of_notes[triggered_section_index]
@@ -193,47 +193,47 @@ def setup_audio():
         create_association_object()
     return sounds, song
 
-def get_midi_note(index,path_phase,path_type):
+def get_midi_note(ball_index,path_phase,path_type):
     channel = 0
     notes = []
     magnitude = 0
-    this_path_phase = path_phase[index]
-    this_path_type = path_type[index]
+    this_path_phase = path_phase[ball_index]
+    this_path_type = path_type[ball_index]
     is_ongoing = False
-    if this_path_phase in midi_associations:
-        if this_path_type in midi_associations[this_path_phase]:
-            if 'channel' in midi_associations[this_path_phase][this_path_type]:
-                channel = midi_associations[this_path_phase][this_path_type]['channel']           
-            if 'notes' in midi_associations[this_path_phase][this_path_type]:
-                all_possible_notes = midi_associations[this_path_phase][this_path_type]['notes']
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'rotational':
-                        notes = rotational_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'positional':
-                        notes = positional_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'hybrid':
-                        notes = hybrid_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'loop':
+    if this_path_phase in midi_associations['ball '+str(ball_index)]:
+        if this_path_type in midi_associations['ball '+str(ball_index)][this_path_phase]:
+            if 'channel' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                channel = midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['channel']           
+            if 'notes' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                all_possible_notes = midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['notes']
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'rotational':
+                        notes = rotational_selecter(ball_index,all_possible_notes)
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'positional':
+                        notes = positional_selecter(ball_index,all_possible_notes)
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'hybrid':
+                        notes = hybrid_selecter(ball_index,all_possible_notes)
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'loop':
                         notes = loop_creator(all_possible_notes)
-            if 'magnitude' in midi_associations[this_path_phase][this_path_type]:
-                magnitude = midi_associations[this_path_phase][this_path_type]['magnitude'](index)    
-    if 'all phases' in midi_associations:
-        if midi_associations['all phases']['all types']['note_selection_mode'] == 'honeycomb':
+            if 'magnitude' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                magnitude = midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['magnitude'](ball_index)    
+    if 'all phases' in midi_associations['ball '+str(ball_index)]:
+        if midi_associations['ball '+str(ball_index)]['all phases']['all types']['note_selection_mode'] == 'honeycomb':
             is_ongoing = True
-            all_possible_notes = midi_associations['all phases']['all types']['notes']
-            notes = honeycomb_selecter(index,all_possible_notes)
-            magnitude = midi_associations['all phases']['all types']['magnitude'](index)
-            channel = midi_associations['all phases']['all types']['channel']
+            all_possible_notes = midi_associations['ball '+str(ball_index)]['all phases']['all types']['notes']
+            notes = honeycomb_selecter(ball_index,all_possible_notes)
+            magnitude = midi_associations['ball '+str(ball_index)]['all phases']['all types']['magnitude'](ball_index)
+            channel = midi_associations['ball '+str(ball_index)]['all phases']['all types']['channel']
     return channel, notes, magnitude, is_ongoing
 
-def get_midi_modulation(index,path_phase,path_type):
-    this_path_phase = path_phase[index]
-    this_path_type = path_type[index]
+def get_midi_modulation(ball_index,path_phase,path_type):
+    this_path_phase = path_phase[ball_index]
+    this_path_type = path_type[ball_index]
     modulators = []
-    if this_path_phase in midi_associations:
-        if this_path_type in midi_associations[this_path_phase]:
-            if 'modulator' in midi_associations[this_path_phase][this_path_type]:
-                for i in midi_associations[this_path_phase][this_path_type]['modulator']:
-                    modulators.append(midi_modulator(index, i[0], i[1], i[2]))
+    if this_path_phase in midi_associations['ball '+str(ball_index)]:
+        if this_path_type in midi_associations['ball '+str(ball_index)][this_path_phase]:
+            if 'modulator' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                for i in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['modulator']:
+                    modulators.append(midi_modulator(ball_index, i[0], i[1], i[2]))
     return modulators
 
 def send_midi_messages(channel, notes, magnitude, modulators): 
@@ -330,33 +330,26 @@ def send_midi_note_from_soundscape_color(soundscape_color):
     average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
     send_midi_messages(2,average_soundscape_color,40,[])
 
-def create_audio(index):
+def create_audio(ball_index):
     global use_override_notes,override_notes,last_note_sent
     is_ongoing = False
     if use_adjust_song_magnitude:
         adjust_song_magnitude('y',120,average_position(all_cy, 10, -1),song)
     if using_midi:
-        if path_phase[index] == 'putt':
-            override_notes = positional_selecter(index,settings.scale_to_use)
+        if path_phase[ball_index] == 'putt':
+            override_notes = positional_selecter(ball_index,settings.scale_to_use)
             use_override_notes = True
         if settings.using_soundscape:
-            soundscape_color = soundscape_image[all_cy[index][-1],all_cx[index][-1]]
+            soundscape_color = soundscape_image[all_cy[ball_index][-1],all_cx[ball_index][-1]]
             send_midi_note_from_soundscape_color(soundscape_color)
         else:
-            if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
-                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
-                    modulators = get_midi_modulation(index,path_phase,path_type)
-                    send_midi_messages(channel+index, notes, magnitude, modulators)                    
-            elif 'all phases' in midi_associations: # i think this should be replaced with
-            #   some kind of function that makes all the associations
-                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
-                    if last_note_sent != notes:
-                        turn_midi_note_off(channel,last_note_sent)
-                        send_midi_note_on_only(channel, notes, magnitude)
-                        last_note_sent = notes        
+            if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
+                channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
+                modulators = get_midi_modulation(ball_index,path_phase,path_type)
+                send_midi_messages(channel, notes, magnitude, modulators)                      
     else:
-        note, magnitude = get_wav_sample(index)
-        modulation = get_wav_modulation(index)
+        note, magnitude = get_wav_sample(ball_index)
+        modulation = get_wav_modulation(ball_index)
         send_wav_messages(note, magnitude, modulation)
 
 def create_association_object():
@@ -451,55 +444,155 @@ def create_association_object():
     midi_associations['throw']['right cross']['magnitude'] = midi_magnitude
     #midi_associations['throw']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
 
+    midi_associations['ball 0'] = {}
+    midi_associations['ball 0']['peak'] = {}
+    midi_associations['ball 0']['peak']['mid column'] = {}
+    midi_associations['ball 0']['peak']['mid column']['channel'] = 2
+    midi_associations['ball 0']['peak']['mid column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 0']['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 0']['peak']['mid column']['notes'] = column_notes_to_use
+    midi_associations['ball 0']['peak']['mid column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 0']['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    #midi_associations['ball 0']['peak']['mid column'] = {}
+    #midi_associations['ball 0']['peak']['mid column']['channel'] = 2
+    #midi_associations['ball 0']['peak']['mid column']['notes']['scale_type'] = 
+    #midi_associations['ball 0']['peak']['mid column']['notes']['root'] = 
+    #midi_associations['ball 0']['peak']['mid column']['notes'][''] = chord/scale/individual   
+    midi_associations['ball 0']['peak']['left column'] = {}
+    midi_associations['ball 0']['peak']['left column']['channel'] = 2
+    midi_associations['ball 0']['peak']['left column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 0']['peak']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 0']['peak']['left column']['notes'] = column_notes_to_use
+    midi_associations['ball 0']['peak']['left column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 0']['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 0']['peak']['right column'] = {}
+    midi_associations['ball 0']['peak']['right column']['channel'] = 2
+    midi_associations['ball 0']['peak']['right column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 0']['peak']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 0']['peak']['right column']['notes'] = column_notes_to_use
+    midi_associations['ball 0']['peak']['right column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 0']['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 0']['peak']['mid cross'] = {}
+    midi_associations['ball 0']['peak']['mid cross']['channel'] = 2
+    midi_associations['ball 0']['peak']['mid cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 0']['peak']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 0']['peak']['mid cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 0']['peak']['mid cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 0']['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 0']['peak']['left cross'] = {}
+    midi_associations['ball 0']['peak']['left cross']['channel'] = 2
+    midi_associations['ball 0']['peak']['left cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 0']['peak']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 0']['peak']['left cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 0']['peak']['left cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 0']['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 0']['peak']['right cross'] = {}
+    midi_associations['ball 0']['peak']['right cross']['channel'] = 2
+    midi_associations['ball 0']['peak']['right cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 0']['peak']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 0']['peak']['right cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 0']['peak']['right cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 0']['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
 
-    midi_associations['peak'] = {}
-    midi_associations['peak']['mid column'] = {}
-    midi_associations['peak']['mid column']['channel'] = 0
-    midi_associations['peak']['mid column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['mid column']['notes'] = column_notes_to_use
-    midi_associations['peak']['mid column']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    #midi_associations['peak']['mid column'] = {}
-    #midi_associations['peak']['mid column']['channel'] = 1
-    #midi_associations['peak']['mid column']['notes']['scale_type'] = 
-    #midi_associations['peak']['mid column']['notes']['root'] = 
-    #midi_associations['peak']['mid column']['notes'][''] = chord/scale/individual   
-    midi_associations['peak']['left column'] = {}
-    midi_associations['peak']['left column']['channel'] = 0
-    midi_associations['peak']['left column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['left column']['notes'] = column_notes_to_use
-    midi_associations['peak']['left column']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['right column'] = {}
-    midi_associations['peak']['right column']['channel'] = 0
-    midi_associations['peak']['right column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['right column']['notes'] = column_notes_to_use
-    midi_associations['peak']['right column']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['mid cross'] = {}
-    midi_associations['peak']['mid cross']['channel'] = 0
-    midi_associations['peak']['mid cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['mid cross']['notes'] = cross_notes_to_use
-    midi_associations['peak']['mid cross']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['left cross'] = {}
-    midi_associations['peak']['left cross']['channel'] = 0
-    midi_associations['peak']['left cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['left cross']['notes'] = cross_notes_to_use
-    midi_associations['peak']['left cross']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['right cross'] = {}
-    midi_associations['peak']['right cross']['channel'] = 0
-    midi_associations['peak']['right cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['right cross']['notes'] = cross_notes_to_use
-    midi_associations['peak']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
+    midi_associations['ball 1'] = {}
+    midi_associations['ball 1']['peak'] = {}
+    midi_associations['ball 1']['peak']['mid column'] = {}
+    midi_associations['ball 1']['peak']['mid column']['channel'] = 1
+    midi_associations['ball 1']['peak']['mid column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 1']['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 1']['peak']['mid column']['notes'] = column_notes_to_use
+    midi_associations['ball 1']['peak']['mid column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 1']['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    #midi_associations['ball 1']['peak']['mid column'] = {}
+    #midi_associations['ball 1']['peak']['mid column']['channel'] = 1
+    #midi_associations['ball 1']['peak']['mid column']['notes']['scale_type'] = 
+    #midi_associations['ball 1']['peak']['mid column']['notes']['root'] = 
+    #midi_associations['ball 1']['peak']['mid column']['notes'][''] = chord/scale/individual   
+    midi_associations['ball 1']['peak']['left column'] = {}
+    midi_associations['ball 1']['peak']['left column']['channel'] = 1
+    midi_associations['ball 1']['peak']['left column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 1']['peak']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 1']['peak']['left column']['notes'] = column_notes_to_use
+    midi_associations['ball 1']['peak']['left column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 1']['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 1']['peak']['right column'] = {}
+    midi_associations['ball 1']['peak']['right column']['channel'] = 1
+    midi_associations['ball 1']['peak']['right column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 1']['peak']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 1']['peak']['right column']['notes'] = column_notes_to_use
+    midi_associations['ball 1']['peak']['right column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 1']['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 1']['peak']['mid cross'] = {}
+    midi_associations['ball 1']['peak']['mid cross']['channel'] = 1
+    midi_associations['ball 1']['peak']['mid cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 1']['peak']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 1']['peak']['mid cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 1']['peak']['mid cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 1']['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 1']['peak']['left cross'] = {}
+    midi_associations['ball 1']['peak']['left cross']['channel'] = 1
+    midi_associations['ball 1']['peak']['left cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 1']['peak']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 1']['peak']['left cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 1']['peak']['left cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 1']['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 1']['peak']['right cross'] = {}
+    midi_associations['ball 1']['peak']['right cross']['channel'] = 1
+    midi_associations['ball 1']['peak']['right cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 1']['peak']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 1']['peak']['right cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 1']['peak']['right cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 1']['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
+
+    midi_associations['ball 2'] = {}
+    midi_associations['ball 2']['peak'] = {}
+    midi_associations['ball 2']['peak']['mid column'] = {}
+    midi_associations['ball 2']['peak']['mid column']['channel'] = 0
+    midi_associations['ball 2']['peak']['mid column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 2']['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 2']['peak']['mid column']['notes'] = column_notes_to_use
+    midi_associations['ball 2']['peak']['mid column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 2']['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    #midi_associations['ball 2']['peak']['mid column'] = {}
+    #midi_associations['ball 2']['peak']['mid column']['channel'] = 1
+    #midi_associations['ball 2']['peak']['mid column']['notes']['scale_type'] = 
+    #midi_associations['ball 2']['peak']['mid column']['notes']['root'] = 
+    #midi_associations['ball 2']['peak']['mid column']['notes'][''] = chord/scale/individual   
+    midi_associations['ball 2']['peak']['left column'] = {}
+    midi_associations['ball 2']['peak']['left column']['channel'] = 0
+    midi_associations['ball 2']['peak']['left column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 2']['peak']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 2']['peak']['left column']['notes'] = column_notes_to_use
+    midi_associations['ball 2']['peak']['left column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 2']['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 2']['peak']['right column'] = {}
+    midi_associations['ball 2']['peak']['right column']['channel'] = 0
+    midi_associations['ball 2']['peak']['right column']['note_selection_mode'] = column_selection_mode
+    midi_associations['ball 2']['peak']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 2']['peak']['right column']['notes'] = column_notes_to_use
+    midi_associations['ball 2']['peak']['right column']['magnitude'] = midi_magnitude
+    #midi_associations['ball 2']['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 2']['peak']['mid cross'] = {}
+    midi_associations['ball 2']['peak']['mid cross']['channel'] = 0
+    midi_associations['ball 2']['peak']['mid cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 2']['peak']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 2']['peak']['mid cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 2']['peak']['mid cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 2']['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 2']['peak']['left cross'] = {}
+    midi_associations['ball 2']['peak']['left cross']['channel'] = 0
+    midi_associations['ball 2']['peak']['left cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 2']['peak']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 2']['peak']['left cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 2']['peak']['left cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 2']['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
+    midi_associations['ball 2']['peak']['right cross'] = {}
+    midi_associations['ball 2']['peak']['right cross']['channel'] = 0
+    midi_associations['ball 2']['peak']['right cross']['note_selection_mode'] = cross_selection_mode
+    midi_associations['ball 2']['peak']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+    midi_associations['ball 2']['peak']['right cross']['notes'] = cross_notes_to_use
+    midi_associations['ball 2']['peak']['right cross']['magnitude'] = midi_magnitude
+    #midi_associations['ball 2']['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
 
     '''midi_associations['chop'] = {}
     midi_associations['chop']['mid column'] = {}

@@ -121,7 +121,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         upper_range = np.array([float(high_track_range_hue[i]), float(255),  float(high_track_range_value[i])])
         mask[i] = cv2.inRange(current_framehsv, lower_range, upper_range)
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
-        mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
+        mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=4)
         if settings.show_camera:
             show_color_calibration_if_necessary(mask[selected_ball_num],selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value)
             continue

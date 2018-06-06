@@ -62,20 +62,20 @@ def determine_relative_positions():
     return ['left', 'mid', 'right']
 fall_acceleration_from_calibration = -5
 
-def chop_checker(index,average_fps):
+def chop_checker(ball_index,average_fps):
     #it isnt great, things to try:
     #       print everything
     #       change the variables, 
-    enough_time_since_last_chop = time.time() - last_chop_time[index] > minimum_time_between_chops
+    enough_time_since_last_chop = time.time() - last_chop_time[ball_index] > minimum_time_between_chops
     fraction_of_a_second_to_look_back = 10
     number_of_frames_ago_to_use = int(math.ceil(average_fps/fraction_of_a_second_to_look_back))
     times_faster_than_gravity_required = 5
     minimum_distance_to_trigger_chop = abs(fall_acceleration_from_calibration*number_of_frames_ago_to_use*times_faster_than_gravity_required)
-    #print(index)
+    #print(ball_index)
     #print(number_of_frames_ago_to_use)
-    if settings.all_cx[index][-number_of_frames_ago_to_use] != 'X':
-        chop_is_downward = settings.all_cy[index][-1] > settings.all_cy[index][-number_of_frames_ago_to_use]
-        distance_between_frames = math.sqrt((settings.all_cx[index][-1] - settings.all_cx[index][-number_of_frames_ago_to_use])**2 + (settings.all_cy[index][-1] - settings.all_cy[index][-number_of_frames_ago_to_use])**2)
+    if settings.all_cx[ball_index][-number_of_frames_ago_to_use] != 'X':
+        chop_is_downward = settings.all_cy[ball_index][-1] > settings.all_cy[ball_index][-number_of_frames_ago_to_use]
+        distance_between_frames = math.sqrt((settings.all_cx[ball_index][-1] - settings.all_cx[ball_index][-number_of_frames_ago_to_use])**2 + (settings.all_cy[ball_index][-1] - settings.all_cy[ball_index][-number_of_frames_ago_to_use])**2)
         return distance_between_frames>minimum_distance_to_trigger_chop and enough_time_since_last_chop and chop_is_downward
     else:
         return False
@@ -86,60 +86,60 @@ def chop_checker(index,average_fps):
     #try and just ignore any that have an X in it.
 
 
-def determine_path_phase(index, frame_count,average_fps):
+def determine_path_phase(ball_index, frame_count,average_fps):
     global peak_count
-    if len(settings.all_ay[index]) > 0 and settings.all_vy[index][-1]!='X':
-        if path_phase[index] == 'throw' and settings.all_vy[index][-1] > 0:
-            settings.path_phase[index] = 'up'
-        if path_phase[index] == 'catch':                
-            settings.path_phase[index] = 'held'
-        if all(isinstance(item, int) for item in settings.all_ay[index][-3:]):
-            recent_average_acceleration = sum(settings.all_ay[index][-3:])/3
+    if len(settings.all_ay[ball_index]) > 0 and settings.all_vy[ball_index][-1]!='X':
+        if path_phase[ball_index] == 'throw' and settings.all_vy[ball_index][-1] > 0:
+            settings.path_phase[ball_index] = 'up'
+        if path_phase[ball_index] == 'catch':                
+            settings.path_phase[ball_index] = 'held'
+        if all(isinstance(item, int) for item in settings.all_ay[ball_index][-3:]):
+            recent_average_acceleration = sum(settings.all_ay[ball_index][-3:])/3
             fall_acceleration_threshold = -fall_acceleration_from_calibration*0.8
             if abs((fall_acceleration_from_calibration)-recent_average_acceleration) < fall_acceleration_threshold:
-                #print('                        NOT IN HAND'+str(index))
-                if settings.in_hand[index] == True:
-                    settings.path_phase[index] = 'throw'
+                #print('                        NOT IN HAND'+str(ball_index))
+                if settings.in_hand[ball_index] == True:
+                    settings.path_phase[ball_index] = 'throw'
                 else:                
-                    if settings.all_vy[index][-1] > 0:
-                        settings.path_phase[index] = 'up'
+                    if settings.all_vy[ball_index][-1] > 0:
+                        settings.path_phase[ball_index] = 'up'
                     else:
-                        if settings.path_phase[index] == 'up':
-                            settings.path_phase[index] = 'peak'
+                        if settings.path_phase[ball_index] == 'up':
+                            settings.path_phase[ball_index] = 'peak'
                             peak_count = peak_count+1
                             #print('PEAK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                        elif settings.path_phase[index] == 'peak':
-                            settings.path_phase[index] = 'down'
-                settings.in_hand[index] = False
+                        elif settings.path_phase[ball_index] == 'peak':
+                            settings.path_phase[ball_index] = 'down'
+                settings.in_hand[ball_index] = False
             else:            
                 #print('                                             IN HAND')
-                if settings.in_hand[index] == False:
-                    settings.path_phase[index] = 'catch' 
+                if settings.in_hand[ball_index] == False:
+                    settings.path_phase[ball_index] = 'catch' 
                 else:
-                    settings.path_phase[index] = 'held'
-                    if chop_checker(index,average_fps):                
-                        last_chop_time[index] = time.time()
-                        settings.path_phase[index] = 'chop'
+                    settings.path_phase[ball_index] = 'held'
+                    if chop_checker(ball_index,average_fps):                
+                        last_chop_time[ball_index] = time.time()
+                        settings.path_phase[ball_index] = 'chop'
                         #print('CHOP!!')
-                settings.in_hand[index] = True    
+                settings.in_hand[ball_index] = True    
         else:
-            settings.path_phase[index] = 'none'
+            settings.path_phase[ball_index] = 'none'
     tab=' '*20
-    print(tab*index + str(path_phase[index]))
+    print(tab*ball_index + str(path_phase[ball_index]))
 
-def determine_path_type(index,position):
-    settings.path_type[index] = position
-    if settings.all_vx[index][-1] != 'X':
-        if abs(settings.all_vx[index][-1]) > average_min_height/5:
-            settings.path_type[index] = settings.path_type[index] + ' cross'
+def determine_path_type(ball_index,position):
+    settings.path_type[ball_index] = position
+    if settings.all_vx[ball_index][-1] != 'X':
+        if abs(settings.all_vx[ball_index][-1]) > average_min_height/5:
+            settings.path_type[ball_index] = settings.path_type[ball_index] + ' cross'
         else:
-            settings.path_type[index] = settings.path_type[index] + ' column'
+            settings.path_type[ball_index] = settings.path_type[ball_index] + ' column'
         #if abs(xv) > average_min_height and abs(yv) < average_min_height:
-            #path_type[index] = 'one'
+            #path_type[ball_index] = 'one'
     else:
-        settings.path_type[index] = 'none'
+        settings.path_type[ball_index] = 'none'
 
-def analyze_trajectory(index,relative_position, frame_count,average_fps):
-    if len(settings.all_vx[index]) > 0:
-        determine_path_phase(index, frame_count,average_fps)
-        determine_path_type(index,relative_position)
+def analyze_trajectory(ball_index,relative_position, frame_count,average_fps):
+    if len(settings.all_vx[ball_index]) > 0:
+        determine_path_phase(ball_index, frame_count,average_fps)
+        determine_path_type(ball_index,relative_position)
