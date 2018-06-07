@@ -34,73 +34,73 @@ root.title('Miug')
 root.geometry('900x800')
 root.resizable(0, 0)
 
+#selected_configs_of_balls = ['X','X','X']
 
-
-left_column_peak_path_point_configuration_index = [0, 0, 0]
+#left_column_peak_path_point_configuration_index = [0, 0, 0]
 left_column_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
 left_column_peak_path_point_configuration_index_of_current_ball_config_index.set('0') 
-left_column_catch_path_point_configuration_index = [0, 0, 0]
+#left_column_catch_path_point_configuration_index = [0, 0, 0]
 left_column_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
 left_column_catch_path_point_configuration_index_of_current_ball_config_index.set('0') 
-left_column_throw_path_point_configuration_index = [0, 0, 0]
+#left_column_throw_path_point_configuration_index = [0, 0, 0]
 left_column_throw_path_point_configuration_index_of_current_ball_config_index = StringVar()
 left_column_throw_path_point_configuration_index_of_current_ball_config_index.set('0') 
 
-left_cross_peak_path_point_configuration_index = [0, 0, 0]
+#left_cross_peak_path_point_configuration_index = [0, 0, 0]
 left_cross_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
 left_cross_peak_path_point_configuration_index_of_current_ball_config_index.set('0') 
-left_cross_catch_path_point_configuration_index = [0, 0, 0]
+#left_cross_catch_path_point_configuration_index = [0, 0, 0]
 left_cross_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
 left_cross_catch_path_point_configuration_index_of_current_ball_config_index.set('0') 
-left_cross_throw_path_point_configuration_index = [0, 0, 0]
+#left_cross_throw_path_point_configuration_index = [0, 0, 0]
 left_cross_throw_path_point_configuration_index_of_current_ball_config_index = StringVar()
 left_cross_throw_path_point_configuration_index_of_current_ball_config_index.set('0') 
 
-mid_column_peak_path_point_configuration_index = [0, 0, 0]
+#mid_column_peak_path_point_configuration_index = [0, 0, 0]
 mid_column_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
 mid_column_peak_path_point_configuration_index_of_current_ball_config_index.set('0') 
-mid_column_catch_path_point_configuration_index = [0, 0, 0]
+#mid_column_catch_path_point_configuration_index = [0, 0, 0]
 mid_column_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
 mid_column_catch_path_point_configuration_index_of_current_ball_config_index.set('0') 
-mid_column_throw_path_point_configuration_index = [0, 0, 0]
+#mid_column_throw_path_point_configuration_index = [0, 0, 0]
 mid_column_throw_path_point_configuration_index_of_current_ball_config_index = StringVar()
 mid_column_throw_path_point_configuration_index_of_current_ball_config_index.set('0') 
 
-mid_cross_peak_path_point_configuration_index = [0, 0, 0]
+#mid_cross_peak_path_point_configuration_index = [0, 0, 0]
 mid_cross_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
 mid_cross_peak_path_point_configuration_index_of_current_ball_config_index.set('0') 
-mid_cross_catch_path_point_configuration_index = [0, 0, 0]
+#mid_cross_catch_path_point_configuration_index = [0, 0, 0]
 mid_cross_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
 mid_cross_catch_path_point_configuration_index_of_current_ball_config_index.set('0') 
-mid_cross_throw_path_point_configuration_index = [0, 0, 0]
+#mid_cross_throw_path_point_configuration_index = [0, 0, 0]
 mid_cross_throw_path_point_configuration_index_of_current_ball_config_index = StringVar()
 mid_cross_throw_path_point_configuration_index_of_current_ball_config_index.set('0') 
 
-right_column_peak_path_point_configuration_index = [0, 0, 0]
+#right_column_peak_path_point_configuration_index = [0, 0, 0]
 right_column_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
 right_column_peak_path_point_configuration_index_of_current_ball_config_index.set('0') 
-right_column_catch_path_point_configuration_index = [0, 0, 0]
+#right_column_catch_path_point_configuration_index = [0, 0, 0]
 right_column_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
 right_column_catch_path_point_configuration_index_of_current_ball_config_index.set('0') 
-right_column_throw_path_point_configuration_index = [0, 0, 0]
+#right_column_throw_path_point_configuration_index = [0, 0, 0]
 right_column_throw_path_point_configuration_index_of_current_ball_config_index = StringVar()
 right_column_throw_path_point_configuration_index_of_current_ball_config_index.set('0') 
 
-right_cross_peak_path_point_configuration_index = [0, 0, 0]
+#right_cross_peak_path_point_configuration_index = [0, 0, 0]
 right_cross_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
 right_cross_peak_path_point_configuration_index_of_current_ball_config_index.set('0') 
-right_cross_catch_path_point_configuration_index = [0, 0, 0]
+#right_cross_catch_path_point_configuration_index = [0, 0, 0]
 right_cross_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
 right_cross_catch_path_point_configuration_index_of_current_ball_config_index.set('0') 
-right_cross_throw_path_point_configuration_index = [0, 0, 0]
+#right_cross_throw_path_point_configuration_index = [0, 0, 0]
 right_cross_throw_path_point_configuration_index_of_current_ball_config_index = StringVar()
 right_cross_throw_path_point_configuration_index_of_current_ball_config_index.set('0') 
 
-selected_config_midi_channels = [0,0,0]
+#selected_config_midi_channels = [0,0,0]
 
-point_setups_note_selection_type = ['current positional','current positional','current positional','current positional','current positional','current positional','current positional']
-point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
-point_setups_single_line_input = ['','','','','','','']
+#point_setups_note_selection_type = ['current positional','current positional','current positional','current positional','current positional','current positional','current positional']
+#point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
+#point_setups_single_line_input = ['','','','','','','']
 
 current_ball_config_letter = StringVar()
 current_ball_config_letter.set('X')
@@ -114,6 +114,7 @@ def start_camera():
     settings.show_camera = False
     settings.show_mask = True
     run_camera()
+    print(selected_config_midi_channels)
 
 def save_config_dialog():
     config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
@@ -154,8 +155,11 @@ def load_config_dialog():
         read_text_file = open(load_config_file_name, 'r')
         lines = read_text_file.readlines()
         ball_0_selected_config.set(lines[0].rstrip('\n'))
+        selected_configs_of_balls[0] = lines[0].rstrip('\n')
         ball_1_selected_config.set(lines[1].rstrip('\n'))
+        selected_configs_of_balls[1] = lines[1].rstrip('\n')
         ball_2_selected_config.set(lines[2].rstrip('\n'))
+        selected_configs_of_balls[2] = lines[2].rstrip('\n')
         selected_config_midi_channels[0] = int(lines[3].rstrip('\n'))      
         left_column_peak_path_point_configuration_index[0] = int(lines[4])
         left_column_catch_path_point_configuration_index[0] = int(lines[5])
@@ -262,8 +266,11 @@ selected_config_midi_channel = StringVar(root)
  
 ball_config_choices = {'Y','X','Z'}
 ball_0_selected_config.set('X')
+selected_configs_of_balls[0] = 'X'
 ball_1_selected_config.set('X')
+selected_configs_of_balls[1] = 'X'
 ball_2_selected_config.set('X')
+selected_configs_of_balls[2] = 'X'
 selected_config_midi_channel.set('0')
 
 #courier_16_bold = font(family='Courier', size='16', weight='bold')
@@ -871,7 +878,6 @@ def selected_all_peaks_point_config_index_changed(*args):
     right_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
     current_point_config_index.set(index_for_all_peaks)
 
-
 selected_all_peaks_point_config_index = StringVar(root)
 selected_all_peaks_point_config_index.set('0')
 
@@ -897,7 +903,6 @@ def selected_all_throws_point_config_index_changed(*args):
     right_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
     right_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
     current_point_config_index.set(index_for_all_throws)
-
 
 selected_all_throws_point_config_index = StringVar(root)
 selected_all_throws_point_config_index.set('0')
@@ -961,12 +966,16 @@ def ball_0_config_letter_changed(*args):
     if ball_0_selected_config.get() == 'X':
         current_ball_config_index = 0
         current_ball_config_letter.set('X')
+        selected_configs_of_balls[0] = 'X'
     if ball_0_selected_config.get() == 'Y':
         current_ball_config_index = 1
         current_ball_config_letter.set('Y')
+        selected_configs_of_balls[0] = 'Y'
+        print(selected_configs_of_balls)
     if ball_0_selected_config.get() == 'Z':
         current_ball_config_index = 2
         current_ball_config_letter.set('Z')
+        selected_configs_of_balls[0] = 'Z'
     set_path_point_buttons_based_on_selected_ball()
     selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
 
@@ -975,12 +984,15 @@ def ball_1_config_letter_changed(*args):
     if ball_1_selected_config.get() == 'X':
         current_ball_config_index = 0
         current_ball_config_letter.set('X')
+        selected_configs_of_balls[1] = 'X'
     if ball_1_selected_config.get() == 'Y':
         current_ball_config_index = 1
         current_ball_config_letter.set('Y')
+        selected_configs_of_balls[1] = 'Y'
     if ball_1_selected_config.get() == 'Z':
         current_ball_config_index = 2
         current_ball_config_letter.set('Z')
+        selected_configs_of_balls[1] = 'Z'
     set_path_point_buttons_based_on_selected_ball()
     selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
 
@@ -989,12 +1001,15 @@ def ball_2_config_letter_changed(*args):
     if ball_2_selected_config.get() == 'X':
         current_ball_config_index = 0
         current_ball_config_letter.set('X')
+        selected_configs_of_balls[2] = 'X'
     if ball_2_selected_config.get() == 'Y':
         current_ball_config_index = 1
         current_ball_config_letter.set('Y')
+        selected_configs_of_balls[2] = 'Y'
     if ball_2_selected_config.get() == 'Z':
         current_ball_config_index = 2
         current_ball_config_letter.set('Z')
+        selected_configs_of_balls[2] = 'Z'
     set_path_point_buttons_based_on_selected_ball()
     selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
 
@@ -1014,8 +1029,10 @@ def current_point_config_index_changed(*args):
 current_point_config_index.trace('w', current_point_config_index_changed)
 
 def selected_config_midi_channel_changed(*args):
-    global current_ball_config_index, current_ball_config_letter
+    #print(current_ball_config_index)
+    #print(selected_config_midi_channel.get())
     selected_config_midi_channels[current_ball_config_index] = selected_config_midi_channel.get()
+    print(selected_config_midi_channels)
 
 selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 
@@ -1025,7 +1042,7 @@ root.mainloop()
 del midiout
 #TODO
 #hook up the midi_associations to the arrays a the top of this file
-#figure out how to handle velocity, maybe for now just leave it to be done on the ableton side of things
+#figure out how to handle midi velocity, maybe for now just leave it to be done on the ableton side of things
 #note or velocity entries losing focus while blank causes crash
 #tell user in color calibration that Q will leave calibration mode, maybe at the bottom of the calibration windows
 #make arpeggio be several single line entries, maybe for now just leave it as one line that is seperated

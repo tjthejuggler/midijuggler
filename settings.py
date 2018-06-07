@@ -1,3 +1,36 @@
+selected_configs_of_balls = ['X','X','X']
+
+left_column_peak_path_point_configuration_index = [0, 0, 0]
+left_column_catch_path_point_configuration_index = [0, 0, 0]
+left_column_throw_path_point_configuration_index = [0, 0, 0]
+
+left_cross_peak_path_point_configuration_index = [0, 0, 0]
+left_cross_catch_path_point_configuration_index = [0, 0, 0]
+left_cross_throw_path_point_configuration_index = [0, 0, 0]
+
+mid_column_peak_path_point_configuration_index = [0, 0, 0]
+mid_column_catch_path_point_configuration_index = [0, 0, 0]
+mid_column_throw_path_point_configuration_index = [0, 0, 0]
+
+mid_cross_peak_path_point_configuration_index = [0, 0, 0]
+mid_cross_catch_path_point_configuration_index = [0, 0, 0]
+mid_cross_throw_path_point_configuration_index = [0, 0, 0]
+
+right_column_peak_path_point_configuration_index = [0, 0, 0]
+right_column_catch_path_point_configuration_index = [0, 0, 0]
+right_column_throw_path_point_configuration_index = [0, 0, 0]
+
+right_cross_peak_path_point_configuration_index = [0, 0, 0]
+right_cross_catch_path_point_configuration_index = [0, 0, 0]
+right_cross_throw_path_point_configuration_index = [0, 0, 0]
+
+
+selected_config_midi_channels = [0,0,0]
+
+point_setups_note_selection_type = ['current positional','current positional','current positional','current positional','current positional','current positional','current positional']
+point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
+point_setups_single_line_input = ['','','','','','','']
+
 using_midi = True
 duration = 1800 #seconds
 
