@@ -78,9 +78,9 @@ high_track_range_hue= [0,0,0]
 low_track_range_value= [0,0,0]
 high_track_range_value= [0,0,0]
 
-show_camera = False
+show_calibration = True
 
-show_mask = True
+show_main_camera = False
 
 color_selecter_pos = [0,0,0,0]
 

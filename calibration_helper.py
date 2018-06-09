@@ -58,10 +58,10 @@ def show_color_calibration_if_necessary(mask_with_tracking_number,selected_ball_
     cv2.imshow('Calibration',mask_with_tracking_number)
 
 def check_for_keyboard_input(camera,frame, ball_num):
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord('q'):            
-        in_camera_mode = False
-    if settings.show_camera:
+    key = cv2.waitKey(1)
+    if settings.show_calibration:
+        if key == ord('q'):            
+            in_camera_mode = False
         if key == ord('b'):
             print("Setting box color")
             set_color_to_track(frame,ball_num)

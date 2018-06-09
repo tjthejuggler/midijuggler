@@ -122,7 +122,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         mask[i] = cv2.inRange(current_framehsv, lower_range, upper_range)
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
         mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=4)
-        if settings.show_camera:
+        if settings.show_calibration:
             show_color_calibration_if_necessary(mask[selected_ball_num],selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value)
             continue
         else:
@@ -159,7 +159,7 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
         rectangles_with_peaks = []
         rectangles_with_peaks_path_types = []
         color_to_use = (0,0,0)
-        print(str(matched_indices_count))
+        #print(str(matched_indices_count))
         for i in range(0,matched_indices_count):
             if path_phase[i] == 'peak' or path_phase[i] == 'lift':
                 if all_cx[i][-1] != 'X':
@@ -220,7 +220,7 @@ def on_mouse_click(event, x, y, flags, frame):
     mouse_y = y
     #if event == cv2.EVENT_RBUTTONDOWN:
     if event == cv2.EVENT_LBUTTONDOWN:
-        if settings.show_camera:
+        if settings.show_calibration:
             color_selecter_pos[0],color_selecter_pos[1] = min(settings.frame_width,x),min(settings.frame_height,y)
         mouse_down = True
     elif event == cv2.EVENT_LBUTTONUP:
@@ -229,7 +229,7 @@ def on_mouse_click(event, x, y, flags, frame):
 
 def show_color_selecter(frame):
     frame_copy = frame 
-    if settings.show_camera:
+    if settings.show_calibration:
         if mouse_down:
             cv2.rectangle(frame_copy,(color_selecter_pos[0],color_selecter_pos[1]),(mouse_x,mouse_y),(255,255,255),2)
         else:
@@ -240,19 +240,19 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
     show_scale_grid = True            
     if record_video:
         record_frame(frame, out, start, average_fps)
-    if settings.show_camera:
+    if settings.show_calibration:
         frame_copy = show_color_selecter(frame)
         cv2.putText(frame_copy, '(-Z/+X)exposure: '+str(camera_exposure_number),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
         cv2.imshow('individual color calibration', frame_copy)
         cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
-    if settings.show_mask:
+    if settings.show_main_camera:
         if show_scale_grid:# and midi_note_based_on_position_is_in_use:
             mask_copy = mask
             mask_copy = create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
             mask_copy = cv2.flip(mask_copy,1)
-            cv2.imshow('miug',mask_copy)
+            cv2.imshow('main_camera',mask_copy)
         else:
-            cv2.imshow('mask',mask)
+            cv2.imshow('color_calibration',mask)
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask

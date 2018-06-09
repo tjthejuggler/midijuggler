@@ -36,9 +36,9 @@ midi_note_based_on_position_is_in_use,past_peak_heights,average_peak_height = Fa
 average_catch_height = -1
 selected_ball_num = 0
 
-def should_break(start,break_for_no_video,q_pressed):      
+def should_break(start,break_for_no_video):      
     what_to_return = False
-    if time.time() - start > duration or break_for_no_video or q_pressed:
+    if time.time() - start > duration or break_for_no_video:
         what_to_return = True
     return what_to_return
 
@@ -87,9 +87,15 @@ def run_camera():
         two_frames_ago = previous_frame
         previous_frame = frame
         key_pressed = check_for_keyboard_input(camera,frame, selected_ball_num)
-        if key_pressed == ord("n"):
-            selected_ball_num = (selected_ball_num + 1) % 3
-        if should_break(start,break_for_no_video,key_pressed == ord("q")):
+        if should_break(start,break_for_no_video):
             break
+        if settings.show_calibration:
+            if key_pressed == ord("n"):
+                selected_ball_num = (selected_ball_num + 1) % 3
+            if cv2.getWindowProperty('individual color calibration', 0) < 0:
+                break
+        if settings.show_main_camera:
+            if cv2.getWindowProperty('main_camera', 0) < 0:
+                break            
     end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
