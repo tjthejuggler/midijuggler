@@ -89,13 +89,14 @@ def run_camera():
         key_pressed = check_for_keyboard_input(camera,frame, selected_ball_num)
         if should_break(start,break_for_no_video):
             break
-        if settings.show_calibration:
-            if key_pressed == ord("n"):
-                selected_ball_num = (selected_ball_num + 1) % 3
-            if cv2.getWindowProperty('individual color calibration', 0) < 0:
-                break
-        if settings.show_main_camera:
-            if cv2.getWindowProperty('main_camera', 0) < 0:
-                break            
+        if key_pressed != ord('a'):
+            if settings.show_calibration:
+                if key_pressed == ord("n"):
+                    selected_ball_num = (selected_ball_num + 1) % 3
+                if cv2.getWindowProperty('individual color calibration', 0) < 0:
+                    break
+            if settings.show_main_camera:
+                if cv2.getWindowProperty('main_camera', 0) < 0:
+                    break            
     end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
