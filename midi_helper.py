@@ -310,30 +310,21 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
 
-#todo
-#   figure out why average position is only working with the yellow ball
-#       what ball number is yellow currently set to?
-#       are we looping through all balls in average position loop?
-#       print shit
 def average_position(all_axis, window_length, window_end_frame):
     average_pos = 0
     count = 0
     average_duration = min(len(all_axis[0]), window_length)
-    print('average_duration')
-    print(average_duration)
     for i in range(0, len(all_axis)):
         for j in range(0, average_duration):
             index = window_end_frame-j
-            print('index')
-            print(index)
             if abs(index)<len(all_axis[i]):
-                print('all_axis[i][index]')
-                print(all_axis[i][index])
-                if not all_axis[i][-index] == 'X':
-                    if all_axis[i][-index] > 0:
+                if not all_axis[i][index] == 'X':
+                    if all_axis[i][index] > 0:
                         if not all_axis[i][index] == 'X':
                             count = count+1
                             average_pos = average_pos + all_axis[i][index]
+    print('count')
+    print(count)
     if count > 0:
         average_pos = average_pos/count
         print('average_pos')
@@ -370,10 +361,11 @@ def create_individual_ball_audio(ball_index):
 
 def create_multiple_ball_audio():
     if using_midi:
-        send_midi_cc_based_on_average_vertical_position('y',120,average_position(all_cy, 10, -1))
+        #send_midi_cc_based_on_average_position('y',0,average_position(all_cy, 10, -1))
+        send_midi_cc_based_on_average_position('x',0,average_position(all_cx, 10, -1))
         #use location to set a cc 
 
-def send_midi_cc_based_on_average_vertical_position(axis,edge_buffer,position):
+def send_midi_cc_based_on_average_position(axis,edge_buffer,position):
     value = 0
     if axis == 'y':
         size = settings.frame_height        
@@ -383,11 +375,7 @@ def send_midi_cc_based_on_average_vertical_position(axis,edge_buffer,position):
         value = 128
     if position>frame_height-edge_buffer:
         value = 0
-    print('position')
-    print(position)
     value = max(0,((position-edge_buffer)/(size-edge_buffer*2))*128)
-    print('value')
-    print(value)
     channel = 0
     controller_num = 0
 
