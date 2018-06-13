@@ -3,7 +3,25 @@ from camera_loop import *
 import rtmidi #for sending midi
 from midi_helper import *
 
-use_user_interface = False
+use_user_interface = True
+
+if use_user_interface:
+    from tkinter import *
+    import tkinter as ttk
+    from tkinter.scrolledtext import ScrolledText
+    from tkinter import messagebox
+    from tkinter import filedialog
+    from tkinter import messagebox
+    from PIL import ImageTk, Image
+
+def begin_program():
+    setup_midi()
+    if not use_user_interface:
+        load_config_dialog(True)
+        start_camera()
+    else:
+        hide_point_config_inputs()
+        root.mainloop()
 
 def load_config_dialog(use_default_config):
     if use_default_config:
@@ -108,28 +126,596 @@ def load_config_dialog(use_default_config):
             point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
             note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
     except FileNotFoundError:
-        pass   
+        pass
 
-setup_midi()
-if not use_user_interface:
-    load_config_dialog(True)
+def start_camera():
     settings.show_calibration = False
     settings.show_main_camera = True
     run_camera()
-else:
-    from tkinter import *
-    import tkinter as ttk
-    from tkinter.scrolledtext import ScrolledText
-    from tkinter import messagebox
-    from tkinter import filedialog
-    from tkinter import messagebox
-    from PIL import ImageTk, Image 
 
+def save_config_dialog():
+    config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
+    current_file_name_label.config(text=str(config_to_save.name.split('/')[-1]))
+    text_in_config_to_save = ball_0_selected_config.get() + '\n' + ball_1_selected_config.get() + '\n' + ball_2_selected_config.get() + '\n'
+    for i in range (3):
+        text_in_config_to_save += str(selected_config_midi_channels[i]) + '\n'       
+        text_in_config_to_save += str(left_column_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_column_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_column_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_cross_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_cross_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(left_cross_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_column_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_column_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_column_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_cross_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_cross_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(mid_cross_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_column_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_column_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_column_throw_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_cross_peak_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_cross_catch_path_point_configuration_index[i]) + '\n'
+        text_in_config_to_save += str(right_cross_throw_path_point_configuration_index[i]) + '\n'
+    for i in range (7):
+        text_in_config_to_save += str(point_setups_note_selection_type[i]) + '\n'
+        text_in_config_to_save += str(point_setups_input_type[i]) + '\n'
+        text_in_config_to_save += str(point_setups_single_line_input[i]) + '\n'
+    print(text_in_config_to_save)
+    config_to_save.write(text_in_config_to_save)
+    config_to_save.close()        
+
+def gravity_calibration_window():
+    print('gravity')
+
+def color_calibration_window():
+    settings.show_calibration = True
+    settings.show_main_camera = False
+    run_camera()  
+
+
+
+def show_all_one_ball_widgets():
+    ball_2_config_optionmenu.place(x=300,y=130)
+    ball_2_config_optionmenu_label.place(x=250,y=130)
+    ball_1_config_optionmenu.place(x=180,y=130)
+    ball_1_config_optionmenu_label.place(x=130,y=130)
+    ball_0_config_optionmenu.place(x=60,y=130)
+    ball_0_config_optionmenu_label.place(x=10,y=130)
+    current_ball_config_label.place(x=500,y=100)
+    selected_config_midi_channel_optionmenu.place(x=780,y=150)
+    selected_config_midi_channel_optionmenu_label.place(x=680,y=150)
+    left_ball_label.place(x=70,y=200)
+    juggling_column_image_panel_left.place(x=10,y=230)
+    juggling_cross_image_panel_left.place(x=70,y=230)
+    middle_ball_label.place(x=310,y=200)
+    juggling_column_image_panel_mid.place(x=250,y=230)
+    juggling_cross_image_panel_mid.place(x=310,y=230)
+    right_ball_label.place(x=550,y=200)
+    juggling_column_image_panel_right.place(x=490,y=230)
+    juggling_cross_image_panel_right.place(x=550,y=230)
+    all_peaks_optionmenu.place(x=810,y=250)
+    all_peaks_optionmenu_label.place(x=730,y=250)
+    all_throws_optionmenu.place(x=810,y=300)
+    all_throws_optionmenu_label.place(x=730,y=300)
+    all_catches_optionmenu.place(x=810,y=350)
+    all_catches_optionmenu_label.place(x=730,y=350)
+    left_column_peak_button.place(x=22,y=236)
+    left_column_catch_button.place(x=18,y=353)
+    left_column_throw_button.place(x=40,y=380)
+    left_cross_peak_button.place(x=98,y=236)
+    left_cross_catch_button.place(x=203,y=345)
+    left_cross_throw_button.place(x=115,y=380)
+    mid_column_peak_button.place(x=262,y=236)
+    mid_column_catch_button.place(x=258,y=353)
+    mid_column_throw_button.place(x=280,y=380)
+    mid_cross_peak_button.place(x=338,y=236)
+    mid_cross_catch_button.place(x=443,y=345)
+    mid_cross_throw_button.place(x=355,y=380)
+    right_column_peak_button.place(x=502,y=236)
+    right_column_catch_button.place(x=498,y=353)
+    right_column_throw_button.place(x=520,y=380)
+    right_cross_peak_button.place(x=578,y=236)
+    right_cross_catch_button.place(x=683,y=345)
+    right_cross_throw_button.place(x=595,y=380)
+    current_point_config_label.place(x=10,y=435)
+    ball_and_point_separator.place(x=0, y=425, relwidth=1)
+    show_point_config_inputs()
+
+def show_all_two_balls_widgets():
+    print('g')
+
+def show_all_three_balls_widgets():
+    print('g')
+
+def hide_all_one_ball_widgets():
+    ball_2_config_optionmenu.place(x=11770,y=150)
+    ball_2_config_optionmenu_label.place(x=11730,y=150)
+    ball_1_config_optionmenu.place(x=11670,y=150)
+    ball_1_config_optionmenu_label.place(x=11630,y=150)
+    ball_0_config_optionmenu.place(x=11570,y=150)
+    ball_0_config_optionmenu_label.place(x=11530,y=150)
+    current_ball_config_label.place(x=1500,y=1130)
+    selected_config_midi_channel_optionmenu.place(x=11280,y=150)
+    selected_config_midi_channel_optionmenu_label.place(x=11180,y=150)
+    left_ball_label.place(x=1170,y=200)
+    juggling_column_image_panel_left.place(x=1110,y=230)
+    juggling_cross_image_panel_left.place(x=1170,y=230)
+    middle_ball_label.place(x=11310,y=200)
+    juggling_column_image_panel_mid.place(x=11250,y=230)
+    juggling_cross_image_panel_mid.place(x=11310,y=230)
+    right_ball_label.place(x=11550,y=200)
+    juggling_column_image_panel_right.place(x=11490,y=230)
+    juggling_cross_image_panel_right.place(x=11550,y=230)
+    all_peaks_optionmenu.place(x=1810,y=250)
+    all_peaks_optionmenu_label.place(x=1730,y=250)
+    all_throws_optionmenu.place(x=1810,y=300)
+    all_throws_optionmenu_label.place(x=1730,y=300)
+    all_catches_optionmenu.place(x=1810,y=350)
+    all_catches_optionmenu_label.place(x=1730,y=350)
+    left_column_peak_button.place(x=1122,y=236)
+    left_column_catch_button.place(x=1118,y=353)
+    left_column_throw_button.place(x=1140,y=380)
+    left_cross_peak_button.place(x=1198,y=236)
+    left_cross_catch_button.place(x=1203,y=345)
+    left_cross_throw_button.place(x=1115,y=380)
+    mid_column_peak_button.place(x=1262,y=236)
+    mid_column_catch_button.place(x=1258,y=353)
+    mid_column_throw_button.place(x=1280,y=380)
+    mid_cross_peak_button.place(x=1338,y=236)
+    mid_cross_catch_button.place(x=1443,y=345)
+    mid_cross_throw_button.place(x=1355,y=380)
+    right_column_peak_button.place(x=1502,y=236)
+    right_column_catch_button.place(x=1498,y=353)
+    right_column_throw_button.place(x=1520,y=380)
+    right_cross_peak_button.place(x=1578,y=236)
+    right_cross_catch_button.place(x=1683,y=345)
+    right_cross_throw_button.place(x=1595,y=380)
+    current_point_config_label.place(x=1110,y=1435)
+    ball_and_point_separator.place(x=0, y=1425, relwidth=1)
+    hide_point_config_inputs()
+
+def hide_all_two_balls_widgets():
+    print('g')
+
+def hide_all_three_balls_widgets():
+    print('g')
+
+def show_point_config_inputs():
+    current_positional_note_selection_type.place(x=80,y=450)
+    previous_positional_note_selection_type.place(x=80,y=480)
+    penultimate_positional_note_selection_type.place(x=80,y=510)
+    rotational_note_selection_type.place(x=80,y=540)
+    midi_input_type.place(x=280,y=450)
+    note_input_type.place(x=280,y=480)
+    chord_input_type.place(x=280,y=510)
+    arpeggio_input_type.place(x=280,y=540)
+    point_single_line_input.place(x=400,y=450)
+
+def hide_point_config_inputs():
+    current_positional_note_selection_type.place(x=1180,y=450)
+    previous_positional_note_selection_type.place(x=1180,y=480)
+    penultimate_positional_note_selection_type.place(x=1180,y=510)
+    rotational_note_selection_type.place(x=1180,y=540)
+    midi_input_type.place(x=1280,y=450)
+    note_input_type.place(x=1280,y=480)
+    chord_input_type.place(x=1280,y=510)
+    arpeggio_input_type.place(x=1280,y=540)
+    point_single_line_input.place(x=1400,y=450)
+
+def selected_number_of_balls_changed(*args):
+    if selected_number_of_balls.get() == 1:
+        show_all_one_ball_widgets()
+        hide_all_two_balls_widgets()
+        hide_all_three_balls_widgets()
+    if selected_number_of_balls.get() == 2:
+        hide_all_one_ball_widgets()
+        show_all_two_balls_widgets()
+        hide_all_three_balls_widgets()
+    if selected_number_of_balls.get() == 3:
+        hide_all_one_ball_widgets()
+        hide_all_two_balls_widgets()
+        show_all_three_balls_widgets()
+
+
+
+def send_midi_on():
+    midi_to_send_note_or_number_entry_lost_focus()
+    h = '0x90'        
+    i = int(h, 16)
+    i += int(selected_midi_channel_to_send.get())
+    note_on = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
+    midiout.send_message(note_on)
+
+
+
+def send_midi_off():
+    midi_to_send_note_or_number_entry_lost_focus()
+    h = '0x80'        
+    i = int(h, 16)
+    i += int(selected_midi_channel_to_send.get())
+    note_off = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                            
+    midiout.send_message(note_off)
+
+
+
+def send_midi_controller_change():
+    midi_to_send_note_or_number_entry_lost_focus()       
+    h = '0xB0'
+    i = int(h, 16)
+    i += int(selected_midi_channel_to_send.get())
+    controller_change_message = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
+    midiout.send_message(controller_change_message)
+
+
+
+def midi_to_send_velocity_or_value_entry_lost_focus(*args):
+    entry_is_integer = False
+    user_entry = -1
+    while user_entry < 0 or user_entry > 127:
+        try:
+            user_entry = int(midi_to_send_velocity_or_valu.get())
+            entry_is_integer = True
+        except:
+            midi_to_send_velocity_or_valu.set(''.join(c for c in midi_to_send_velocity_or_valu.get() if c.isdigit()))
+        if entry_is_integer:
+            if user_entry < 0:
+                midi_to_send_velocity_or_valu.set('0')
+            if user_entry > 127:
+                midi_to_send_velocity_or_valu.set('127')
+
+def midi_to_send_note_or_number_entry_lost_focus(*args):
+    entry_is_integer = False
+    user_entry = -1
+    while user_entry < 0 or user_entry > 127:
+        try:
+            user_entry = int(midi_to_send_note_or_number.get())
+            entry_is_integer = True
+        except:
+            midi_to_send_note_or_number.set(''.join(c for c in midi_to_send_note_or_number.get() if c.isdigit()))
+        if entry_is_integer:
+            if user_entry < 0:
+                midi_to_send_note_or_number.set('0')
+            if user_entry > 127:
+                midi_to_send_note_or_number.set('127')
+        else:
+            if not any(char.isdigit() for char in midi_to_send_note_or_number.get()):
+                midi_to_send_note_or_number.set('60')
+
+def selected_midi_type_to_send_changed(*args):
+    if selected_midi_type_to_send.get() == 'ON/OFF':
+        midi_to_send_note_or_number_entry_label_text.set('NOTE:')
+        midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
+        send_midi_on_button.place(x=10,y=720)
+        send_midi_off_button.place(x=110,y=720)
+        send_midi_controller_change_button.place(x=10,y=1720)
+    if selected_midi_type_to_send.get() == 'CO/CHG':
+        midi_to_send_note_or_number_entry_label_text.set('NUMBER:')
+        midi_to_send_velocity_or_value_entry_label_text.set('VALUE:')
+        send_midi_on_button.place(x=10,y=1720)
+        send_midi_off_button.place(x=110,y=1720)
+        send_midi_controller_change_button.place(x=10,y=720)
+
+
+
+def note_selection_type_changed(*args):
+    if note_selection_type.get() == 'current positional' and current_point_config_index.get() != '0':
+        arpeggio_input_type.place(x=280,y=540)
+    if note_selection_type.get() == 'previous positional'and current_point_config_index.get() != '0':
+        arpeggio_input_type.place(x=280,y=540)
+    if note_selection_type.get() == 'penultimate positional'and current_point_config_index.get() != '0':
+        arpeggio_input_type.place(x=280,y=540)
+    if note_selection_type.get() == 'rotational'and current_point_config_index.get() != '0':
+        arpeggio_input_type.place(x=1280,y=540)
+        if input_type.get() == 'arpeggio':
+            input_type.set('chord')
+    point_setups_note_selection_type[int(current_point_config_index.get())] = note_selection_type.get()
+
+
+
+def input_type_changed(*args):
+    point_setups_input_type[int(current_point_config_index.get())] = input_type.get()
+
+
+
+def point_single_line_input_changed(*args):
+    point_setups_single_line_input[int(current_point_config_index.get())] = point_single_line_input_text.get()
+
+
+
+def left_column_peak_button_clicked():
+    global current_point_config_index,left_column_peak_path_point_configuration_index, left_column_peak_path_point_configuration_index_of_current_ball_config_index
+    left_column_peak_path_point_configuration_index[current_ball_config_index] += 1
+    if left_column_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        left_column_peak_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(left_column_peak_path_point_configuration_index[current_ball_config_index]) 
+
+def left_column_catch_button_clicked():
+    global current_point_config_index,left_column_catch_path_point_configuration_index, left_column_catch_path_point_configuration_index_of_current_ball_config_index
+    left_column_catch_path_point_configuration_index[current_ball_config_index] += 1
+    if left_column_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        left_column_catch_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(left_column_catch_path_point_configuration_index[current_ball_config_index]) 
+
+def left_column_throw_button_clicked():
+    global current_point_config_index,left_column_throw_path_point_configuration_index, left_column_throw_path_point_configuration_index_of_current_ball_config_index
+    left_column_throw_path_point_configuration_index[current_ball_config_index] += 1
+    if left_column_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        left_column_throw_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(left_column_throw_path_point_configuration_index[current_ball_config_index]) 
+
+def left_cross_peak_button_clicked():
+    global current_point_config_index,left_cross_peak_path_point_configuration_index, left_cross_peak_path_point_configuration_index_of_current_ball_config_index
+    left_cross_peak_path_point_configuration_index[current_ball_config_index] += 1
+    if left_cross_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        left_cross_peak_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(left_cross_peak_path_point_configuration_index[current_ball_config_index]) 
+
+def left_cross_catch_button_clicked():
+    global current_point_config_index,left_cross_catch_path_point_configuration_index, left_cross_catch_path_point_configuration_index_of_current_ball_config_index
+    left_cross_catch_path_point_configuration_index[current_ball_config_index] += 1
+    if left_cross_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        left_cross_catch_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(left_cross_catch_path_point_configuration_index[current_ball_config_index]) 
+
+def left_cross_throw_button_clicked():
+    global current_point_config_index,left_cross_throw_path_point_configuration_index, left_cross_throw_path_point_configuration_index_of_current_ball_config_index
+    left_cross_throw_path_point_configuration_index[current_ball_config_index] += 1
+    if left_cross_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        left_cross_throw_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(left_cross_throw_path_point_configuration_index[current_ball_config_index]) 
+
+def mid_column_peak_button_clicked():
+    global current_point_config_index,mid_column_peak_path_point_configuration_index, mid_column_peak_path_point_configuration_index_of_current_ball_config_index
+    mid_column_peak_path_point_configuration_index[current_ball_config_index] += 1
+    if mid_column_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        mid_column_peak_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(mid_column_peak_path_point_configuration_index[current_ball_config_index]) 
+
+def mid_column_catch_button_clicked():
+    global current_point_config_index,mid_column_catch_path_point_configuration_index, mid_column_catch_path_point_configuration_index_of_current_ball_config_index
+    mid_column_catch_path_point_configuration_index[current_ball_config_index] += 1
+    if mid_column_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        mid_column_catch_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(mid_column_catch_path_point_configuration_index[current_ball_config_index]) 
+
+def mid_column_throw_button_clicked():
+    global current_point_config_index,mid_column_throw_path_point_configuration_index, mid_column_throw_path_point_configuration_index_of_current_ball_config_index
+    mid_column_throw_path_point_configuration_index[current_ball_config_index] += 1
+    if mid_column_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        mid_column_throw_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(mid_column_throw_path_point_configuration_index[current_ball_config_index]) 
+
+def mid_cross_peak_button_clicked():
+    global current_point_config_index,mid_cross_peak_path_point_configuration_index, mid_cross_peak_path_point_configuration_index_of_current_ball_config_index
+    mid_cross_peak_path_point_configuration_index[current_ball_config_index] += 1
+    if mid_cross_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        mid_cross_peak_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(mid_cross_peak_path_point_configuration_index[current_ball_config_index]) 
+
+def mid_cross_catch_button_clicked():
+    global current_point_config_index,mid_cross_catch_path_point_configuration_index, mid_cross_catch_path_point_configuration_index_of_current_ball_config_index
+    mid_cross_catch_path_point_configuration_index[current_ball_config_index] += 1
+    if mid_cross_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        mid_cross_catch_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(mid_cross_catch_path_point_configuration_index[current_ball_config_index]) 
+
+def mid_cross_throw_button_clicked():
+    global current_point_config_index,mid_cross_throw_path_point_configuration_index, mid_cross_throw_path_point_configuration_index_of_current_ball_config_index
+    mid_cross_throw_path_point_configuration_index[current_ball_config_index] += 1
+    if mid_cross_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        mid_cross_throw_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(mid_cross_throw_path_point_configuration_index[current_ball_config_index]) 
+
+def right_column_peak_button_clicked():
+    global current_point_config_index,right_column_peak_path_point_configuration_index, right_column_peak_path_point_configuration_index_of_current_ball_config_index
+    right_column_peak_path_point_configuration_index[current_ball_config_index] += 1
+    if right_column_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        right_column_peak_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(right_column_peak_path_point_configuration_index[current_ball_config_index]) 
+
+def right_column_catch_button_clicked():
+    global current_point_config_index,right_column_catch_path_point_configuration_index, right_column_catch_path_point_configuration_index_of_current_ball_config_index
+    right_column_catch_path_point_configuration_index[current_ball_config_index] += 1
+    if right_column_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        right_column_catch_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(right_column_catch_path_point_configuration_index[current_ball_config_index]) 
+
+def right_column_throw_button_clicked():
+    global current_point_config_index,right_column_throw_path_point_configuration_index, right_column_throw_path_point_configuration_index_of_current_ball_config_index
+    right_column_throw_path_point_configuration_index[current_ball_config_index] += 1
+    if right_column_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        right_column_throw_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(right_column_throw_path_point_configuration_index[current_ball_config_index]) 
+
+def right_cross_peak_button_clicked():
+    global current_point_config_index,right_cross_peak_path_point_configuration_index, right_cross_peak_path_point_configuration_index_of_current_ball_config_index
+    right_cross_peak_path_point_configuration_index[current_ball_config_index] += 1
+    if right_cross_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        right_cross_peak_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(right_cross_peak_path_point_configuration_index[current_ball_config_index]) 
+
+def right_cross_catch_button_clicked():
+    global current_point_config_index,right_cross_catch_path_point_configuration_index, right_cross_catch_path_point_configuration_index_of_current_ball_config_index
+    right_cross_catch_path_point_configuration_index[current_ball_config_index] += 1
+    if right_cross_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        right_cross_catch_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(right_cross_catch_path_point_configuration_index[current_ball_config_index]) 
+
+def right_cross_throw_button_clicked():
+    global current_point_config_index,right_cross_throw_path_point_configuration_index, right_cross_throw_path_point_configuration_index_of_current_ball_config_index
+    right_cross_throw_path_point_configuration_index[current_ball_config_index] += 1
+    if right_cross_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
+        right_cross_throw_path_point_configuration_index[current_ball_config_index] = 0
+    set_path_point_buttons_based_on_selected_ball()
+    current_point_config_index.set(right_cross_throw_path_point_configuration_index[current_ball_config_index]) 
+
+
+
+def selected_all_peaks_point_config_index_changed(*args):
+    index_for_all_peaks = int(selected_all_peaks_point_config_index.get())
+    left_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
+    left_column_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
+    left_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
+    left_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
+    mid_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
+    mid_column_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
+    mid_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
+    mid_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
+    right_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
+    right_column_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
+    right_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
+    right_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
+    current_point_config_index.set(index_for_all_peaks)
+
+
+def selected_all_throws_point_config_index_changed(*args):
+    index_for_all_throws = int(selected_all_throws_point_config_index.get())
+    left_column_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
+    left_column_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
+    left_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
+    left_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
+    mid_column_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
+    mid_column_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
+    mid_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
+    mid_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
+    right_column_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
+    right_column_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
+    right_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
+    right_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
+    current_point_config_index.set(index_for_all_throws)
+
+
+def selected_all_catches_point_config_index_changed(*args):
+    index_for_all_catches = int(selected_all_catches_point_config_index.get())
+    left_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
+    left_column_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
+    left_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
+    left_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
+    mid_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
+    mid_column_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
+    mid_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
+    mid_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
+    right_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
+    right_column_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
+    right_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
+    right_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
+    current_point_config_index.set(index_for_all_catches)
+
+
+
+
+def set_path_point_buttons_based_on_selected_ball():
+    left_column_peak_path_point_configuration_index_of_current_ball_config_index.set(left_column_peak_path_point_configuration_index[current_ball_config_index])
+    left_column_catch_path_point_configuration_index_of_current_ball_config_index.set(left_column_catch_path_point_configuration_index[current_ball_config_index])
+    left_column_throw_path_point_configuration_index_of_current_ball_config_index.set(left_column_throw_path_point_configuration_index[current_ball_config_index])
+    left_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(left_cross_peak_path_point_configuration_index[current_ball_config_index])
+    left_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(left_cross_catch_path_point_configuration_index[current_ball_config_index])
+    left_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(left_cross_throw_path_point_configuration_index[current_ball_config_index])
+    mid_column_peak_path_point_configuration_index_of_current_ball_config_index.set(mid_column_peak_path_point_configuration_index[current_ball_config_index])
+    mid_column_catch_path_point_configuration_index_of_current_ball_config_index.set(mid_column_catch_path_point_configuration_index[current_ball_config_index])
+    mid_column_throw_path_point_configuration_index_of_current_ball_config_index.set(mid_column_throw_path_point_configuration_index[current_ball_config_index])
+    mid_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(mid_cross_peak_path_point_configuration_index[current_ball_config_index])
+    mid_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(mid_cross_catch_path_point_configuration_index[current_ball_config_index])
+    mid_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(mid_cross_throw_path_point_configuration_index[current_ball_config_index])
+    right_column_peak_path_point_configuration_index_of_current_ball_config_index.set(right_column_peak_path_point_configuration_index[current_ball_config_index])
+    right_column_catch_path_point_configuration_index_of_current_ball_config_index.set(right_column_catch_path_point_configuration_index[current_ball_config_index])
+    right_column_throw_path_point_configuration_index_of_current_ball_config_index.set(right_column_throw_path_point_configuration_index[current_ball_config_index])
+    right_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(right_cross_peak_path_point_configuration_index[current_ball_config_index])
+    right_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(right_cross_catch_path_point_configuration_index[current_ball_config_index])
+    right_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(right_cross_throw_path_point_configuration_index[current_ball_config_index])
+
+def ball_0_config_letter_changed(*args):
+    global current_ball_config_index, current_ball_config_letter
+    if ball_0_selected_config.get() == 'X':
+        current_ball_config_index = 0
+        current_ball_config_letter.set('X')
+        selected_configs_of_balls[0] = 'X'
+    if ball_0_selected_config.get() == 'Y':
+        current_ball_config_index = 1
+        current_ball_config_letter.set('Y')
+        selected_configs_of_balls[0] = 'Y'
+        print(selected_configs_of_balls)
+    if ball_0_selected_config.get() == 'Z':
+        current_ball_config_index = 2
+        current_ball_config_letter.set('Z')
+        selected_configs_of_balls[0] = 'Z'
+    set_path_point_buttons_based_on_selected_ball()
+    selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
+
+def ball_1_config_letter_changed(*args):
+    global current_ball_config_index, current_ball_config_letter
+    if ball_1_selected_config.get() == 'X':
+        current_ball_config_index = 0
+        current_ball_config_letter.set('X')
+        selected_configs_of_balls[1] = 'X'
+    if ball_1_selected_config.get() == 'Y':
+        current_ball_config_index = 1
+        current_ball_config_letter.set('Y')
+        selected_configs_of_balls[1] = 'Y'
+    if ball_1_selected_config.get() == 'Z':
+        current_ball_config_index = 2
+        current_ball_config_letter.set('Z')
+        selected_configs_of_balls[1] = 'Z'
+    set_path_point_buttons_based_on_selected_ball()
+    selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
+
+def ball_2_config_letter_changed(*args):
+    global current_ball_config_index, current_ball_config_letter
+    if ball_2_selected_config.get() == 'X':
+        current_ball_config_index = 0
+        current_ball_config_letter.set('X')
+        selected_configs_of_balls[2] = 'X'
+    if ball_2_selected_config.get() == 'Y':
+        current_ball_config_index = 1
+        current_ball_config_letter.set('Y')
+        selected_configs_of_balls[2] = 'Y'
+    if ball_2_selected_config.get() == 'Z':
+        current_ball_config_index = 2
+        current_ball_config_letter.set('Z')
+        selected_configs_of_balls[2] = 'Z'
+    set_path_point_buttons_based_on_selected_ball()
+    selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
+
+
+
+def current_point_config_index_changed(*args):
+    if current_point_config_index.get() == '0':
+        hide_point_config_inputs()
+    else:
+        show_point_config_inputs()
+    input_type.set(point_setups_input_type[int(current_point_config_index.get())])
+    point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
+    note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
+
+
+def selected_config_midi_channel_changed(*args):
+    selected_config_midi_channels[current_ball_config_index] = int(selected_config_midi_channel.get())
+    print(selected_config_midi_channels)
+
+if use_user_interface:
     root = Tk() 
     root.title('Miug')
     root.geometry('900x800')
     root.resizable(0, 0)
-  
+
     left_column_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
     left_column_peak_path_point_configuration_index_of_current_ball_config_index.set('0')    
     left_column_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
@@ -172,51 +758,6 @@ else:
     current_point_config_index = StringVar()
     current_point_config_index.set('0')
 
-    def start_camera():
-        settings.show_calibration = False
-        settings.show_main_camera = True
-        run_camera()
-
-    def save_config_dialog():
-        config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
-        current_file_name_label.config(text=str(config_to_save.name.split('/')[-1]))
-        text_in_config_to_save = ball_0_selected_config.get() + '\n' + ball_1_selected_config.get() + '\n' + ball_2_selected_config.get() + '\n'
-        for i in range (3):
-            text_in_config_to_save += str(selected_config_midi_channels[i]) + '\n'       
-            text_in_config_to_save += str(left_column_peak_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(left_column_catch_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(left_column_throw_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(left_cross_peak_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(left_cross_catch_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(left_cross_throw_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(mid_column_peak_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(mid_column_catch_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(mid_column_throw_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(mid_cross_peak_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(mid_cross_catch_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(mid_cross_throw_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(right_column_peak_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(right_column_catch_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(right_column_throw_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(right_cross_peak_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(right_cross_catch_path_point_configuration_index[i]) + '\n'
-            text_in_config_to_save += str(right_cross_throw_path_point_configuration_index[i]) + '\n'
-        for i in range (7):
-            text_in_config_to_save += str(point_setups_note_selection_type[i]) + '\n'
-            text_in_config_to_save += str(point_setups_input_type[i]) + '\n'
-            text_in_config_to_save += str(point_setups_single_line_input[i]) + '\n'
-        print(text_in_config_to_save)
-        config_to_save.write(text_in_config_to_save)
-        config_to_save.close()        
-
-    def gravity_calibration_window():
-        print('gravity')
-
-    def color_calibration_window():
-        settings.show_calibration = True
-        settings.show_main_camera = False
-        run_camera()  
-
     current_file_name_label = ttk.Label(root, text='original.txt',font=('Courier', 16))
     current_file_name_label.place(x=200,y=10) 
 
@@ -256,148 +797,6 @@ else:
     color_calibration_button = ttk.Button(root,text='Color',fg='black',command=color_calibration_window,height=1,width=7)
     color_calibration_button.place(x=800,y=35)
 
-    def show_all_one_ball_widgets():
-        ball_2_config_optionmenu.place(x=300,y=130)
-        ball_2_config_optionmenu_label.place(x=250,y=130)
-        ball_1_config_optionmenu.place(x=180,y=130)
-        ball_1_config_optionmenu_label.place(x=130,y=130)
-        ball_0_config_optionmenu.place(x=60,y=130)
-        ball_0_config_optionmenu_label.place(x=10,y=130)
-        current_ball_config_label.place(x=500,y=100)
-        selected_config_midi_channel_optionmenu.place(x=780,y=150)
-        selected_config_midi_channel_optionmenu_label.place(x=680,y=150)
-        left_ball_label.place(x=70,y=200)
-        juggling_column_image_panel_left.place(x=10,y=230)
-        juggling_cross_image_panel_left.place(x=70,y=230)
-        middle_ball_label.place(x=310,y=200)
-        juggling_column_image_panel_mid.place(x=250,y=230)
-        juggling_cross_image_panel_mid.place(x=310,y=230)
-        right_ball_label.place(x=550,y=200)
-        juggling_column_image_panel_right.place(x=490,y=230)
-        juggling_cross_image_panel_right.place(x=550,y=230)
-        all_peaks_optionmenu.place(x=810,y=250)
-        all_peaks_optionmenu_label.place(x=730,y=250)
-        all_throws_optionmenu.place(x=810,y=300)
-        all_throws_optionmenu_label.place(x=730,y=300)
-        all_catches_optionmenu.place(x=810,y=350)
-        all_catches_optionmenu_label.place(x=730,y=350)
-        left_column_peak_button.place(x=22,y=236)
-        left_column_catch_button.place(x=18,y=353)
-        left_column_throw_button.place(x=40,y=380)
-        left_cross_peak_button.place(x=98,y=236)
-        left_cross_catch_button.place(x=203,y=345)
-        left_cross_throw_button.place(x=115,y=380)
-        mid_column_peak_button.place(x=262,y=236)
-        mid_column_catch_button.place(x=258,y=353)
-        mid_column_throw_button.place(x=280,y=380)
-        mid_cross_peak_button.place(x=338,y=236)
-        mid_cross_catch_button.place(x=443,y=345)
-        mid_cross_throw_button.place(x=355,y=380)
-        right_column_peak_button.place(x=502,y=236)
-        right_column_catch_button.place(x=498,y=353)
-        right_column_throw_button.place(x=520,y=380)
-        right_cross_peak_button.place(x=578,y=236)
-        right_cross_catch_button.place(x=683,y=345)
-        right_cross_throw_button.place(x=595,y=380)
-        current_point_config_label.place(x=10,y=435)
-        ball_and_point_separator.place(x=0, y=425, relwidth=1)
-        show_point_config_inputs()
-
-    def show_all_two_balls_widgets():
-        print('g')
-
-    def show_all_three_balls_widgets():
-        print('g')
-
-    def hide_all_one_ball_widgets():
-        ball_2_config_optionmenu.place(x=11770,y=150)
-        ball_2_config_optionmenu_label.place(x=11730,y=150)
-        ball_1_config_optionmenu.place(x=11670,y=150)
-        ball_1_config_optionmenu_label.place(x=11630,y=150)
-        ball_0_config_optionmenu.place(x=11570,y=150)
-        ball_0_config_optionmenu_label.place(x=11530,y=150)
-        current_ball_config_label.place(x=1500,y=1130)
-        selected_config_midi_channel_optionmenu.place(x=11280,y=150)
-        selected_config_midi_channel_optionmenu_label.place(x=11180,y=150)
-        left_ball_label.place(x=1170,y=200)
-        juggling_column_image_panel_left.place(x=1110,y=230)
-        juggling_cross_image_panel_left.place(x=1170,y=230)
-        middle_ball_label.place(x=11310,y=200)
-        juggling_column_image_panel_mid.place(x=11250,y=230)
-        juggling_cross_image_panel_mid.place(x=11310,y=230)
-        right_ball_label.place(x=11550,y=200)
-        juggling_column_image_panel_right.place(x=11490,y=230)
-        juggling_cross_image_panel_right.place(x=11550,y=230)
-        all_peaks_optionmenu.place(x=1810,y=250)
-        all_peaks_optionmenu_label.place(x=1730,y=250)
-        all_throws_optionmenu.place(x=1810,y=300)
-        all_throws_optionmenu_label.place(x=1730,y=300)
-        all_catches_optionmenu.place(x=1810,y=350)
-        all_catches_optionmenu_label.place(x=1730,y=350)
-        left_column_peak_button.place(x=1122,y=236)
-        left_column_catch_button.place(x=1118,y=353)
-        left_column_throw_button.place(x=1140,y=380)
-        left_cross_peak_button.place(x=1198,y=236)
-        left_cross_catch_button.place(x=1203,y=345)
-        left_cross_throw_button.place(x=1115,y=380)
-        mid_column_peak_button.place(x=1262,y=236)
-        mid_column_catch_button.place(x=1258,y=353)
-        mid_column_throw_button.place(x=1280,y=380)
-        mid_cross_peak_button.place(x=1338,y=236)
-        mid_cross_catch_button.place(x=1443,y=345)
-        mid_cross_throw_button.place(x=1355,y=380)
-        right_column_peak_button.place(x=1502,y=236)
-        right_column_catch_button.place(x=1498,y=353)
-        right_column_throw_button.place(x=1520,y=380)
-        right_cross_peak_button.place(x=1578,y=236)
-        right_cross_catch_button.place(x=1683,y=345)
-        right_cross_throw_button.place(x=1595,y=380)
-        current_point_config_label.place(x=1110,y=1435)
-        ball_and_point_separator.place(x=0, y=1425, relwidth=1)
-        hide_point_config_inputs()
-
-    def hide_all_two_balls_widgets():
-        print('g')
-
-    def hide_all_three_balls_widgets():
-        print('g')
-
-    def show_point_config_inputs():
-        current_positional_note_selection_type.place(x=80,y=450)
-        previous_positional_note_selection_type.place(x=80,y=480)
-        penultimate_positional_note_selection_type.place(x=80,y=510)
-        rotational_note_selection_type.place(x=80,y=540)
-        midi_input_type.place(x=280,y=450)
-        note_input_type.place(x=280,y=480)
-        chord_input_type.place(x=280,y=510)
-        arpeggio_input_type.place(x=280,y=540)
-        point_single_line_input.place(x=400,y=450)
-
-    def hide_point_config_inputs():
-        current_positional_note_selection_type.place(x=1180,y=450)
-        previous_positional_note_selection_type.place(x=1180,y=480)
-        penultimate_positional_note_selection_type.place(x=1180,y=510)
-        rotational_note_selection_type.place(x=1180,y=540)
-        midi_input_type.place(x=1280,y=450)
-        note_input_type.place(x=1280,y=480)
-        chord_input_type.place(x=1280,y=510)
-        arpeggio_input_type.place(x=1280,y=540)
-        point_single_line_input.place(x=1400,y=450)
-
-    def selected_number_of_balls_changed(*args):
-        if selected_number_of_balls.get() == 1:
-            show_all_one_ball_widgets()
-            hide_all_two_balls_widgets()
-            hide_all_three_balls_widgets()
-        if selected_number_of_balls.get() == 2:
-            hide_all_one_ball_widgets()
-            show_all_two_balls_widgets()
-            hide_all_three_balls_widgets()
-        if selected_number_of_balls.get() == 3:
-            hide_all_one_ball_widgets()
-            hide_all_two_balls_widgets()
-            show_all_three_balls_widgets()
-
     top_separator = Frame(height=5, bd=1, relief=SUNKEN)
     top_separator.place(x=0, y=90, relwidth=1)
     bottom_separator = Frame(height=5, bd=1, relief=SUNKEN)
@@ -406,35 +805,11 @@ else:
     bottom_separator2.place(x=651, y=710, relheight=1)
     selected_number_of_balls.trace('w', selected_number_of_balls_changed)
 
-    def send_midi_on():
-        midi_to_send_note_or_number_entry_lost_focus()
-        h = '0x90'        
-        i = int(h, 16)
-        i += int(selected_midi_channel_to_send.get())
-        note_on = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
-        midiout.send_message(note_on)
-
     send_midi_on_button = ttk.Button(root,text='SEND MIDI\nON',fg='purple',command=send_midi_on,height=3,width=10)
     send_midi_on_button.place(x=10,y=720)
 
-    def send_midi_off():
-        midi_to_send_note_or_number_entry_lost_focus()
-        h = '0x80'        
-        i = int(h, 16)
-        i += int(selected_midi_channel_to_send.get())
-        note_off = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                            
-        midiout.send_message(note_off)
-
     send_midi_off_button = ttk.Button(root,text='SEND MIDI\nOFF',fg='purple',command=send_midi_off,height=3,width=10)
     send_midi_off_button.place(x=110,y=720)
-
-    def send_midi_controller_change():
-        midi_to_send_note_or_number_entry_lost_focus()       
-        h = '0xB0'
-        i = int(h, 16)
-        i += int(selected_midi_channel_to_send.get())
-        controller_change_message = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
-        midiout.send_message(controller_change_message)
 
     send_midi_controller_change_button = ttk.Button(root,text='SEND MIDI\nCONTROLLER CHANGE',fg='purple',command=send_midi_controller_change,height=3,width=22)
     send_midi_controller_change_button.place(x=10,y=1720)
@@ -452,54 +827,7 @@ else:
     selected_midi_type_to_send.set('ON/OFF')
     midi_type_to_send_optionmenu = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
     Label(root, text='TYPE:', fg='purple').place(x=330,y=720)
-    midi_type_to_send_optionmenu.place(x=300,y=750)
-
-    def midi_to_send_velocity_or_value_entry_lost_focus(*args):
-        entry_is_integer = False
-        user_entry = -1
-        while user_entry < 0 or user_entry > 127:
-            try:
-                user_entry = int(midi_to_send_velocity_or_valu.get())
-                entry_is_integer = True
-            except:
-                midi_to_send_velocity_or_valu.set(''.join(c for c in midi_to_send_velocity_or_valu.get() if c.isdigit()))
-            if entry_is_integer:
-                if user_entry < 0:
-                    midi_to_send_velocity_or_valu.set('0')
-                if user_entry > 127:
-                    midi_to_send_velocity_or_valu.set('127')
-
-    def midi_to_send_note_or_number_entry_lost_focus(*args):
-        entry_is_integer = False
-        user_entry = -1
-        while user_entry < 0 or user_entry > 127:
-            try:
-                user_entry = int(midi_to_send_note_or_number.get())
-                entry_is_integer = True
-            except:
-                midi_to_send_note_or_number.set(''.join(c for c in midi_to_send_note_or_number.get() if c.isdigit()))
-            if entry_is_integer:
-                if user_entry < 0:
-                    midi_to_send_note_or_number.set('0')
-                if user_entry > 127:
-                    midi_to_send_note_or_number.set('127')
-            else:
-                if not any(char.isdigit() for char in midi_to_send_note_or_number.get()):
-                    midi_to_send_note_or_number.set('60')
-
-    def selected_midi_type_to_send_changed(*args):
-        if selected_midi_type_to_send.get() == 'ON/OFF':
-            midi_to_send_note_or_number_entry_label_text.set('NOTE:')
-            midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
-            send_midi_on_button.place(x=10,y=720)
-            send_midi_off_button.place(x=110,y=720)
-            send_midi_controller_change_button.place(x=10,y=1720)
-        if selected_midi_type_to_send.get() == 'CO/CHG':
-            midi_to_send_note_or_number_entry_label_text.set('NUMBER:')
-            midi_to_send_velocity_or_value_entry_label_text.set('VALUE:')
-            send_midi_on_button.place(x=10,y=1720)
-            send_midi_off_button.place(x=110,y=1720)
-            send_midi_controller_change_button.place(x=10,y=720)
+    midi_type_to_send_optionmenu.place(x=300,y=750)    
 
     midi_to_send_note_or_number = StringVar(root)
     midi_to_send_note_or_number.set(60)
@@ -556,19 +884,6 @@ else:
     rotational_note_selection_type.place(x=80,y=540)
     note_selection_type.set('current positional')
 
-    def note_selection_type_changed(*args):
-        if note_selection_type.get() == 'current positional' and current_point_config_index.get() != '0':
-            arpeggio_input_type.place(x=280,y=540)
-        if note_selection_type.get() == 'previous positional'and current_point_config_index.get() != '0':
-            arpeggio_input_type.place(x=280,y=540)
-        if note_selection_type.get() == 'penultimate positional'and current_point_config_index.get() != '0':
-            arpeggio_input_type.place(x=280,y=540)
-        if note_selection_type.get() == 'rotational'and current_point_config_index.get() != '0':
-            arpeggio_input_type.place(x=1280,y=540)
-            if input_type.get() == 'arpeggio':
-                input_type.set('chord')
-        point_setups_note_selection_type[int(current_point_config_index.get())] = note_selection_type.get()
-
     note_selection_type.trace('w', note_selection_type_changed)
 
     input_type = StringVar()
@@ -582,17 +897,11 @@ else:
     arpeggio_input_type.place(x=280,y=540)
     input_type.set('midi')
 
-    def input_type_changed(*args):
-        point_setups_input_type[int(current_point_config_index.get())] = input_type.get()
-
     input_type.trace('w', input_type_changed)
 
     point_single_line_input_text = StringVar()
     point_single_line_input = ttk.Entry(root, width = 57,textvariable=point_single_line_input_text)
     point_single_line_input.place(x=400,y=450)
-
-    def point_single_line_input_changed(*args):
-        point_setups_single_line_input[int(current_point_config_index.get())] = point_single_line_input_text.get()
 
     point_single_line_input_text.trace('w', point_single_line_input_changed)
 
@@ -639,204 +948,44 @@ else:
     ball_and_point_separator = Frame(height=5, bd=1, relief=SUNKEN)
     ball_and_point_separator.place(x=0, y=425, relwidth=1)
 
-    def left_column_peak_button_clicked():
-        global current_point_config_index,left_column_peak_path_point_configuration_index, left_column_peak_path_point_configuration_index_of_current_ball_config_index
-        left_column_peak_path_point_configuration_index[current_ball_config_index] += 1
-        if left_column_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            left_column_peak_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(left_column_peak_path_point_configuration_index[current_ball_config_index]) 
     left_column_peak_button = ttk.Button(root,textvariable=left_column_peak_path_point_configuration_index_of_current_ball_config_index,command=left_column_peak_button_clicked,font=('Courier', 10),border=0,height=1,width=1)
     left_column_peak_button.place(x=22,y=236)
-
-    def left_column_catch_button_clicked():
-        global current_point_config_index,left_column_catch_path_point_configuration_index, left_column_catch_path_point_configuration_index_of_current_ball_config_index
-        left_column_catch_path_point_configuration_index[current_ball_config_index] += 1
-        if left_column_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            left_column_catch_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(left_column_catch_path_point_configuration_index[current_ball_config_index]) 
     left_column_catch_button = ttk.Button(root,textvariable=left_column_catch_path_point_configuration_index_of_current_ball_config_index,command=left_column_catch_button_clicked,border=0,height=1,width=1)
     left_column_catch_button.place(x=18,y=353)
-
-    def left_column_throw_button_clicked():
-        global current_point_config_index,left_column_throw_path_point_configuration_index, left_column_throw_path_point_configuration_index_of_current_ball_config_index
-        left_column_throw_path_point_configuration_index[current_ball_config_index] += 1
-        if left_column_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            left_column_throw_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(left_column_throw_path_point_configuration_index[current_ball_config_index]) 
     left_column_throw_button = ttk.Button(root,textvariable=left_column_throw_path_point_configuration_index_of_current_ball_config_index,command=left_column_throw_button_clicked,border=0,height=1,width=1)
     left_column_throw_button.place(x=40,y=380)
-
-    def left_cross_peak_button_clicked():
-        global current_point_config_index,left_cross_peak_path_point_configuration_index, left_cross_peak_path_point_configuration_index_of_current_ball_config_index
-        left_cross_peak_path_point_configuration_index[current_ball_config_index] += 1
-        if left_cross_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            left_cross_peak_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(left_cross_peak_path_point_configuration_index[current_ball_config_index]) 
     left_cross_peak_button = ttk.Button(root,textvariable=left_cross_peak_path_point_configuration_index_of_current_ball_config_index,command=left_cross_peak_button_clicked,border=0,height=1,width=1)
     left_cross_peak_button.place(x=98,y=236)
-
-    def left_cross_catch_button_clicked():
-        global current_point_config_index,left_cross_catch_path_point_configuration_index, left_cross_catch_path_point_configuration_index_of_current_ball_config_index
-        left_cross_catch_path_point_configuration_index[current_ball_config_index] += 1
-        if left_cross_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            left_cross_catch_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(left_cross_catch_path_point_configuration_index[current_ball_config_index]) 
     left_cross_catch_button = ttk.Button(root,textvariable=left_cross_catch_path_point_configuration_index_of_current_ball_config_index,command=left_cross_catch_button_clicked,border=0,height=1,width=1)
     left_cross_catch_button.place(x=203,y=345)
-
-    def left_cross_throw_button_clicked():
-        global current_point_config_index,left_cross_throw_path_point_configuration_index, left_cross_throw_path_point_configuration_index_of_current_ball_config_index
-        left_cross_throw_path_point_configuration_index[current_ball_config_index] += 1
-        if left_cross_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            left_cross_throw_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(left_cross_throw_path_point_configuration_index[current_ball_config_index]) 
     left_cross_throw_button = ttk.Button(root,textvariable=left_cross_throw_path_point_configuration_index_of_current_ball_config_index,command=left_cross_throw_button_clicked,border=0,height=1,width=1)
     left_cross_throw_button.place(x=115,y=380)
-
-    def mid_column_peak_button_clicked():
-        global current_point_config_index,mid_column_peak_path_point_configuration_index, mid_column_peak_path_point_configuration_index_of_current_ball_config_index
-        mid_column_peak_path_point_configuration_index[current_ball_config_index] += 1
-        if mid_column_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            mid_column_peak_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(mid_column_peak_path_point_configuration_index[current_ball_config_index]) 
     mid_column_peak_button = ttk.Button(root,textvariable=mid_column_peak_path_point_configuration_index_of_current_ball_config_index,command=mid_column_peak_button_clicked,border=0,height=1,width=1)
     mid_column_peak_button.place(x=262,y=236)
-
-    def mid_column_catch_button_clicked():
-        global current_point_config_index,mid_column_catch_path_point_configuration_index, mid_column_catch_path_point_configuration_index_of_current_ball_config_index
-        mid_column_catch_path_point_configuration_index[current_ball_config_index] += 1
-        if mid_column_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            mid_column_catch_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(mid_column_catch_path_point_configuration_index[current_ball_config_index]) 
     mid_column_catch_button = ttk.Button(root,textvariable=mid_column_catch_path_point_configuration_index_of_current_ball_config_index,command=mid_column_catch_button_clicked,border=0,height=1,width=1)
     mid_column_catch_button.place(x=258,y=353)
-
-    def mid_column_throw_button_clicked():
-        global current_point_config_index,mid_column_throw_path_point_configuration_index, mid_column_throw_path_point_configuration_index_of_current_ball_config_index
-        mid_column_throw_path_point_configuration_index[current_ball_config_index] += 1
-        if mid_column_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            mid_column_throw_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(mid_column_throw_path_point_configuration_index[current_ball_config_index]) 
     mid_column_throw_button = ttk.Button(root,textvariable=mid_column_throw_path_point_configuration_index_of_current_ball_config_index,command=mid_column_throw_button_clicked,border=0,height=1,width=1)
     mid_column_throw_button.place(x=280,y=380)
-
-    def mid_cross_peak_button_clicked():
-        global current_point_config_index,mid_cross_peak_path_point_configuration_index, mid_cross_peak_path_point_configuration_index_of_current_ball_config_index
-        mid_cross_peak_path_point_configuration_index[current_ball_config_index] += 1
-        if mid_cross_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            mid_cross_peak_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(mid_cross_peak_path_point_configuration_index[current_ball_config_index]) 
     mid_cross_peak_button = ttk.Button(root,textvariable=mid_cross_peak_path_point_configuration_index_of_current_ball_config_index,command=mid_cross_peak_button_clicked,border=0,height=1,width=1)
     mid_cross_peak_button.place(x=338,y=236)
-
-    def mid_cross_catch_button_clicked():
-        global current_point_config_index,mid_cross_catch_path_point_configuration_index, mid_cross_catch_path_point_configuration_index_of_current_ball_config_index
-        mid_cross_catch_path_point_configuration_index[current_ball_config_index] += 1
-        if mid_cross_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            mid_cross_catch_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(mid_cross_catch_path_point_configuration_index[current_ball_config_index]) 
     mid_cross_catch_button = ttk.Button(root,textvariable=mid_cross_catch_path_point_configuration_index_of_current_ball_config_index,command=mid_cross_catch_button_clicked,border=0,height=1,width=1)
     mid_cross_catch_button.place(x=443,y=345)
-
-    def mid_cross_throw_button_clicked():
-        global current_point_config_index,mid_cross_throw_path_point_configuration_index, mid_cross_throw_path_point_configuration_index_of_current_ball_config_index
-        mid_cross_throw_path_point_configuration_index[current_ball_config_index] += 1
-        if mid_cross_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            mid_cross_throw_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(mid_cross_throw_path_point_configuration_index[current_ball_config_index]) 
     mid_cross_throw_button = ttk.Button(root,textvariable=mid_cross_throw_path_point_configuration_index_of_current_ball_config_index,command=mid_cross_throw_button_clicked,border=0,height=1,width=1)
     mid_cross_throw_button.place(x=355,y=380)
-
-    def right_column_peak_button_clicked():
-        global current_point_config_index,right_column_peak_path_point_configuration_index, right_column_peak_path_point_configuration_index_of_current_ball_config_index
-        right_column_peak_path_point_configuration_index[current_ball_config_index] += 1
-        if right_column_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            right_column_peak_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(right_column_peak_path_point_configuration_index[current_ball_config_index]) 
     right_column_peak_button = ttk.Button(root,textvariable=right_column_peak_path_point_configuration_index_of_current_ball_config_index,command=right_column_peak_button_clicked,border=0,height=1,width=1)
     right_column_peak_button.place(x=502,y=236)
-
-    def right_column_catch_button_clicked():
-        global current_point_config_index,right_column_catch_path_point_configuration_index, right_column_catch_path_point_configuration_index_of_current_ball_config_index
-        right_column_catch_path_point_configuration_index[current_ball_config_index] += 1
-        if right_column_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            right_column_catch_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(right_column_catch_path_point_configuration_index[current_ball_config_index]) 
     right_column_catch_button = ttk.Button(root,textvariable=right_column_catch_path_point_configuration_index_of_current_ball_config_index,command=right_column_catch_button_clicked,border=0,height=1,width=1)
     right_column_catch_button.place(x=498,y=353)
-
-    def right_column_throw_button_clicked():
-        global current_point_config_index,right_column_throw_path_point_configuration_index, right_column_throw_path_point_configuration_index_of_current_ball_config_index
-        right_column_throw_path_point_configuration_index[current_ball_config_index] += 1
-        if right_column_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            right_column_throw_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(right_column_throw_path_point_configuration_index[current_ball_config_index]) 
     right_column_throw_button = ttk.Button(root,textvariable=right_column_throw_path_point_configuration_index_of_current_ball_config_index,command=right_column_throw_button_clicked,border=0,height=1,width=1)
     right_column_throw_button.place(x=520,y=380)
-
-    def right_cross_peak_button_clicked():
-        global current_point_config_index,right_cross_peak_path_point_configuration_index, right_cross_peak_path_point_configuration_index_of_current_ball_config_index
-        right_cross_peak_path_point_configuration_index[current_ball_config_index] += 1
-        if right_cross_peak_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            right_cross_peak_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(right_cross_peak_path_point_configuration_index[current_ball_config_index]) 
     right_cross_peak_button = ttk.Button(root,textvariable=right_cross_peak_path_point_configuration_index_of_current_ball_config_index,command=right_cross_peak_button_clicked,border=0,height=1,width=1)
     right_cross_peak_button.place(x=578,y=236)
-
-    def right_cross_catch_button_clicked():
-        global current_point_config_index,right_cross_catch_path_point_configuration_index, right_cross_catch_path_point_configuration_index_of_current_ball_config_index
-        right_cross_catch_path_point_configuration_index[current_ball_config_index] += 1
-        if right_cross_catch_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            right_cross_catch_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(right_cross_catch_path_point_configuration_index[current_ball_config_index]) 
     right_cross_catch_button = ttk.Button(root,textvariable=right_cross_catch_path_point_configuration_index_of_current_ball_config_index,command=right_cross_catch_button_clicked,border=0,height=1,width=1)
     right_cross_catch_button.place(x=683,y=345)
-
-    def right_cross_throw_button_clicked():
-        global current_point_config_index,right_cross_throw_path_point_configuration_index, right_cross_throw_path_point_configuration_index_of_current_ball_config_index
-        right_cross_throw_path_point_configuration_index[current_ball_config_index] += 1
-        if right_cross_throw_path_point_configuration_index[current_ball_config_index] > number_of_used_path_point_configurations + 1:
-            right_cross_throw_path_point_configuration_index[current_ball_config_index] = 0
-        set_path_point_buttons_based_on_selected_ball()
-        current_point_config_index.set(right_cross_throw_path_point_configuration_index[current_ball_config_index]) 
-
     right_cross_throw_button = ttk.Button(root,textvariable=right_cross_throw_path_point_configuration_index_of_current_ball_config_index,command=right_cross_throw_button_clicked,border=0,height=1,width=1)
     right_cross_throw_button.place(x=595,y=380)
 
     all_possible_point_config_indices = ['0','1','2','3','4','5','6']
-
-    def selected_all_peaks_point_config_index_changed(*args):
-        index_for_all_peaks = int(selected_all_peaks_point_config_index.get())
-        left_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
-        left_column_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
-        left_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
-        left_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
-        mid_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
-        mid_column_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
-        mid_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
-        mid_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
-        right_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
-        right_column_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
-        right_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
-        right_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
-        current_point_config_index.set(index_for_all_peaks)
 
     selected_all_peaks_point_config_index = StringVar(root)
     selected_all_peaks_point_config_index.set('0')
@@ -847,23 +996,6 @@ else:
     all_peaks_optionmenu_label.place(x=730,y=250)
 
     selected_all_peaks_point_config_index.trace('w', selected_all_peaks_point_config_index_changed)
-
-    def selected_all_throws_point_config_index_changed(*args):
-        index_for_all_throws = int(selected_all_throws_point_config_index.get())
-        left_column_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
-        left_column_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
-        left_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
-        left_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
-        mid_column_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
-        mid_column_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
-        mid_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
-        mid_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
-        right_column_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
-        right_column_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
-        right_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_throws)
-        right_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
-        current_point_config_index.set(index_for_all_throws)
-
     selected_all_throws_point_config_index = StringVar(root)
     selected_all_throws_point_config_index.set('0')
 
@@ -873,24 +1005,6 @@ else:
     all_throws_optionmenu_label.place(x=730,y=350)
 
     selected_all_throws_point_config_index.trace('w', selected_all_throws_point_config_index_changed)
-
-    def selected_all_catches_point_config_index_changed(*args):
-        index_for_all_catches = int(selected_all_catches_point_config_index.get())
-        left_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
-        left_column_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
-        left_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
-        left_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
-        mid_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
-        mid_column_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
-        mid_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
-        mid_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
-        right_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
-        right_column_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
-        right_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
-        right_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
-        current_point_config_index.set(index_for_all_catches)
-
-
     selected_all_catches_point_config_index = StringVar(root)
     selected_all_catches_point_config_index.set('0')
 
@@ -901,105 +1015,27 @@ else:
 
     selected_all_catches_point_config_index.trace('w', selected_all_catches_point_config_index_changed)
 
-    def set_path_point_buttons_based_on_selected_ball():
-        left_column_peak_path_point_configuration_index_of_current_ball_config_index.set(left_column_peak_path_point_configuration_index[current_ball_config_index])
-        left_column_catch_path_point_configuration_index_of_current_ball_config_index.set(left_column_catch_path_point_configuration_index[current_ball_config_index])
-        left_column_throw_path_point_configuration_index_of_current_ball_config_index.set(left_column_throw_path_point_configuration_index[current_ball_config_index])
-        left_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(left_cross_peak_path_point_configuration_index[current_ball_config_index])
-        left_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(left_cross_catch_path_point_configuration_index[current_ball_config_index])
-        left_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(left_cross_throw_path_point_configuration_index[current_ball_config_index])
-        mid_column_peak_path_point_configuration_index_of_current_ball_config_index.set(mid_column_peak_path_point_configuration_index[current_ball_config_index])
-        mid_column_catch_path_point_configuration_index_of_current_ball_config_index.set(mid_column_catch_path_point_configuration_index[current_ball_config_index])
-        mid_column_throw_path_point_configuration_index_of_current_ball_config_index.set(mid_column_throw_path_point_configuration_index[current_ball_config_index])
-        mid_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(mid_cross_peak_path_point_configuration_index[current_ball_config_index])
-        mid_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(mid_cross_catch_path_point_configuration_index[current_ball_config_index])
-        mid_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(mid_cross_throw_path_point_configuration_index[current_ball_config_index])
-        right_column_peak_path_point_configuration_index_of_current_ball_config_index.set(right_column_peak_path_point_configuration_index[current_ball_config_index])
-        right_column_catch_path_point_configuration_index_of_current_ball_config_index.set(right_column_catch_path_point_configuration_index[current_ball_config_index])
-        right_column_throw_path_point_configuration_index_of_current_ball_config_index.set(right_column_throw_path_point_configuration_index[current_ball_config_index])
-        right_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(right_cross_peak_path_point_configuration_index[current_ball_config_index])
-        right_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(right_cross_catch_path_point_configuration_index[current_ball_config_index])
-        right_cross_throw_path_point_configuration_index_of_current_ball_config_index.set(right_cross_throw_path_point_configuration_index[current_ball_config_index])
-
-    def ball_0_config_letter_changed(*args):
-        global current_ball_config_index, current_ball_config_letter
-        if ball_0_selected_config.get() == 'X':
-            current_ball_config_index = 0
-            current_ball_config_letter.set('X')
-            selected_configs_of_balls[0] = 'X'
-        if ball_0_selected_config.get() == 'Y':
-            current_ball_config_index = 1
-            current_ball_config_letter.set('Y')
-            selected_configs_of_balls[0] = 'Y'
-            print(selected_configs_of_balls)
-        if ball_0_selected_config.get() == 'Z':
-            current_ball_config_index = 2
-            current_ball_config_letter.set('Z')
-            selected_configs_of_balls[0] = 'Z'
-        set_path_point_buttons_based_on_selected_ball()
-        selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
-
-    def ball_1_config_letter_changed(*args):
-        global current_ball_config_index, current_ball_config_letter
-        if ball_1_selected_config.get() == 'X':
-            current_ball_config_index = 0
-            current_ball_config_letter.set('X')
-            selected_configs_of_balls[1] = 'X'
-        if ball_1_selected_config.get() == 'Y':
-            current_ball_config_index = 1
-            current_ball_config_letter.set('Y')
-            selected_configs_of_balls[1] = 'Y'
-        if ball_1_selected_config.get() == 'Z':
-            current_ball_config_index = 2
-            current_ball_config_letter.set('Z')
-            selected_configs_of_balls[1] = 'Z'
-        set_path_point_buttons_based_on_selected_ball()
-        selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
-
-    def ball_2_config_letter_changed(*args):
-        global current_ball_config_index, current_ball_config_letter
-        if ball_2_selected_config.get() == 'X':
-            current_ball_config_index = 0
-            current_ball_config_letter.set('X')
-            selected_configs_of_balls[2] = 'X'
-        if ball_2_selected_config.get() == 'Y':
-            current_ball_config_index = 1
-            current_ball_config_letter.set('Y')
-            selected_configs_of_balls[2] = 'Y'
-        if ball_2_selected_config.get() == 'Z':
-            current_ball_config_index = 2
-            current_ball_config_letter.set('Z')
-            selected_configs_of_balls[2] = 'Z'
-        set_path_point_buttons_based_on_selected_ball()
-        selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
-
     ball_0_selected_config.trace('w', ball_0_config_letter_changed)
     ball_1_selected_config.trace('w', ball_1_config_letter_changed)
     ball_2_selected_config.trace('w', ball_2_config_letter_changed)
-
-    def current_point_config_index_changed(*args):
-        if current_point_config_index.get() == '0':
-            hide_point_config_inputs()
-        else:
-            show_point_config_inputs()
-        input_type.set(point_setups_input_type[int(current_point_config_index.get())])
-        point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
-        note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
-
     current_point_config_index.trace('w', current_point_config_index_changed)
-
-    def selected_config_midi_channel_changed(*args):
-        selected_config_midi_channels[current_ball_config_index] = int(selected_config_midi_channel.get())
-        print(selected_config_midi_channels)
-
     selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 
-    hide_point_config_inputs()
-    root.mainloop()
+begin_program()
 
-    del midiout
+#maybe instead of 1ball, 2balls, and 3balls, we could just have radiobuttons that list all the different
+#   things that can be used to send midi messages, like 'path points', speed, position, stop/start,
+#   gather/ungather, apart, some kind of 'held in a certain position button'. This wasy then inside of things like 
+#   position, we could address the issue of which ball/balls to average to chose what position is to be used
 
+
+#maybe there would be someway to address synchronis peaks inside of our current path point setup
 #TODO
+#make dictionary associations for the two and three ball event type things
+#   check for these associations just like we do the others and have them send cc midi signals(or non cc if the
+#   case may be)
+#get note and chord working in UI
+#make the positional grid be hooked up to the number of notes
 #when a ball config is loaded, the point config section should be set based on what point configs are used
 #note or velocity entries losing focus while blank causes crash
 #tell user in color calibration that Q will leave calibration mode, maybe at the bottom of the calibration windows
@@ -1012,8 +1048,10 @@ else:
 #   position(both on the x and the y), gather(maybe stop moving overrides the need for this one),
 #   stop moving, start moving
 #       Position - buffer size, this may be different for x and y
+#           something else to think about with position
 #       Speed - we need a way to map how fast/slow it gets, we could use the actual throws per
-#           second to set the beats per second
+#           second to set the beats per second. Im not sure, but i feel like this looks best with it being
+#           linked to the speed of the juggller, which can be checked by using the speed of held balls maybe
 #if '2 balls' is clicked, we have
 #   apart, synch peaks(this will probably just be columns), collisions.
 #
@@ -1043,6 +1081,14 @@ else:
 #   but the only way to change which one it is is by changing the selected point config of
 #   one of the points above in the point images.
 #figure out how to handle midi velocity, maybe for now just leave it to be done on the ableton side of things
+#make things like speed, position able to be set to single balls or even the average of 2 specific balls,
+#   another one like this could be the distance between two balls. All of these things will want to have
+#   a timed average as well so that it is not choppy as the balls make slight movements
+#when the path point '0' is selected, and we go from 1 balls to 3 balls, the specifcs are shown for 0 even
+#   though that is the number that represents empty/unused
+#in midi helper look into create_individual_ball_audio where it mentions 'putt' and see how we
+#   were using it to set what sound gets made by the next peak, that is going to be a similar to goal
+#   to the past positional stuff
 
 #these are the imports that i removed from the this file, i dont think them being gone will cause any issues, 
 #   but just in case, here they are:
@@ -1062,3 +1108,6 @@ else:
 #from trajectory_helper import *
 #import calibration_helper
 #from calibration_helper import check_for_keyboard_input
+
+
+
