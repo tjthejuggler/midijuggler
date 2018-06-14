@@ -323,12 +323,8 @@ def average_position(all_axis, window_length, window_end_frame):
                         if not all_axis[i][index] == 'X':
                             count = count+1
                             average_pos = average_pos + all_axis[i][index]
-    print('count')
-    print(count)
     if count > 0:
         average_pos = average_pos/count
-        print('average_pos')
-        print(average_pos)
     return average_pos
 last_note_sent = 0
 
@@ -363,7 +359,26 @@ def create_multiple_ball_audio():
     if using_midi:
         #send_midi_cc_based_on_average_position('y',0,average_position(all_cy, 10, -1))
         send_midi_cc_based_on_average_position('x',0,average_position(all_cx, 10, -1))
-        #use location to set a cc 
+        #send_midi_cc_based_on_average_speed_while_held()
+        #send_midi_cc_based_on_average_speed() 
+
+def send_midi_cc_based_on_average_speed_while_held():
+    for i in range(3):#average all 6 velocities together over a certain amount of time and then get a low
+        print(i)#and high number to be the 0, 128 and figure it out from there
+
+    #IDEALLY FOR POSITION
+    #-i can use the average location or average velocity of any ball or combination of balls
+    #-there are calibration windows that can be opened for each position instance which can have the borders
+    #   buffers set, there should be a key that can be pressed that make it so the mouse acts as the
+    #   average position for that position instance 
+
+    #IDEALLY FOR SPEED:
+    #-i can use the average velocity of any ball or combination of balls
+    #-there are calibration windows that can be opened where the extreme fast juggling can be performed
+    #       as well as the extreme slow juggling
+
+    #TODO FOR BOTH OF THOSE:
+    #   -make a funtion that returns the average of every (non-X) number in a list
 
 def send_midi_cc_based_on_average_position(axis,edge_buffer,position):
     value = 0

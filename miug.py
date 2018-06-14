@@ -20,9 +20,13 @@ def begin_program():
         load_config_dialog(True)
         start_camera()
     else:
-        hide_point_config_inputs()
+        hide_path_points_config_inputs()
+        hide_all_location_widgets()
         root.mainloop()
 
+
+
+#########################     BEGIN TOP MAIN SECTION     ##########################
 def load_config_dialog(use_default_config):
     if use_default_config:
         load_config_file_name = 'default.txt'
@@ -173,9 +177,7 @@ def color_calibration_window():
     settings.show_main_camera = False
     run_camera()  
 
-
-
-def show_all_one_ball_widgets():
+def show_all_path_points_widgets():
     ball_2_config_optionmenu.place(x=300,y=130)
     ball_2_config_optionmenu_label.place(x=250,y=130)
     ball_1_config_optionmenu.place(x=180,y=130)
@@ -220,15 +222,65 @@ def show_all_one_ball_widgets():
     right_cross_throw_button.place(x=595,y=380)
     current_point_config_label.place(x=10,y=435)
     ball_and_point_separator.place(x=0, y=425, relwidth=1)
-    show_point_config_inputs()
+    show_path_points_config_inputs()
 
-def show_all_two_balls_widgets():
+def show_all_location_widgets():
+    location_1_label.place(x=10,y=150) 
+    location_2_label.place(x=10,y=250) 
+    location_3_label.place(x=10,y=350) 
+    location_4_label.place(x=10,y=450) 
+    location_5_label.place(x=10,y=550)
+    location_1_ball_1_checkbutton.place(x=200,y=155)
+    location_1_ball_2_checkbutton.place(x=200,y=180)
+    location_1_ball_3_checkbutton.place(x=200,y=205)
+    location_2_ball_1_checkbutton.place(x=200,y=255)
+    location_2_ball_2_checkbutton.place(x=200,y=280)
+    location_2_ball_3_checkbutton.place(x=200,y=305)
+    location_3_ball_1_checkbutton.place(x=200,y=355)
+    location_3_ball_2_checkbutton.place(x=200,y=380)
+    location_3_ball_3_checkbutton.place(x=200,y=405)
+    location_4_ball_1_checkbutton.place(x=200,y=455)
+    location_4_ball_2_checkbutton.place(x=200,y=480)
+    location_4_ball_3_checkbutton.place(x=200,y=505)
+    location_5_ball_1_checkbutton.place(x=200,y=555)
+    location_5_ball_2_checkbutton.place(x=200,y=580)
+    location_5_ball_3_checkbutton.place(x=200,y=605)
+    location_1_number_of_frames_entry.place(x=340,y=160)
+    location_2_number_of_frames_entry.place(x=340,y=260)
+    location_3_number_of_frames_entry.place(x=340,y=360)
+    location_4_number_of_frames_entry.place(x=340,y=460)
+    location_5_number_of_frames_entry.place(x=340,y=560)
+    location_horizontal_label.place(x=480,y=100)
+    location_horizontal_channel_label.place(x=470,y=130)
+    location_horizontal_number_label.place(x=540,y=130) 
+    location_vertical_label.place(x=630,y=100)  
+    location_vertical_channel_label.place(x=620,y=130)
+    location_vertical_number_label.place(x=690,y=130)
+    location_1_horizontal_channel_entry.place(x=470,y=170)
+    location_1_horizontal_number_entry.place(x=540,y=170)
+    location_1_vertical_channel_entry.place(x=620,y=170)
+    location_1_vertical_number_entry.place(x=690,y=170)
+    location_2_horizontal_channel_entry.place(x=470,y=270)
+    location_2_horizontal_number_entry.place(x=540,y=270)
+    location_2_vertical_channel_entry.place(x=620,y=270)
+    location_2_vertical_number_entry.place(x=690,y=270)
+    location_3_horizontal_channel_entry.place(x=470,y=370)
+    location_3_horizontal_number_entry.place(x=540,y=370)
+    location_3_vertical_channel_entry.place(x=620,y=370)
+    location_3_vertical_number_entry.place(x=690,y=370)
+    location_4_horizontal_channel_entry.place(x=470,y=470)
+    location_4_horizontal_number_entry.place(x=540,y=470)
+    location_4_vertical_channel_entry.place(x=620,y=470)
+    location_4_vertical_number_entry.place(x=690,y=470)
+    location_5_horizontal_channel_entry.place(x=470,y=570)
+    location_5_horizontal_number_entry.place(x=540,y=570)
+    location_5_vertical_channel_entry.place(x=620,y=570)
+    location_5_vertical_number_entry.place(x=690,y=570)
+
+def show_all_speed_widgets():
     print('g')
 
-def show_all_three_balls_widgets():
-    print('g')
-
-def hide_all_one_ball_widgets():
+def hide_all_path_points_widgets():
     ball_2_config_optionmenu.place(x=11770,y=150)
     ball_2_config_optionmenu_label.place(x=11730,y=150)
     ball_1_config_optionmenu.place(x=11670,y=150)
@@ -273,15 +325,65 @@ def hide_all_one_ball_widgets():
     right_cross_throw_button.place(x=1595,y=380)
     current_point_config_label.place(x=1110,y=1435)
     ball_and_point_separator.place(x=0, y=1425, relwidth=1)
-    hide_point_config_inputs()
+    hide_path_points_config_inputs()
 
-def hide_all_two_balls_widgets():
+def hide_all_location_widgets():
+    location_1_label.place(x=10,y=1150) 
+    location_2_label.place(x=10,y=1250) 
+    location_3_label.place(x=10,y=1350) 
+    location_4_label.place(x=10,y=1450) 
+    location_5_label.place(x=10,y=1550)
+    location_1_ball_1_checkbutton.place(x=200,y=1150)
+    location_1_ball_2_checkbutton.place(x=200,y=1170)
+    location_1_ball_3_checkbutton.place(x=200,y=1190)
+    location_2_ball_1_checkbutton.place(x=200,y=1250)
+    location_2_ball_2_checkbutton.place(x=200,y=1270)
+    location_2_ball_3_checkbutton.place(x=200,y=1290)
+    location_3_ball_1_checkbutton.place(x=200,y=1350)
+    location_3_ball_2_checkbutton.place(x=200,y=1370)
+    location_3_ball_3_checkbutton.place(x=200,y=1390)
+    location_4_ball_1_checkbutton.place(x=200,y=1450)
+    location_4_ball_2_checkbutton.place(x=200,y=1470)
+    location_4_ball_3_checkbutton.place(x=200,y=1490)
+    location_5_ball_1_checkbutton.place(x=200,y=1550)
+    location_5_ball_2_checkbutton.place(x=200,y=1570)
+    location_5_ball_3_checkbutton.place(x=200,y=1590)
+    location_1_number_of_frames_entry.place(x=300,y=1155)
+    location_2_number_of_frames_entry.place(x=300,y=1255)
+    location_3_number_of_frames_entry.place(x=300,y=1355)
+    location_4_number_of_frames_entry.place(x=300,y=1455)
+    location_5_number_of_frames_entry.place(x=300,y=1555)
+    location_horizontal_label.place(x=380,y=1100)
+    location_horizontal_channel_label.place(x=370,y=1130)
+    location_horizontal_number_label.place(x=440,y=1130) 
+    location_vertical_label.place(x=530,y=1100)  
+    location_vertical_channel_label.place(x=520,y=1130)
+    location_vertical_number_label.place(x=590,y=1130)
+    location_1_horizontal_channel_entry.place(x=470,y=1170)
+    location_1_horizontal_number_entry.place(x=540,y=1170)
+    location_1_vertical_channel_entry.place(x=620,y=1170)
+    location_1_vertical_number_entry.place(x=690,y=1170)
+    location_2_horizontal_channel_entry.place(x=470,y=1270)
+    location_2_horizontal_number_entry.place(x=540,y=1270)
+    location_2_vertical_channel_entry.place(x=620,y=1270)
+    location_2_vertical_number_entry.place(x=690,y=1270)
+    location_3_horizontal_channel_entry.place(x=470,y=1370)
+    location_3_horizontal_number_entry.place(x=540,y=1370)
+    location_3_vertical_channel_entry.place(x=620,y=1370)
+    location_3_vertical_number_entry.place(x=690,y=1370)
+    location_4_horizontal_channel_entry.place(x=470,y=1470)
+    location_4_horizontal_number_entry.place(x=540,y=1470)
+    location_4_vertical_channel_entry.place(x=620,y=1470)
+    location_4_vertical_number_entry.place(x=690,y=1470)
+    location_5_horizontal_channel_entry.place(x=470,y=1570)
+    location_5_horizontal_number_entry.place(x=540,y=1570)
+    location_5_vertical_channel_entry.place(x=620,y=1570)
+    location_5_vertical_number_entry.place(x=690,y=1570)
+
+def hide_all_speed_widgets():
     print('g')
 
-def hide_all_three_balls_widgets():
-    print('g')
-
-def show_point_config_inputs():
+def show_path_points_config_inputs():
     current_positional_note_selection_type.place(x=80,y=450)
     previous_positional_note_selection_type.place(x=80,y=480)
     penultimate_positional_note_selection_type.place(x=80,y=510)
@@ -292,7 +394,7 @@ def show_point_config_inputs():
     arpeggio_input_type.place(x=280,y=540)
     point_single_line_input.place(x=400,y=450)
 
-def hide_point_config_inputs():
+def hide_path_points_config_inputs():
     current_positional_note_selection_type.place(x=1180,y=450)
     previous_positional_note_selection_type.place(x=1180,y=480)
     penultimate_positional_note_selection_type.place(x=1180,y=510)
@@ -303,21 +405,26 @@ def hide_point_config_inputs():
     arpeggio_input_type.place(x=1280,y=540)
     point_single_line_input.place(x=1400,y=450)
 
-def selected_number_of_balls_changed(*args):
-    if selected_number_of_balls.get() == 1:
-        show_all_one_ball_widgets()
-        hide_all_two_balls_widgets()
-        hide_all_three_balls_widgets()
-    if selected_number_of_balls.get() == 2:
-        hide_all_one_ball_widgets()
-        show_all_two_balls_widgets()
-        hide_all_three_balls_widgets()
-    if selected_number_of_balls.get() == 3:
-        hide_all_one_ball_widgets()
-        hide_all_two_balls_widgets()
-        show_all_three_balls_widgets()
+def selected_event_type_changed(*args):
+    if selected_event_type.get() == 'path points':
+        show_all_path_points_widgets()
+        hide_all_location_widgets()
+        hide_all_speed_widgets()
+    if selected_event_type.get() == 'location':
+        hide_all_path_points_widgets()
+        show_all_location_widgets()
+        hide_all_speed_widgets()
+    if selected_event_type.get() == 'speed':
+        hide_all_path_points_widgets()
+        hide_all_location_widgets()
+        show_all_speed_widgets()
+
+#########################     END TOP MAIN SECTION     ##########################
 
 
+
+
+###########################  BEGIN BOTTOM SEND MIDI MESSAGES SECTION  #################################
 
 def send_midi_on():
     midi_to_send_note_or_number_entry_lost_focus()
@@ -327,8 +434,6 @@ def send_midi_on():
     note_on = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
     midiout.send_message(note_on)
 
-
-
 def send_midi_off():
     midi_to_send_note_or_number_entry_lost_focus()
     h = '0x80'        
@@ -337,8 +442,6 @@ def send_midi_off():
     note_off = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                            
     midiout.send_message(note_off)
 
-
-
 def send_midi_controller_change():
     midi_to_send_note_or_number_entry_lost_focus()       
     h = '0xB0'
@@ -346,8 +449,6 @@ def send_midi_controller_change():
     i += int(selected_midi_channel_to_send.get())
     controller_change_message = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
     midiout.send_message(controller_change_message)
-
-
 
 def midi_to_send_velocity_or_value_entry_lost_focus(*args):
     entry_is_integer = False
@@ -396,7 +497,13 @@ def selected_midi_type_to_send_changed(*args):
         send_midi_off_button.place(x=110,y=1720)
         send_midi_controller_change_button.place(x=10,y=720)
 
+###########################  END BOTTOM SEND MIDI MESSAGES SECTION  #################################
 
+
+
+
+
+###########################  BEGIN PATH POINTS SECTION  #################################
 
 def note_selection_type_changed(*args):
     if note_selection_type.get() == 'current positional' and current_point_config_index.get() != '0':
@@ -411,17 +518,11 @@ def note_selection_type_changed(*args):
             input_type.set('chord')
     point_setups_note_selection_type[int(current_point_config_index.get())] = note_selection_type.get()
 
-
-
 def input_type_changed(*args):
     point_setups_input_type[int(current_point_config_index.get())] = input_type.get()
 
-
-
 def point_single_line_input_changed(*args):
     point_setups_single_line_input[int(current_point_config_index.get())] = point_single_line_input_text.get()
-
-
 
 def left_column_peak_button_clicked():
     global current_point_config_index,left_column_peak_path_point_configuration_index, left_column_peak_path_point_configuration_index_of_current_ball_config_index
@@ -567,8 +668,6 @@ def right_cross_throw_button_clicked():
     set_path_point_buttons_based_on_selected_ball()
     current_point_config_index.set(right_cross_throw_path_point_configuration_index[current_ball_config_index]) 
 
-
-
 def selected_all_peaks_point_config_index_changed(*args):
     index_for_all_peaks = int(selected_all_peaks_point_config_index.get())
     left_column_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
@@ -584,7 +683,6 @@ def selected_all_peaks_point_config_index_changed(*args):
     right_cross_peak_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_peaks)
     right_cross_peak_path_point_configuration_index[current_ball_config_index] = index_for_all_peaks
     current_point_config_index.set(index_for_all_peaks)
-
 
 def selected_all_throws_point_config_index_changed(*args):
     index_for_all_throws = int(selected_all_throws_point_config_index.get())
@@ -602,7 +700,6 @@ def selected_all_throws_point_config_index_changed(*args):
     right_cross_throw_path_point_configuration_index[current_ball_config_index] = index_for_all_throws
     current_point_config_index.set(index_for_all_throws)
 
-
 def selected_all_catches_point_config_index_changed(*args):
     index_for_all_catches = int(selected_all_catches_point_config_index.get())
     left_column_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
@@ -618,9 +715,6 @@ def selected_all_catches_point_config_index_changed(*args):
     right_cross_catch_path_point_configuration_index_of_current_ball_config_index.set(index_for_all_catches)
     right_cross_catch_path_point_configuration_index[current_ball_config_index] = index_for_all_catches
     current_point_config_index.set(index_for_all_catches)
-
-
-
 
 def set_path_point_buttons_based_on_selected_ball():
     left_column_peak_path_point_configuration_index_of_current_ball_config_index.set(left_column_peak_path_point_configuration_index[current_ball_config_index])
@@ -694,21 +788,101 @@ def ball_2_config_letter_changed(*args):
     set_path_point_buttons_based_on_selected_ball()
     selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
 
-
-
 def current_point_config_index_changed(*args):
     if current_point_config_index.get() == '0':
-        hide_point_config_inputs()
+        hide_path_points_config_inputs()
     else:
-        show_point_config_inputs()
+        show_path_points_config_inputs()
     input_type.set(point_setups_input_type[int(current_point_config_index.get())])
     point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
     note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
 
-
 def selected_config_midi_channel_changed(*args):
     selected_config_midi_channels[current_ball_config_index] = int(selected_config_midi_channel.get())
     print(selected_config_midi_channels)
+
+###########################  END PATH POINTS SECTION  #################################
+
+
+
+
+#########################     BEGIN LOCATION SECTION     ##########################
+def location_1_number_of_frames_entry_lost_focus(*args):
+    print('location_1_number_of_frames_entry_lost_focus')
+
+def location_2_number_of_frames_entry_lost_focus(*args):
+    print('location_2_number_of_frames_entry_lost_focus')
+
+def location_3_number_of_frames_entry_lost_focus(*args):
+    print('location_3_number_of_frames_entry_lost_focus')
+
+def location_4_number_of_frames_entry_lost_focus(*args):
+    print('location_4_number_of_frames_entry_lost_focus')
+
+def location_5_number_of_frames_entry_lost_focus(*args):
+    print('location_5_number_of_frames_entry_lost_focus')
+
+def location_1_horizontal_channel_entry_lost_focus(*args):
+    print('location_1_horizontal_channel_entry_lost_focus')
+
+def location_1_horizontal_number_entry_lost_focus(*args):
+    print('location_1_horizontal_number_entry_lost_focus')
+
+def location_1_vertical_channel_entry_lost_focus(*args):
+    print('location_1_vertical_channel_entry_lost_focus')
+
+def location_1_vertical_number_entry_lost_focus(*args):
+    print('location_1_vertical_number_entry_lost_focus')
+
+def location_2_horizontal_channel_entry_lost_focus(*args):
+    print('location_2_horizontal_channel_entry_lost_focus')
+
+def location_2_horizontal_number_entry_lost_focus(*args):
+    print('location_2_horizontal_number_entry_lost_focus')
+
+def location_2_vertical_channel_entry_lost_focus(*args):
+    print('location_2_vertical_channel_entry_lost_focus')
+
+def location_2_vertical_number_entry_lost_focus(*args):
+    print('location_2_vertical_number_entry_lost_focus')
+
+def location_3_horizontal_channel_entry_lost_focus(*args):
+    print('location_3_horizontal_channel_entry_lost_focus')
+
+def location_3_horizontal_number_entry_lost_focus(*args):
+    print('location_3_horizontal_number_entry_lost_focus')
+
+def location_3_vertical_channel_entry_lost_focus(*args):
+    print('location_3_vertical_channel_entry_lost_focus')
+
+def location_3_vertical_number_entry_lost_focus(*args):
+    print('location_3_vertical_number_entry_lost_focus')
+
+def location_4_horizontal_channel_entry_lost_focus(*args):
+    print('location_4_horizontal_channel_entry_lost_focus')
+
+def location_4_horizontal_number_entry_lost_focus(*args):
+    print('location_4_horizontal_number_entry_lost_focus')
+
+def location_4_vertical_channel_entry_lost_focus(*args):
+    print('location_4_vertical_channel_entry_lost_focus')
+
+def location_4_vertical_number_entry_lost_focus(*args):
+    print('location_4_vertical_number_entry_lost_focus')
+
+def location_5_horizontal_channel_entry_lost_focus(*args):
+    print('location_5_horizontal_channel_entry_lost_focus')
+
+def location_5_horizontal_number_entry_lost_focus(*args):
+    print('location_5_horizontal_number_entry_lost_focus')
+
+def location_5_vertical_channel_entry_lost_focus(*args):
+    print('location_5_vertical_channel_entry_lost_focus')
+
+def location_5_vertical_number_entry_lost_focus(*args):
+    print('location_5_vertical_number_entry_lost_focus')
+#########################     END LOCATION SECTION     ##########################
+
 
 if use_user_interface:
     root = Tk() 
@@ -716,6 +890,7 @@ if use_user_interface:
     root.geometry('900x800')
     root.resizable(0, 0)
 
+###########################  BEGIN PATH POINTS SECTION  #################################
     left_column_peak_path_point_configuration_index_of_current_ball_config_index = StringVar()
     left_column_peak_path_point_configuration_index_of_current_ball_config_index.set('0')    
     left_column_catch_path_point_configuration_index_of_current_ball_config_index = StringVar()
@@ -758,9 +933,6 @@ if use_user_interface:
     current_point_config_index = StringVar()
     current_point_config_index.set('0')
 
-    current_file_name_label = ttk.Label(root, text='original.txt',font=('Courier', 16))
-    current_file_name_label.place(x=200,y=10) 
-
     ball_0_selected_config = StringVar(root)
     ball_1_selected_config = StringVar(root)
     ball_2_selected_config = StringVar(root)
@@ -775,83 +947,6 @@ if use_user_interface:
     selected_configs_of_balls[2] = 'X'
     selected_config_midi_channel.set('0')
 
-    start_button = ttk.Button(root,text='Start',fg='red',font=('Courier','16'),command=start_camera,height=2,width=13)
-    start_button.place(x=664,y=710)
-
-    save_button = ttk.Button(root,text='Save',fg='blue',command=save_config_dialog,height=1,width=9)
-    save_button.place(x=100,y=10)
-
-    load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_dialog(False),height=1,width=9)
-    load_button.place(x=10,y=10)
-
-    selected_number_of_balls = IntVar()
-
-    selected_number_of_balls_radiobutton_1 = Radiobutton(root, text='1 ball', variable=selected_number_of_balls, value=1).place(x=640,y=10)
-    selected_number_of_balls_radiobutton_2 = Radiobutton(root, text='2 balls', variable=selected_number_of_balls, value=2).place(x=640,y=35)
-    selected_number_of_balls_radiobutton_3 = Radiobutton(root, text='3 balls', variable=selected_number_of_balls, value=3).place(x=640,y=60)
-    selected_number_of_balls.set(1)
-
-    Label(root, text='Calibration').place(x=755,y=10)
-    gravity_calibration_button = ttk.Button(root,text='Gravity',fg='black',command=gravity_calibration_window,height=1,width=7)
-    gravity_calibration_button.place(x=730,y=35)
-    color_calibration_button = ttk.Button(root,text='Color',fg='black',command=color_calibration_window,height=1,width=7)
-    color_calibration_button.place(x=800,y=35)
-
-    top_separator = Frame(height=5, bd=1, relief=SUNKEN)
-    top_separator.place(x=0, y=90, relwidth=1)
-    bottom_separator = Frame(height=5, bd=1, relief=SUNKEN)
-    bottom_separator.place(x=0, y=710, width=650)
-    bottom_separator2 = Frame(width=5, bd=1, relief=SUNKEN)
-    bottom_separator2.place(x=651, y=710, relheight=1)
-    selected_number_of_balls.trace('w', selected_number_of_balls_changed)
-
-    send_midi_on_button = ttk.Button(root,text='SEND MIDI\nON',fg='purple',command=send_midi_on,height=3,width=10)
-    send_midi_on_button.place(x=10,y=720)
-
-    send_midi_off_button = ttk.Button(root,text='SEND MIDI\nOFF',fg='purple',command=send_midi_off,height=3,width=10)
-    send_midi_off_button.place(x=110,y=720)
-
-    send_midi_controller_change_button = ttk.Button(root,text='SEND MIDI\nCONTROLLER CHANGE',fg='purple',command=send_midi_controller_change,height=3,width=22)
-    send_midi_controller_change_button.place(x=10,y=1720)
-
-    selected_midi_channel_to_send = StringVar(root)
-    midi_channel_choices = range(0,16)
-    selected_midi_channel_to_send.set(0)
-    midi_channel_to_send_optionmenu = OptionMenu(root, selected_midi_channel_to_send, *midi_channel_choices)
-    Label(root, text='CHANNEL:', fg='purple').place(x=225,y=720)
-    midi_channel_to_send_optionmenu.place(x=230,y=750)
-
-    selected_midi_type_to_send = StringVar(root)
-
-    midi_type_choices = {'ON/OFF','CO/CHG'}
-    selected_midi_type_to_send.set('ON/OFF')
-    midi_type_to_send_optionmenu = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
-    Label(root, text='TYPE:', fg='purple').place(x=330,y=720)
-    midi_type_to_send_optionmenu.place(x=300,y=750)    
-
-    midi_to_send_note_or_number = StringVar(root)
-    midi_to_send_note_or_number.set(60)
-    midi_to_send_note_or_number_entry_label_text = StringVar(root)
-    midi_to_send_note_or_number_entry_label_text.set('NOTE:')
-    midi_to_send_note_or_number_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_note_or_number)
-    midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
-    midi_to_send_note_or_number_entry_label = Label(root, textvariable=midi_to_send_note_or_number_entry_label_text, fg='purple')
-    midi_to_send_note_or_number_entry_label.place(x=422,y=720)
-    midi_to_send_note_or_number_entry.place(x=430,y=753)
-
-    midi_to_send_velocity_or_value = StringVar(root)
-    midi_to_send_velocity_or_value.set(60)
-    midi_to_send_velocity_or_value_entry_label_text = StringVar(root)
-    midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
-    midi_to_send_velocity_or_value_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_velocity_or_value)
-    midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
-    midi_to_send_velocity_or_value_entry_label = Label(root, textvariable=midi_to_send_velocity_or_value_entry_label_text, fg='purple')
-    midi_to_send_velocity_or_value_entry_label.place(x=497,y=720)
-    midi_to_send_velocity_or_value_entry.place(x=510,y=753)
-
-    selected_midi_type_to_send.trace('w', selected_midi_type_to_send_changed)
-
-    ####### BEGIN stuff shown if selected_number_of_balls.get() == 1: #######
     ball_2_config_optionmenu = OptionMenu(root, ball_2_selected_config, *ball_config_choices)
     ball_2_config_optionmenu.place(x=500,y=130)
     ball_2_config_optionmenu_label = Label(root, text='ball 2')
@@ -883,7 +978,6 @@ if use_user_interface:
     rotational_note_selection_type = Radiobutton(root, text='Rotational', variable=note_selection_type, value='rotational')
     rotational_note_selection_type.place(x=80,y=540)
     note_selection_type.set('current positional')
-
     note_selection_type.trace('w', note_selection_type_changed)
 
     input_type = StringVar()
@@ -896,15 +990,14 @@ if use_user_interface:
     arpeggio_input_type = Radiobutton(root, text='Arpeggio', variable=input_type, value='arpeggio')
     arpeggio_input_type.place(x=280,y=540)
     input_type.set('midi')
-
     input_type.trace('w', input_type_changed)
 
     point_single_line_input_text = StringVar()
     point_single_line_input = ttk.Entry(root, width = 57,textvariable=point_single_line_input_text)
     point_single_line_input.place(x=400,y=450)
-
     point_single_line_input_text.trace('w', point_single_line_input_changed)
 
+    midi_channel_choices = range(0,16)
     selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
     selected_config_midi_channel_optionmenu.place(x=780,y=150)
     selected_config_midi_channel_optionmenu_label = Label(root, text='midi channel')
@@ -1020,6 +1113,271 @@ if use_user_interface:
     ball_2_selected_config.trace('w', ball_2_config_letter_changed)
     current_point_config_index.trace('w', current_point_config_index_changed)
     selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
+###########################  END PATH POINTS SECTION  #################################
+
+###########################  BEGIN LOCATION SECTION  ######################
+
+    location_1_label = ttk.Label(root, text='Location 1',font=('Courier', 16))
+    location_1_label.place(x=10,y=150) 
+    location_2_label = ttk.Label(root, text='Location 2',font=('Courier', 16))
+    location_2_label.place(x=10,y=250) 
+    location_3_label = ttk.Label(root, text='Location 3',font=('Courier', 16))
+    location_3_label.place(x=10,y=350) 
+    location_4_label = ttk.Label(root, text='Location 4',font=('Courier', 16))
+    location_4_label.place(x=10,y=450) 
+    location_5_label = ttk.Label(root, text='Location 5',font=('Courier', 16))
+    location_5_label.place(x=10,y=550) 
+
+    location_1_ball_1_checkbutton_variable = IntVar()
+    location_1_ball_1_checkbutton = Checkbutton(root, text='Ball 1', variable=location_1_ball_1_checkbutton_variable)
+    location_1_ball_1_checkbutton.place(x=200,y=155)
+    location_1_ball_2_checkbutton_variable = IntVar()
+    location_1_ball_2_checkbutton = Checkbutton(root, text='Ball 2', variable=location_1_ball_2_checkbutton_variable)
+    location_1_ball_2_checkbutton.place(x=200,y=185)
+    location_1_ball_3_checkbutton_variable = IntVar()
+    location_1_ball_3_checkbutton = Checkbutton(root, text='Ball 3', variable=location_1_ball_3_checkbutton_variable)
+    location_1_ball_3_checkbutton.place(x=200,y=205)
+
+    location_2_ball_1_checkbutton_variable = IntVar()
+    location_2_ball_1_checkbutton = Checkbutton(root, text='Ball 1', variable=location_2_ball_1_checkbutton_variable)
+    location_2_ball_1_checkbutton.place(x=200,y=255)
+    location_2_ball_2_checkbutton_variable = IntVar()
+    location_2_ball_2_checkbutton = Checkbutton(root, text='Ball 2', variable=location_2_ball_2_checkbutton_variable)
+    location_2_ball_2_checkbutton.place(x=200,y=275)
+    location_2_ball_3_checkbutton_variable = IntVar()
+    location_2_ball_3_checkbutton = Checkbutton(root, text='Ball 3', variable=location_2_ball_3_checkbutton_variable)
+    location_2_ball_3_checkbutton.place(x=200,y=295)
+
+    location_3_ball_1_checkbutton_variable = IntVar()
+    location_3_ball_1_checkbutton = Checkbutton(root, text='Ball 1', variable=location_3_ball_1_checkbutton_variable)
+    location_3_ball_1_checkbutton.place(x=200,y=355)
+    location_3_ball_2_checkbutton_variable = IntVar()
+    location_3_ball_2_checkbutton = Checkbutton(root, text='Ball 2', variable=location_3_ball_2_checkbutton_variable)
+    location_3_ball_2_checkbutton.place(x=200,y=375)
+    location_3_ball_3_checkbutton_variable = IntVar()
+    location_3_ball_3_checkbutton = Checkbutton(root, text='Ball 3', variable=location_3_ball_3_checkbutton_variable)
+    location_3_ball_3_checkbutton.place(x=200,y=395)
+
+    location_4_ball_1_checkbutton_variable = IntVar()
+    location_4_ball_1_checkbutton = Checkbutton(root, text='Ball 1', variable=location_4_ball_1_checkbutton_variable)
+    location_4_ball_1_checkbutton.place(x=200,y=455)
+    location_4_ball_2_checkbutton_variable = IntVar()
+    location_4_ball_2_checkbutton = Checkbutton(root, text='Ball 2', variable=location_4_ball_2_checkbutton_variable)
+    location_4_ball_2_checkbutton.place(x=200,y=475)
+    location_4_ball_3_checkbutton_variable = IntVar()
+    location_4_ball_3_checkbutton = Checkbutton(root, text='Ball 3', variable=location_4_ball_3_checkbutton_variable)
+    location_4_ball_3_checkbutton.place(x=200,y=495)
+
+    location_5_ball_1_checkbutton_variable = IntVar()
+    location_5_ball_1_checkbutton = Checkbutton(root, text='Ball 1', variable=location_5_ball_1_checkbutton_variable)
+    location_5_ball_1_checkbutton.place(x=200,y=555)
+    location_5_ball_2_checkbutton_variable = IntVar()
+    location_5_ball_2_checkbutton = Checkbutton(root, text='Ball 2', variable=location_5_ball_2_checkbutton_variable)
+    location_5_ball_2_checkbutton.place(x=200,y=575)
+    location_5_ball_3_checkbutton_variable = IntVar()
+    location_5_ball_3_checkbutton = Checkbutton(root, text='Ball 3', variable=location_5_ball_3_checkbutton_variable)
+    location_5_ball_3_checkbutton.place(x=200,y=595)
+    
+    location_1_number_of_frames = StringVar(root)
+    location_1_number_of_frames.set(10)
+    location_1_number_of_frames_entry = ttk.Entry(root, width = 4,textvariable=location_1_number_of_frames)
+    location_1_number_of_frames_entry.bind("<FocusOut>", location_1_number_of_frames_entry_lost_focus)
+    location_1_number_of_frames_entry.place(x=300,y=155)
+
+    location_2_number_of_frames = StringVar(root)
+    location_2_number_of_frames.set(10)
+    location_2_number_of_frames_entry = ttk.Entry(root, width = 4,textvariable=location_2_number_of_frames)
+    location_2_number_of_frames_entry.bind("<FocusOut>", location_2_number_of_frames_entry_lost_focus)
+    location_2_number_of_frames_entry.place(x=300,y=255)
+
+    location_3_number_of_frames = StringVar(root)
+    location_3_number_of_frames.set(10)
+    location_3_number_of_frames_entry = ttk.Entry(root, width = 4,textvariable=location_3_number_of_frames)
+    location_3_number_of_frames_entry.bind("<FocusOut>", location_3_number_of_frames_entry_lost_focus)
+    location_3_number_of_frames_entry.place(x=300,y=355)
+
+    location_4_number_of_frames = StringVar(root)
+    location_4_number_of_frames.set(10)
+    location_4_number_of_frames_entry = ttk.Entry(root, width = 4,textvariable=location_4_number_of_frames)
+    location_4_number_of_frames_entry.bind("<FocusOut>", location_4_number_of_frames_entry_lost_focus)
+    location_4_number_of_frames_entry.place(x=300,y=455)
+
+    location_5_number_of_frames = StringVar(root)
+    location_5_number_of_frames.set(10)
+    location_5_number_of_frames_entry = ttk.Entry(root, width = 4,textvariable=location_5_number_of_frames)
+    location_5_number_of_frames_entry.bind("<FocusOut>", location_5_number_of_frames_entry_lost_focus)
+    location_5_number_of_frames_entry.place(x=300,y=555)
+
+    location_horizontal_label = ttk.Label(root, text='Horizontal',font=('Courier', 10))
+    location_horizontal_label.place(x=380,y=100)
+    location_horizontal_channel_label = ttk.Label(root, text='Channel',font=('Courier', 8))
+    location_horizontal_channel_label.place(x=370,y=130)
+    location_horizontal_number_label = ttk.Label(root, text='Number',font=('Courier', 8))
+    location_horizontal_number_label.place(x=440,y=130) 
+    location_vertical_label = ttk.Label(root, text='Vertical',font=('Courier', 10))
+    location_vertical_label.place(x=530,y=100)  
+    location_vertical_channel_label = ttk.Label(root, text='Channel',font=('Courier', 8))
+    location_vertical_channel_label.place(x=520,y=130)
+    location_vertical_number_label = ttk.Label(root, text='Number',font=('Courier', 8))
+    location_vertical_number_label.place(x=590,y=130)  
+
+    location_1_horizontal_channel = StringVar(root)
+    location_1_horizontal_channel_entry = ttk.Entry(root, width = 4,textvariable=location_1_horizontal_channel)
+    location_1_horizontal_channel_entry.bind("<FocusOut>", location_1_horizontal_channel_entry_lost_focus)
+    location_1_horizontal_number = StringVar(root)
+    location_1_horizontal_number_entry = ttk.Entry(root, width = 4,textvariable=location_1_horizontal_number)
+    location_1_horizontal_number_entry.bind("<FocusOut>", location_1_horizontal_number_entry_lost_focus)
+    location_1_vertical_channel = StringVar(root)
+    location_1_vertical_channel_entry = ttk.Entry(root, width = 4,textvariable=location_1_vertical_channel)
+    location_1_vertical_channel_entry.bind("<FocusOut>", location_1_vertical_channel_entry_lost_focus)
+    location_1_vertical_number = StringVar(root)
+    location_1_vertical_number_entry = ttk.Entry(root, width = 4,textvariable=location_1_vertical_number)
+    location_1_vertical_number_entry.bind("<FocusOut>", location_1_vertical_number_entry_lost_focus)
+
+    location_2_horizontal_channel = StringVar(root)
+    location_2_horizontal_channel_entry = ttk.Entry(root, width = 4,textvariable=location_2_horizontal_channel)
+    location_2_horizontal_channel_entry.bind("<FocusOut>", location_2_horizontal_channel_entry_lost_focus)
+    location_2_horizontal_number = StringVar(root)
+    location_2_horizontal_number_entry = ttk.Entry(root, width = 4,textvariable=location_2_horizontal_number)
+    location_2_horizontal_number_entry.bind("<FocusOut>", location_2_horizontal_number_entry_lost_focus)
+    location_2_vertical_channel = StringVar(root)
+    location_2_vertical_channel_entry = ttk.Entry(root, width = 4,textvariable=location_2_vertical_channel)
+    location_2_vertical_channel_entry.bind("<FocusOut>", location_2_vertical_channel_entry_lost_focus)
+    location_2_vertical_number = StringVar(root)
+    location_2_vertical_number_entry = ttk.Entry(root, width = 4,textvariable=location_2_vertical_number)
+    location_2_vertical_number_entry.bind("<FocusOut>", location_2_vertical_number_entry_lost_focus)
+
+    location_3_horizontal_channel = StringVar(root)
+    location_3_horizontal_channel_entry = ttk.Entry(root, width = 4,textvariable=location_3_horizontal_channel)
+    location_3_horizontal_channel_entry.bind("<FocusOut>", location_3_horizontal_channel_entry_lost_focus)
+    location_3_horizontal_number = StringVar(root)
+    location_3_horizontal_number_entry = ttk.Entry(root, width = 4,textvariable=location_3_horizontal_number)
+    location_3_horizontal_number_entry.bind("<FocusOut>", location_3_horizontal_number_entry_lost_focus)
+    location_3_vertical_channel = StringVar(root)
+    location_3_vertical_channel_entry = ttk.Entry(root, width = 4,textvariable=location_3_vertical_channel)
+    location_3_vertical_channel_entry.bind("<FocusOut>", location_3_vertical_channel_entry_lost_focus)
+    location_3_vertical_number = StringVar(root)
+    location_3_vertical_number_entry = ttk.Entry(root, width = 4,textvariable=location_3_vertical_number)
+    location_3_vertical_number_entry.bind("<FocusOut>", location_3_vertical_number_entry_lost_focus)
+
+    location_4_horizontal_channel = StringVar(root)
+    location_4_horizontal_channel_entry = ttk.Entry(root, width = 4,textvariable=location_4_horizontal_channel)
+    location_4_horizontal_channel_entry.bind("<FocusOut>", location_4_horizontal_channel_entry_lost_focus)
+    location_4_horizontal_number = StringVar(root)
+    location_4_horizontal_number_entry = ttk.Entry(root, width = 4,textvariable=location_4_horizontal_number)
+    location_4_horizontal_number_entry.bind("<FocusOut>", location_4_horizontal_number_entry_lost_focus)
+    location_4_vertical_channel = StringVar(root)
+    location_4_vertical_channel_entry = ttk.Entry(root, width = 4,textvariable=location_4_vertical_channel)
+    location_4_vertical_channel_entry.bind("<FocusOut>", location_4_vertical_channel_entry_lost_focus)
+    location_4_vertical_number = StringVar(root)
+    location_4_vertical_number_entry = ttk.Entry(root, width = 4,textvariable=location_4_vertical_number)
+    location_4_vertical_number_entry.bind("<FocusOut>", location_4_vertical_number_entry_lost_focus)
+
+    location_5_horizontal_channel = StringVar(root)
+    location_5_horizontal_channel_entry = ttk.Entry(root, width = 4,textvariable=location_5_horizontal_channel)
+    location_5_horizontal_channel_entry.bind("<FocusOut>", location_5_horizontal_channel_entry_lost_focus)
+    location_5_horizontal_number = StringVar(root)
+    location_5_horizontal_number_entry = ttk.Entry(root, width = 4,textvariable=location_5_horizontal_number)
+    location_5_horizontal_number_entry.bind("<FocusOut>", location_5_horizontal_number_entry_lost_focus)
+    location_5_vertical_channel = StringVar(root)
+    location_5_vertical_channel_entry = ttk.Entry(root, width = 4,textvariable=location_5_vertical_channel)
+    location_5_vertical_channel_entry.bind("<FocusOut>", location_5_vertical_channel_entry_lost_focus)
+    location_5_vertical_number = StringVar(root)
+    location_5_vertical_number_entry = ttk.Entry(root, width = 4,textvariable=location_5_vertical_number)
+    location_5_vertical_number_entry.bind("<FocusOut>", location_5_vertical_number_entry_lost_focus)
+
+
+###########################  END LOCATION SECTION  ######################
+
+
+###########################  BEGIN TOP MAIN SECTION  #################################
+    current_file_name_label = ttk.Label(root, text='original.txt',font=('Courier', 16))
+    current_file_name_label.place(x=200,y=10)  
+
+    start_button = ttk.Button(root,text='Start',fg='red',font=('Courier','16'),command=start_camera,height=2,width=13)
+    start_button.place(x=664,y=710)
+
+    save_button = ttk.Button(root,text='Save',fg='blue',command=save_config_dialog,height=1,width=9)
+    save_button.place(x=100,y=10)
+
+    load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_dialog(False),height=1,width=9)
+    load_button.place(x=10,y=10)
+
+    selected_event_type = StringVar()
+    selected_event_type_path_points_radiobutton = Radiobutton(root, text='Path Points', variable=selected_event_type, value='path points')
+    selected_event_type_path_points_radiobutton.place(x=640,y=10)
+    selected_event_type_location_radiobutton = Radiobutton(root, text='Location', variable=selected_event_type, value='location')
+    selected_event_type_location_radiobutton.place(x=640,y=35)
+    selected_event_type_speed_radiobutton = Radiobutton(root, text='Speed', variable=selected_event_type, value='speed')
+    selected_event_type_speed_radiobutton.place(x=640,y=60)
+    selected_event_type.set('path points')
+
+    Label(root, text='Calibration').place(x=755,y=10)
+    gravity_calibration_button = ttk.Button(root,text='Gravity',fg='black',command=gravity_calibration_window,height=1,width=7)
+    gravity_calibration_button.place(x=730,y=35)
+    color_calibration_button = ttk.Button(root,text='Color',fg='black',command=color_calibration_window,height=1,width=7)
+    color_calibration_button.place(x=800,y=35)
+
+    top_separator = Frame(height=5, bd=1, relief=SUNKEN)
+    top_separator.place(x=0, y=90, relwidth=1)
+###########################  END TOP MAIN SECTION  #################################
+
+
+###########################  BEGIN BOTTOM SEND MIDI SECTION  #################################
+    bottom_separator = Frame(height=5, bd=1, relief=SUNKEN)
+    bottom_separator.place(x=0, y=710, width=650)
+    bottom_separator2 = Frame(width=5, bd=1, relief=SUNKEN)
+    bottom_separator2.place(x=651, y=710, relheight=1)
+    selected_event_type.trace('w', selected_event_type_changed)
+
+    send_midi_on_button = ttk.Button(root,text='SEND MIDI\nON',fg='purple',command=send_midi_on,height=3,width=10)
+    send_midi_on_button.place(x=10,y=720)
+
+    send_midi_off_button = ttk.Button(root,text='SEND MIDI\nOFF',fg='purple',command=send_midi_off,height=3,width=10)
+    send_midi_off_button.place(x=110,y=720)
+
+    send_midi_controller_change_button = ttk.Button(root,text='SEND MIDI\nCONTROLLER CHANGE',fg='purple',command=send_midi_controller_change,height=3,width=22)
+    send_midi_controller_change_button.place(x=10,y=1720)
+
+    selected_midi_channel_to_send = StringVar(root)
+
+    selected_midi_channel_to_send.set(0)
+    midi_channel_to_send_optionmenu = OptionMenu(root, selected_midi_channel_to_send, *midi_channel_choices)
+    Label(root, text='CHANNEL:', fg='purple').place(x=225,y=720)
+    midi_channel_to_send_optionmenu.place(x=230,y=750)
+
+    selected_midi_type_to_send = StringVar(root)
+
+    midi_type_choices = {'ON/OFF','CO/CHG'}
+    selected_midi_type_to_send.set('ON/OFF')
+    midi_type_to_send_optionmenu = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
+    Label(root, text='TYPE:', fg='purple').place(x=330,y=720)
+    midi_type_to_send_optionmenu.place(x=300,y=750)    
+
+    midi_to_send_note_or_number = StringVar(root)
+    midi_to_send_note_or_number.set(60)
+    midi_to_send_note_or_number_entry_label_text = StringVar(root)
+    midi_to_send_note_or_number_entry_label_text.set('NOTE:')
+    midi_to_send_note_or_number_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_note_or_number)
+    midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
+    midi_to_send_note_or_number_entry_label = Label(root, textvariable=midi_to_send_note_or_number_entry_label_text, fg='purple')
+    midi_to_send_note_or_number_entry_label.place(x=422,y=720)
+    midi_to_send_note_or_number_entry.place(x=430,y=753)
+
+    midi_to_send_velocity_or_value = StringVar(root)
+    midi_to_send_velocity_or_value.set(60)
+    midi_to_send_velocity_or_value_entry_label_text = StringVar(root)
+    midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
+    midi_to_send_velocity_or_value_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_velocity_or_value)
+    midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
+    midi_to_send_velocity_or_value_entry_label = Label(root, textvariable=midi_to_send_velocity_or_value_entry_label_text, fg='purple')
+    midi_to_send_velocity_or_value_entry_label.place(x=497,y=720)
+    midi_to_send_velocity_or_value_entry.place(x=510,y=753)
+
+    selected_midi_type_to_send.trace('w', selected_midi_type_to_send_changed)
+###########################  END BOTTOM SEND MIDI SECTION  #################################
+
+
 
 begin_program()
 
@@ -1042,6 +1400,7 @@ begin_program()
 #make arpeggio be several single line entries, maybe for now just leave it as one line that is seperated
 #       by slashes or something to indicate the next arpeggio. even if we do that, we still need another
 #       row of optionmenu choices for midi,note,chord. unless we move arpegio over to the first row
+#if i put a number on a path point and then dont put any notes in its textfield, it crashes
 #   
 # if '3 balls' is clicked,
 #   then we show all the things that could control cc messages such as speed, average 
