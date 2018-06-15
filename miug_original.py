@@ -10,7 +10,7 @@ import tkinter as ttk #for widgets
 from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
 from tkinter.filedialog import askopenfilename
-import win32com.client
+#import win32com.client
 import time #for sending midi
 import rtmidi #for sending midi
 import numpy as np #for webcam
@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 
 
 #used for sending keypresses
-shell = win32com.client.Dispatch("WScript.Shell")
+#shell = win32com.client.Dispatch("WScript.Shell")
 
 #midi stuff
 midiout = rtmidi.MidiOut()

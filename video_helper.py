@@ -175,7 +175,7 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
                     if 'cross' in this_path_type:
                         fill_red = 0
                     if 'column' in this_path_type:
-                        fill_blue,fill_green,fill_red = 100,100,200
+                        fill_blue,fill_green,fill_red = 255,255,255
                     if 'right' in this_path_type:
                         fill_blue = 255
                     if 'left' in this_path_type:

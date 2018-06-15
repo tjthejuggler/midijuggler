@@ -1,4 +1,3 @@
-import pygame as pg
 from music_helper import get_notes_in_scale
 import time #for sending midi
 import rtmidi #for sending midi
@@ -11,10 +10,6 @@ import numpy as np #for webcam
 import random
 import platform
 import cv2
-pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
-pg.mixer.init()
-pg.init()
-pg.mixer.set_num_channels(19)
 play_peak_notes = True
 using_height_as_magnitude = True
 using_midi = True
@@ -162,36 +157,6 @@ def setup_midi():
             pass
     else:
         midiout.open_virtual_port('My virtual output')
-
-def setup_peak_notes():
-    sounds = []
-    sounds.append(pg.mixer.Sound('notes01.wav'))
-    sounds.append(pg.mixer.Sound('notes02.wav'))
-    sounds.append(pg.mixer.Sound('notes03.wav'))
-    sounds.append(pg.mixer.Sound('notes04.wav'))
-    return sounds
-
-def setup_adjust_song_magnitude():
-    pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
-    pg.mixer.init()
-    pg.init()
-    pg.mixer.set_num_channels(19)
-    song=pg.mixer.Sound('song.wav')
-    song.play()
-    return song
-
-def setup_audio():
-    if play_peak_notes:
-        sounds = setup_peak_notes()
-    else:
-        sounds = None
-    if use_adjust_song_magnitude:
-        song = setup_adjust_song_magnitude()
-    else:
-        song = None
-    if using_midi:
-        create_association_object()
-    return sounds, song
 
 def get_midi_note(ball_index,path_phase,path_type):
     channel = 0

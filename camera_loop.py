@@ -64,7 +64,7 @@ def run_camera():
     ret, previous_frame = camera.read()
     two_frames_ago = previous_frame
     vs, args, out = setup_camera()
-    sounds, song = setup_audio()
+    create_association_object()
     start,loop_count,num_high,previous_frame_time = time.time(),0,0,1.0
     at_peak, break_for_no_video = [-.25]*20,False
     contour_count_window, min_height_window,frame_count = deque(maxlen=3), deque(maxlen=60), 0
@@ -80,6 +80,7 @@ def run_camera():
             calculate_kinematics(frame_count)             
             relative_positions = determine_relative_positions()
             for ball_index in range(max_balls):
+                print(settings.all_cx[0][-1])
                 if settings.all_cx[ball_index][-1] != 'X':          
                     analyze_trajectory(ball_index,relative_positions[ball_index],frame_count,average_fps)
                     create_individual_ball_audio(ball_index)

@@ -11,7 +11,6 @@ if use_user_interface:
     from tkinter.scrolledtext import ScrolledText
     from tkinter import messagebox
     from tkinter import filedialog
-    from tkinter import messagebox
     from PIL import ImageTk, Image
 
 def begin_program():
@@ -141,6 +140,22 @@ def save_config_dialog():
     config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
     current_file_name_label.config(text=str(config_to_save.name.split('/')[-1]))
     text_in_config_to_save = ball_0_selected_config.get() + '\n' + ball_1_selected_config.get() + '\n' + ball_2_selected_config.get() + '\n'
+    path_types = [ 'left_colum', 'left_cross','etc']
+    path_phases = ['catch', 'throw']
+
+    row_list = [] 
+    for path in path_types:
+        for phase in path_phases:
+            row = [path, phase, ball_config, path_point_object[ball_config_num][path][phase] ]
+            row_list.append(str(row))
+    writer.to_csv(row_list)
+
+
+#2 vegetable soups
+#2 veg somaso orders
+#veg biryani
+#alu motor gobi
+
     for i in range (3):
         text_in_config_to_save += str(selected_config_midi_channels[i]) + '\n'       
         text_in_config_to_save += str(left_column_peak_path_point_configuration_index[i]) + '\n'
@@ -1418,10 +1433,7 @@ begin_program()
 #   set at in the calibration, put them each on colored squares that match their calibration colors and
 #   make their font white or something
 
-#so far as left and right balls go, if they are close calls, then they should be rounded to left
-#   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
-#   line of the other actual extreme left/right ball, then they themselves should be considered
-#   left/right
+
 
 #eventual:
 #in the camera screen, while juggling, when a ball sends a note or chord or midi message, 
@@ -1470,3 +1482,16 @@ begin_program()
 
 
 
+#eventually probably move over to using pandas instead of the dictionary to database everything
+
+#things for tuesday show:
+#speed
+#location
+#gather/ungather and/or start/stop
+#so far as left and right balls go, if they are close calls, then they should be rounded to left
+#   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
+#   line of the other actual extreme left/right ball, then they themselves should be considered
+#   left/right
+#timed events, events that only happen at certain times
+#triggered events, events are able to make other events active/inactive
+#figure out which software to use, choose song/s, create piece
