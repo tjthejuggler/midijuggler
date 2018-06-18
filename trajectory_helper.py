@@ -44,7 +44,8 @@ def calculate_kinematics(frame_count):
             settings.all_ay[i].append(0)
 
 def determine_relative_positions():
-    relative_positions = [[] for _ in range(max_balls)]
+    #relative_positions = [[] for _ in range(max_balls)]
+    relative_positions = ['left','right','mid']
     last_cxs = []
     last_cxs_indices = []
     for i in range(len(settings.all_cx)):
@@ -59,7 +60,9 @@ def determine_relative_positions():
                 relative_positions[i]= 'right'
             else:
                 relative_positions[i]= 'mid'
-    return ['left', 'mid', 'right']
+    #return ['left', 'mid', 'right']
+    return [relative_positions[0],relative_positions[1],relative_positions[2]]
+
 fall_acceleration_from_calibration = -5
 
 def chop_checker(ball_index,average_fps):
@@ -125,7 +128,7 @@ def determine_path_phase(ball_index, frame_count,average_fps):
         else:
             settings.path_phase[ball_index] = 'none'
     tab=' '*20
-    print(tab*ball_index + str(path_phase[ball_index]))
+    #print(tab*ball_index + str(path_phase[ball_index]))
 
 def determine_path_type(ball_index,position):
     settings.path_type[ball_index] = position

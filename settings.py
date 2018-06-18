@@ -31,6 +31,46 @@ point_setups_note_selection_type = ['current positional','current positional','c
 point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
 point_setups_single_line_input = ['','','','','','','']
 
+ball_configs = ['X','Y','Z']
+path_types = ['left column','left cross','mid column','mid cross','right column','right cross']
+path_phases = ['peak','catch','throw']
+
+path_point_object = {}
+for ball_config in ball_configs:
+	path_point_object[ball_config] = {}
+	for path_type in path_types:
+		path_point_object[ball_config][path_type] = {}
+		for path_phase in path_phases:
+			path_point_object[ball_config][path_type][path_phase] = 0
+
+location_directions = ['horizontal','vertical']
+location_midi_input_types = ['channel','number']
+location_border_sides = ['left','right','top','bottom']
+cc_location_object = {}
+for i in range (4):
+	cc_location_object['instance number '+str(i)] = {}
+	cc_location_object['instance number '+str(i)]['balls to average'] = []
+	cc_location_object['instance number '+str(i)]['window size'] = 10
+	cc_location_object['instance number '+str(i)]['location border sides'] = {}
+	for location_border_side in location_border_sides:
+		cc_location_object['instance number '+str(i)]['location border sides'][location_border_side] = 0
+	for location_direction in location_directions:
+		cc_location_object['instance number '+str(i)][location_direction] = {}
+		for location_midi_input_type in location_midi_input_types:
+			cc_location_object['instance number '+str(i)][location_direction][location_midi_input_type] = 0
+
+nt_location_object = {}
+for i in range (4):
+	nt_location_object['instance number '+str(i)] = {}
+	nt_location_object['instance number '+str(i)]['balls to average'] = []
+	nt_location_object['instance number '+str(i)]['window size'] = 10
+	nt_location_object['instance number '+str(i)]['location border sides'] = {}
+	for location_border_side in location_border_sides:
+		nt_location_object['instance number '+str(i)]['location border sides'][location_border_side] = 0
+	for location_midi_input_type in location_midi_input_types:
+		nt_location_object['instance number '+str(i)][location_midi_input_type] = 0
+
+
 using_midi = True
 duration = 1800 #seconds
 
@@ -78,7 +118,7 @@ high_track_range_hue= [0,0,0]
 low_track_range_value= [0,0,0]
 high_track_range_value= [0,0,0]
 
-show_calibration = True
+show_color_calibration = True
 
 show_main_camera = False
 

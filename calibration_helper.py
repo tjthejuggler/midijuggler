@@ -61,9 +61,9 @@ def check_for_keyboard_input(camera,frame, ball_num):
     key = cv2.waitKey(1)
     if key == ord('a'):
         cv2.destroyAllWindows()
-        settings.show_calibration = not settings.show_calibration
+        settings.show_color_calibration = not settings.show_color_calibration
         settings.show_main_camera = not settings.show_main_camera 
-    if settings.show_calibration:
+    if settings.show_color_calibration:
         if key == ord('q'):            
             in_camera_mode = False
         if key == ord('b'):

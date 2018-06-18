@@ -250,7 +250,7 @@ def turn_midi_note_off(channel,note):
 
 def send_midi_note(channel,note,magnitude):                  
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    print(note_on)
+    #print(note_on)
     midiout.send_message(note_on)
     midi_channel_to_off = channel
     midi_note_to_off = note
@@ -293,6 +293,46 @@ def average_position(all_axis, window_length, window_end_frame):
     return average_pos
 last_note_sent = 0
 
+def average_position_of_multiple_single_ball_average_positions(list_of_single_ball_average_positions):
+    number_of_single_ball_average_positions_to_average = len(list_of_single_ball_average_positions)
+    sum_of_x_axis = 0
+    sum_of_y_axis = 0
+    number_of_balls_seen = 0
+    average_x_position = 0
+    average_y_position = 0
+    for i in range (number_of_single_ball_average_positions_to_average):
+        if list_of_single_ball_average_positions[i]:
+            if len(list_of_single_ball_average_positions[i])>1:
+                sum_of_x_axis += list_of_single_ball_average_positions[i][0]
+                sum_of_y_axis += list_of_single_ball_average_positions[i][1]
+                number_of_balls_seen += 1
+    if number_of_balls_seen > 0:
+        average_x_position = sum_of_x_axis/number_of_balls_seen
+        average_y_position = sum_of_y_axis/number_of_balls_seen
+    return([average_x_position,average_y_position])
+    #todo it is flickering between the actual average position and 0 constantly down in 'send_midi_cc_based_on_average_position'
+    #   and so i figure the issue must be here, or somewhere before here, like below in 'average_position_of_single_ball'
+
+def average_position_of_single_ball(ball_number, window_length):
+    ball_number = int(ball_number)
+    axes = [all_cx[ball_number], all_cy[ball_number]]
+    average_positions = []
+    average_duration = min(len(axes)+1, int(window_length)+1)
+    for axis in axes:
+        count = 0
+        average_position_of_current_axis = 0
+        for j in range(1, average_duration):
+            if abs(j)<len(axis)+1:
+                if not axis[-j] == 'X':
+                    if axis[-j] > 0:
+                        if not axis[-j] == 'X':
+                            count = count+1
+                            average_position_of_current_axis = average_position_of_current_axis + axis[-j]
+        if count > 0:
+            average_position_of_current_axis = average_position_of_current_axis/count
+            average_positions.append(average_position_of_current_axis)
+    return average_positions
+
 def send_midi_note_from_soundscape_color(soundscape_color):
     soundscape_color = np.array(soundscape_color).tolist()
     average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
@@ -312,6 +352,8 @@ def create_individual_ball_audio(ball_index):
             send_midi_note_from_soundscape_color(soundscape_color)
         else:
             if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
+                #print('path_type[ball_index]')
+                #print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
                 channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
                 modulators = get_midi_modulation(ball_index,path_phase,path_type)
                 send_midi_messages(channel, notes, magnitude, modulators)                      
@@ -320,10 +362,58 @@ def create_individual_ball_audio(ball_index):
         modulation = get_wav_modulation(ball_index)
         send_wav_messages(note, magnitude, modulation)
 
+def is_valid_cc_location_input(location_instance_number,location_direction):
+    list_of_ball_numbers = ['1','2','3']
+    is_valid = False
+    if any(i in list_of_ball_numbers for i in cc_location_object['instance number '+str(location_instance_number)]['balls to average']):
+        if int(cc_location_object['instance number '+str(location_instance_number)]['window size']) > 0:
+            if cc_location_object['instance number '+str(location_instance_number)][location_direction]['channel'].isdigit():
+                if cc_location_object['instance number '+str(location_instance_number)][location_direction]['number'].isdigit():
+                    is_valid = True
+    return is_valid
+
 def create_multiple_ball_audio():
     if using_midi:
+        #todo
+        #   i think the averaging stuff is working, although i have not tested it with 3 balls yet
+        #   modify send_midi_cc_based_on_average_position to be able to take the thing below in the print
+        #print(average_position_of_multiple_single_ball_average_positions([average_position_of_single_ball(0,10),average_position_of_single_ball(1,10)]))
+        #print(cc_location_object['instance number 0']['balls to average'])
+        #loop through each of the 4 cc locations, inside each of them loop through the 2 axis directions
+        #   if they have any balls checked and specifics input, then allow them to use the function
+
+        for i in range (4):
+            for location_direction in location_directions:
+                if is_valid_cc_location_input(i,location_direction):
+                    ball_numbers_to_average = cc_location_object['instance number '+str(i)]['balls to average']
+                    window_size = cc_location_object['instance number '+str(i)]['window size']
+                    channel = cc_location_object['instance number '+str(i)][location_direction]['channel']
+                    number = cc_location_object['instance number '+str(i)][location_direction]['number']
+                    list_of_ball_average_positions = [[]]
+                    for ball_number in ball_numbers_to_average:
+                        list_of_ball_average_positions.append(average_position_of_single_ball(ball_number,window_size))
+                    if location_direction == 'horizontal':
+                        first_edge = cc_location_object['instance number '+str(i)]['location border sides']['left']
+                        second_edge = cc_location_object['instance number '+str(i)]['location border sides']['right']
+                        send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position_of_multiple_single_ball_average_positions(list_of_ball_average_positions)[0],channel,number)
+                    if location_direction == 'vertical':
+                        first_edge = cc_location_object['instance number '+str(i)]['location border sides']['top']
+                        second_edge = cc_location_object['instance number '+str(i)]['location border sides']['bottom']
+                        send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position_of_multiple_single_ball_average_positions(list_of_ball_average_positions)[1],channel,number)
+                    
+        #more todo
+        #   make the location inputs only allow numbers in ui
+        #   hook up the ui to the specifics above
+        #   show a circle where the average is in the imshow
+        #   hook up what we have with position to the velocity lists as well
+        #       make the ui for this
+
+        #eventual todo
+        #   make it so that the savefiledialog creates a folder that holds a bunch of differnt saved files,
+        #       one for each different aspect of the ui as well as anything else that should be saved
+
         #send_midi_cc_based_on_average_position('y',0,average_position(all_cy, 10, -1))
-        send_midi_cc_based_on_average_position('x',0,average_position(all_cx, 10, -1))
+        #send_midi_cc_based_on_average_position('x',0,average_position(all_cx, 10, -1))
         #send_midi_cc_based_on_average_speed_while_held()
         #send_midi_cc_based_on_average_speed() 
 
@@ -342,24 +432,38 @@ def send_midi_cc_based_on_average_speed_while_held():
     #-there are calibration windows that can be opened where the extreme fast juggling can be performed
     #       as well as the extreme slow juggling
 
-    #TODO FOR BOTH OF THOSE:
-    #   -make a funtion that returns the average of every (non-X) number in a list
-
-def send_midi_cc_based_on_average_position(axis,edge_buffer,position):
+def send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position,channel,number):
     value = 0
-    if axis == 'y':
+    first_edge = int(first_edge)
+    second_edge = int(second_edge)
+    print('average_position')
+    print(average_position)
+    print('first_edge')
+    print(first_edge)
+    print('second_edge')
+    print(second_edge)
+    if location_direction == 'vertical':
         size = settings.frame_height        
-    if axis == 'x':
+    if location_direction == 'horizontal':
         size = settings.frame_width
-    if position<edge_buffer:
-        value = 128
-    if position>frame_height-edge_buffer:
-        value = 0
-    value = max(0,((position-edge_buffer)/(size-edge_buffer*2))*128)
-    channel = 0
-    controller_num = 0
 
-    send_midi_cc(channel,controller_num,value)
+    if average_position<first_edge:
+        value = 128
+
+    elif average_position>second_edge:
+        value = 0
+    else:        
+        distance_between_edges = abs(first_edge-second_edge)
+        print('distance_between_edges')
+        print(distance_between_edges)
+        distance_between_edge_and_average_position = abs(first_edge-average_position)
+        print('distance_between_edge_and_average_position')
+        print(distance_between_edge_and_average_position)
+        value = max(0,(distance_between_edge_and_average_position/distance_between_edges)*128)
+
+    print(channel +','+ number +','+str(value) )
+
+    send_midi_cc(int(channel),int(number),value)
 
 def create_association_object():
 
@@ -404,88 +508,36 @@ def create_association_object():
     #print(settings.scale_to_use)
     #settings.scale_to_use = [60,62,64,66,68,74,70,74,68,66,66,64,64,62,62,60]
     cross_notes_to_use = settings.scale_to_use
-    print('settings.scale_to_use')
-    print(settings.scale_to_use)
     column_notes_to_use = settings.scale_to_use
-    '''midi_associations['all phases'] = {}
-    midi_associations['all phases']['all types'] = {}
-    midi_associations['all phases']['all types']['channel'] = 2
-    midi_associations['all phases']['all types']['note_selection_mode'] = 'honeycomb'
-    midi_associations['all phases']['all types']['notes'] = settings.scale_to_use
-    midi_associations['all phases']['all types']['magnitude'] = midi_magnitude''' 
-    '''midi_associations['throw'] = {}
-    midi_associations['throw']['mid column'] = {}
-    midi_associations['throw']['mid column']['channel'] = 2
-    midi_associations['throw']['mid column']['note_selection_mode'] = column_selection_mode
-    midi_associations['throw']['mid column']['notes'] = column_notes_to_use
-    midi_associations['throw']['mid column']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    #midi_associations['throw']['mid column'] = {}
-    #midi_associations['throw']['mid column']['channel'] = 2
-    #midi_associations['throw']['mid column']['notes']['scale_type'] = 
-    #midi_associations['throw']['mid column']['notes']['root'] = 
-    #midi_associations['throw']['mid column']['notes'][''] = chord/scale/individual   
-    midi_associations['throw']['left column'] = {}
-    midi_associations['throw']['left column']['channel'] = 2
-    midi_associations['throw']['left column']['note_selection_mode'] = column_selection_mode
-    midi_associations['throw']['left column']['notes'] = column_notes_to_use
-    midi_associations['throw']['left column']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['right column'] = {}
-    midi_associations['throw']['right column']['channel'] = 2
-    midi_associations['throw']['right column']['note_selection_mode'] = column_selection_mode
-    midi_associations['throw']['right column']['notes'] = column_notes_to_use
-    midi_associations['throw']['right column']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['mid cross'] = {}
-    midi_associations['throw']['mid cross']['channel'] = 2
-    midi_associations['throw']['mid cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['throw']['mid cross']['notes'] = cross_notes_to_use
-    midi_associations['throw']['mid cross']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['left cross'] = {}
-    midi_associations['throw']['left cross']['channel'] = 2
-    midi_associations['throw']['left cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['throw']['left cross']['notes'] = cross_notes_to_use
-    midi_associations['throw']['left cross']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['right cross'] = {}
-    midi_associations['throw']['right cross']['channel'] = 2
-    midi_associations['throw']['right cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['throw']['right cross']['notes'] = cross_notes_to_use
-    midi_associations['throw']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
-
     ball_config_index_to_use = [0,0,0]
-    print('selected_configs_of_balls')
-    print(selected_configs_of_balls)
-    print('column_notes_to_use[0]')
-    print(column_notes_to_use[0])
 
     for i in range(3):
 
         if selected_configs_of_balls[i] == 'X':
-            ball_config_index_to_use[i] = 0
+            ball_config_index_to_use = 0
         if selected_configs_of_balls[i] == 'Y':
-            ball_config_index_to_use[i] = 1
+            ball_config_index_to_use = 1
         if selected_configs_of_balls[i] == 'Z':
-            ball_config_index_to_use[i] = 2
+            ball_config_index_to_use = 2
 
         #print(selected_config_midi_channels[ball_config_index_to_use[i]])
-
         midi_associations['ball '+str(i)] = {}
-        midi_associations['ball '+str(i)]['peak'] = {}
-        ui_point_index_for_mid_column_peak = mid_column_peak_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_mid_column_peak > 0:
-            if point_setups_input_type[ui_point_index_for_mid_column_peak] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_mid_column_peak].split(',')))
-            midi_associations['ball '+str(i)]['peak']['mid column'] = {}
-            midi_associations['ball '+str(i)]['peak']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['peak']['mid column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_mid_column_peak]
-            midi_associations['ball '+str(i)]['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['peak']['mid column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['peak']['mid column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['peak']['mid column']['modulator'] = [['width',0,0], ['height',0,1]]    
+        for path_phase in path_phases:
+            midi_associations['ball '+str(i)][path_phase] = {}
+            for path_type in path_types:
+                midi_associations['ball '+str(i)][path_phase][path_type] = {}
+                ui_path_point_index = path_point_object[selected_configs_of_balls[i]][path_type][path_phase]
+                if ui_path_point_index > 0:
+                    if point_setups_input_type[ui_path_point_index] == 'midi':
+                        notes_to_use = list(map(int,point_setups_single_line_input[ui_path_point_index].split(',')))
+                    midi_associations['ball '+str(i)][path_phase][path_type]['channel'] = selected_config_midi_channels[ball_config_index_to_use]
+                    midi_associations['ball '+str(i)][path_phase][path_type]['note_selection_mode'] = point_setups_note_selection_type[ui_path_point_index]
+                    midi_associations['ball '+str(i)][path_phase][path_type]['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+                    midi_associations['ball '+str(i)][path_phase][path_type]['notes'] = notes_to_use
+                    midi_associations['ball '+str(i)][path_phase][path_type]['magnitude'] = midi_magnitude
+    #print(midi_associations)
+
+    '''#midi_associations['ball '+str(i)]['peak']['mid column']['modulator'] = [['width',0,0], ['height',0,1]]    
         #midi_associations['ball '+str(i)]['peak']['mid column'] = {}
         #midi_associations['ball '+str(i)]['peak']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
         #midi_associations['ball '+str(i)]['peak']['mid column']['notes']['scale_type'] = 
@@ -691,5 +743,5 @@ def create_association_object():
             midi_associations['ball '+str(i)]['throw']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
             midi_associations['ball '+str(i)]['throw']['right cross']['notes'] = notes_to_use
             midi_associations['ball '+str(i)]['throw']['right cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
+        #midi_associations['ball '+str(i)]['throw']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
 

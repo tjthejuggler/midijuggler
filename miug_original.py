@@ -184,7 +184,7 @@ def peak_event(highX,highY):
 
 arrivedInSquare = [0]*100 
 mostRecentSquare = [0]*100 
-def square_event(ballPos): #the current quare format in the scrolledText is:Square#,midi,min time between triggers, required time to trigger
+def square_event(ballPos): #the current square format in the scrolledText is:Square#,midi,min time between triggers, required time to trigger
     #print("checking square")
     for line in userscroll.get(1.0,END).splitlines():     #Example: Square0,0.5n,500,0 - can be thrown through square and only send 1 signal
                                                           #Example: Square0,0.5n,500,600 - can be held in a square to cause trigger, but

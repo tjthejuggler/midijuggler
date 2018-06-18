@@ -80,7 +80,7 @@ def run_camera():
             calculate_kinematics(frame_count)             
             relative_positions = determine_relative_positions()
             for ball_index in range(max_balls):
-                print(settings.all_cx[0][-1])
+                #print(settings.all_cx[0][-1])
                 if settings.all_cx[ball_index][-1] != 'X':          
                     analyze_trajectory(ball_index,relative_positions[ball_index],frame_count,average_fps)
                     create_individual_ball_audio(ball_index)
@@ -92,13 +92,16 @@ def run_camera():
         if should_break(start,break_for_no_video):
             break
         if key_pressed != ord('a'):
-            if settings.show_calibration:
+            if settings.show_color_calibration:
                 if key_pressed == ord("n"):
                     selected_ball_num = (selected_ball_num + 1) % 3
                 if cv2.getWindowProperty('individual color calibration', 0) < 0:
                     break
             if settings.show_main_camera:
                 if cv2.getWindowProperty('main_camera', 0) < 0:
-                    break            
+                    break
+            if settings.show_location_define:
+                if cv2.getWindowProperty('main_camera', 0) < 0:
+                    break             
     end = closing_operations(average_fps,vs,camera,out,all_mask)
     ##create_plots(frame_count,start,end,frame_height)
