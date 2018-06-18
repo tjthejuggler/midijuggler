@@ -275,6 +275,11 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
 
+def send_midi_note_from_soundscape_color(soundscape_color):
+    soundscape_color = np.array(soundscape_color).tolist()
+    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
+    send_midi_messages(2,average_soundscape_color,40,[])
+
 def average_position(all_axis, window_length, window_end_frame):
     average_pos = 0
     count = 0
@@ -293,50 +298,22 @@ def average_position(all_axis, window_length, window_end_frame):
     return average_pos
 last_note_sent = 0
 
-def average_position_of_multiple_single_ball_average_positions(list_of_single_ball_average_positions):
-    number_of_single_ball_average_positions_to_average = len(list_of_single_ball_average_positions)
-    sum_of_x_axis = 0
-    sum_of_y_axis = 0
-    number_of_balls_seen = 0
-    average_x_position = 0
-    average_y_position = 0
-    for i in range (number_of_single_ball_average_positions_to_average):
-        if list_of_single_ball_average_positions[i]:
-            if len(list_of_single_ball_average_positions[i])>1:
-                sum_of_x_axis += list_of_single_ball_average_positions[i][0]
-                sum_of_y_axis += list_of_single_ball_average_positions[i][1]
-                number_of_balls_seen += 1
-    if number_of_balls_seen > 0:
-        average_x_position = sum_of_x_axis/number_of_balls_seen
-        average_y_position = sum_of_y_axis/number_of_balls_seen
-    return([average_x_position,average_y_position])
-    #todo it is flickering between the actual average position and 0 constantly down in 'send_midi_cc_based_on_average_position'
-    #   and so i figure the issue must be here, or somewhere before here, like below in 'average_position_of_single_ball'
-
 def average_position_of_single_ball(ball_number, window_length):
     ball_number = int(ball_number)
-    axes = [all_cx[ball_number], all_cy[ball_number]]
-    average_positions = []
-    average_duration = min(len(axes)+1, int(window_length)+1)
+    axes = [[x for x in all_cx[ball_number-1] if x is not 'X'], [x for x in all_cy[ball_number-1] if x is not 'X']]
+    average_positions = [-1,-1]
+    average_duration = min(len(axes[0]), int(window_length))
+    print('average_duration'+str(average_duration))
+    axis_num = 0
     for axis in axes:
-        count = 0
-        average_position_of_current_axis = 0
-        for j in range(1, average_duration):
-            if abs(j)<len(axis)+1:
-                if not axis[-j] == 'X':
-                    if axis[-j] > 0:
-                        if not axis[-j] == 'X':
-                            count = count+1
-                            average_position_of_current_axis = average_position_of_current_axis + axis[-j]
-        if count > 0:
-            average_position_of_current_axis = average_position_of_current_axis/count
-            average_positions.append(average_position_of_current_axis)
-    return average_positions
-
-def send_midi_note_from_soundscape_color(soundscape_color):
-    soundscape_color = np.array(soundscape_color).tolist()
-    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
-    send_midi_messages(2,average_soundscape_color,40,[])
+        if average_duration>0:
+            average_position_of_current_axis= np.average(axis[-average_duration+1:])
+            average_positions[axis_num] = average_position_of_current_axis
+        axis_num += 1
+    print("average_position_of_single_ball")
+    print(axes)
+    print(average_positions)
+    return average_positions[0],average_positions[1]
 
 def create_individual_ball_audio(ball_index):
     global use_override_notes,override_notes,last_note_sent
@@ -386,20 +363,29 @@ def create_multiple_ball_audio():
             for location_direction in location_directions:
                 if is_valid_cc_location_input(i,location_direction):
                     ball_numbers_to_average = cc_location_object['instance number '+str(i)]['balls to average']
+                    print('ball_numbers_to_average'+str(ball_numbers_to_average))
                     window_size = cc_location_object['instance number '+str(i)]['window size']
                     channel = cc_location_object['instance number '+str(i)][location_direction]['channel']
                     number = cc_location_object['instance number '+str(i)][location_direction]['number']
                     list_of_ball_average_positions = [[]]
+                    ave_cx = []
+                    ave_cy = []
                     for ball_number in ball_numbers_to_average:
-                        list_of_ball_average_positions.append(average_position_of_single_ball(ball_number,window_size))
+                        print('ball_number'+str(int(ball_number)-1))
+                        Cx, Cy =average_position_of_single_ball(ball_number,window_size)
+                        print('Cx '+str(Cx))
+                        print('Cy '+str(Cy))
+                        if Cx >= 0:
+                            ave_cx.append(Cx) 
+                            ave_cy.append(Cy)                          
                     if location_direction == 'horizontal':
                         first_edge = cc_location_object['instance number '+str(i)]['location border sides']['left']
                         second_edge = cc_location_object['instance number '+str(i)]['location border sides']['right']
-                        send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position_of_multiple_single_ball_average_positions(list_of_ball_average_positions)[0],channel,number)
+                        send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cx),channel,number)
                     if location_direction == 'vertical':
                         first_edge = cc_location_object['instance number '+str(i)]['location border sides']['top']
                         second_edge = cc_location_object['instance number '+str(i)]['location border sides']['bottom']
-                        send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position_of_multiple_single_ball_average_positions(list_of_ball_average_positions)[1],channel,number)
+                        send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cy),channel,number)
                     
         #more todo
         #   make the location inputs only allow numbers in ui
@@ -436,29 +422,22 @@ def send_midi_cc_based_on_average_position(location_direction,first_edge,second_
     value = 0
     first_edge = int(first_edge)
     second_edge = int(second_edge)
-    print('average_position')
-    print(average_position)
-    print('first_edge')
-    print(first_edge)
-    print('second_edge')
-    print(second_edge)
+    print('all_cx[1][-1]'+str(all_cx[1][-1]))
+    print('average_position'+str(average_position))
+
     if location_direction == 'vertical':
         size = settings.frame_height        
     if location_direction == 'horizontal':
         size = settings.frame_width
 
     if average_position<first_edge:
-        value = 128
+        value = 0
 
     elif average_position>second_edge:
-        value = 0
+        value = 126
     else:        
         distance_between_edges = abs(first_edge-second_edge)
-        print('distance_between_edges')
-        print(distance_between_edges)
         distance_between_edge_and_average_position = abs(first_edge-average_position)
-        print('distance_between_edge_and_average_position')
-        print(distance_between_edge_and_average_position)
         value = max(0,(distance_between_edge_and_average_position/distance_between_edges)*128)
 
     print(channel +','+ number +','+str(value) )

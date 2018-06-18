@@ -4,7 +4,7 @@ import rtmidi #for sending midi
 from midi_helper import *
 import csv
 
-use_user_interface = True
+use_user_interface = False
 
 if use_user_interface:
     from tkinter import *
@@ -27,7 +27,7 @@ def begin_program():
 #########################     BEGIN TOP MAIN SECTION     ##########################
 def load_config_dialog(use_default_config):
     if use_default_config:
-        load_config_file_name = 'default.txt'
+        load_config_file_name = 'zz.txt'
     else:
         global current_file_name_label
         load_config_file_name = askopenfilename()

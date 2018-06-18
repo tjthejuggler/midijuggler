@@ -94,14 +94,14 @@ def get_contour_center(contour):
 
 def trim_old_histories():
     for index in range(settings.max_balls):
-        if len(all_cx) > 59:
+        if len(all_cx[index]) > 59:
             settings.all_cx[index]=settings.all_cx[index][-30:]
             settings.all_cy[index]=settings.all_cy[index][-30:]
-            miugCom.all_vx[index]=miugCom.all_vx[index][-30:]
-            miugCom.all_vy[index]=miugCom.all_vy[index][-30:]
-            miugCom.all_ay[index]=miugCom.all_ay[index][-30:]
-            #miugCom.all_time_vx[index]=miugCom.all_time_vx[index][-30:]
-            #miugCom.all_time_vy[index]=miugCom.all_time_vy[index][-30:]
+            settings.all_vx[index]=settings.all_vx[index][-30:]
+            settings.all_vy[index]=settings.all_vy[index][-30:]
+            settings.all_ay[index]=settings.all_ay[index][-30:]
+            #settings.all_time_vx[index]=settings.all_time_vx[index][-30:]
+            #settings.all_time_vy[index]=settings.all_time_vy[index][-30:]
 
 def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count_window,selected_ball_num):
     global average_contour_area_from_last_frame
