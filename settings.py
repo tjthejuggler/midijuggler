@@ -32,6 +32,7 @@ point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
 point_setups_single_line_input = ['','','','','','','']
 
 ball_configs = ['X','Y','Z']
+relative_positions = ['left','mid','right']
 path_types = ['left column','left cross','mid column','mid cross','right column','right cross']
 path_phases = ['peak','catch','throw']
 
@@ -43,6 +44,8 @@ for ball_config in ball_configs:
 		for path_phase in path_phases:
 			path_point_object[ball_config][path_type][path_phase] = 0
 
+location_instance_numbers = ['0','1','2','3']
+ball_numbers = ['1','2','3']
 location_directions = ['horizontal','vertical']
 location_midi_input_types = ['channel','number']
 location_border_sides = ['left','right','top','bottom']

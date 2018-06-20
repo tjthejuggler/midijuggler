@@ -362,7 +362,9 @@ def create_multiple_ball_audio():
         for i in range (4):
             for location_direction in location_directions:
                 if is_valid_cc_location_input(i,location_direction):
+
                     ball_numbers_to_average = cc_location_object['instance number '+str(i)]['balls to average']
+                    if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
                     print('ball_numbers_to_average'+str(ball_numbers_to_average))
                     window_size = cc_location_object['instance number '+str(i)]['window size']
                     channel = cc_location_object['instance number '+str(i)][location_direction]['channel']
@@ -370,8 +372,10 @@ def create_multiple_ball_audio():
                     list_of_ball_average_positions = [[]]
                     ave_cx = []
                     ave_cy = []
+                    print(i)
+                    print(ball_numbers_to_average)
                     for ball_number in ball_numbers_to_average:
-                        print('ball_number'+str(int(ball_number)-1))
+                        print('ball_number'+str(int(ball_number)))
                         Cx, Cy =average_position_of_single_ball(ball_number,window_size)
                         print('Cx '+str(Cx))
                         print('Cy '+str(Cy))
