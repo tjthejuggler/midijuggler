@@ -351,18 +351,9 @@ def is_valid_cc_location_input(location_instance_number,location_direction):
 
 def create_multiple_ball_audio():
     if using_midi:
-        #todo
-        #   i think the averaging stuff is working, although i have not tested it with 3 balls yet
-        #   modify send_midi_cc_based_on_average_position to be able to take the thing below in the print
-        #print(average_position_of_multiple_single_ball_average_positions([average_position_of_single_ball(0,10),average_position_of_single_ball(1,10)]))
-        #print(cc_location_object['instance number 0']['balls to average'])
-        #loop through each of the 4 cc locations, inside each of them loop through the 2 axis directions
-        #   if they have any balls checked and specifics input, then allow them to use the function
-
         for i in range (4):
             for location_direction in location_directions:
                 if is_valid_cc_location_input(i,location_direction):
-
                     ball_numbers_to_average = cc_location_object['instance number '+str(i)]['balls to average']
                     if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
                     print('ball_numbers_to_average'+str(ball_numbers_to_average))
@@ -390,20 +381,41 @@ def create_multiple_ball_audio():
                         first_edge = cc_location_object['instance number '+str(i)]['location border sides']['top']
                         second_edge = cc_location_object['instance number '+str(i)]['location border sides']['bottom']
                         send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cy),channel,number)
-                    
         #more todo
+        #   test the veretical axis of the cc location
+        #   get the nt location working,
+        #       it should just send its note whenever the average position goes from not being in the box to being in the
+        #           box. there should probably also be a certain amount of time that must between triggers to avoid
+        #           flickering near edges of the box.
+        #       another entry that would be useful here would be is the amount of time that it must be in an
+        #           area before it triggers its thing. although not sure if this is good or not since then it would
+        #           just look/feel like a delay
         #   make the location inputs only allow numbers in ui
-        #   hook up the ui to the specifics above
         #   show a circle where the average is in the imshow
+        #       the average circle could be a certain color and there could also be lines/box that shows where
+        #       the edges are for that instance
+        #   make a begin and end time for each different midi feature
+        #   make a way for midi features to be able to be turned on and off by other features
+        #       this could be done in place of midi channel/number, somehow those entries
+        #           could also be used to turn other features on/off
         #   hook up what we have with position to the velocity lists as well
         #       make the ui for this
-
+        #   make the speed function below be just like the location function, except using velocity. maybe it would
+        #       be good to only use velocity from frames where the balls are 'held'
+        #NEW SAVE SYSTEM
+        #   make an entry next to save button and an optionmenu next to load button, the optionmenu is populated with
+        #       all previous saves. the entry is used to create the file which keeps track of which of all the other
+        #       sections are currently selected
+        #   each section (path point configs, midi config, nt location, cc location..) has its own create new option
+        #       which is used to make a new config which can then be used in setting up the whole master setup
+        #   make the screen wider, to the left of each of the location instances there should be optionmenus
+        #       that are full of the different premade arrangments, selecting them should fill in the blanks
+        #       there needs to be a way to create new ones as well. maybe leave it editable as is and just add
+        #       a save button, but maybe make it all greyed out and make a new popup window for creating new ones.
         #eventual todo
         #   make it so that the savefiledialog creates a folder that holds a bunch of differnt saved files,
         #       one for each different aspect of the ui as well as anything else that should be saved
 
-        #send_midi_cc_based_on_average_position('y',0,average_position(all_cy, 10, -1))
-        #send_midi_cc_based_on_average_position('x',0,average_position(all_cx, 10, -1))
         #send_midi_cc_based_on_average_speed_while_held()
         #send_midi_cc_based_on_average_speed() 
 
@@ -411,11 +423,7 @@ def send_midi_cc_based_on_average_speed_while_held():
     for i in range(3):#average all 6 velocities together over a certain amount of time and then get a low
         print(i)#and high number to be the 0, 128 and figure it out from there
 
-    #IDEALLY FOR POSITION
-    #-i can use the average location or average velocity of any ball or combination of balls
-    #-there are calibration windows that can be opened for each position instance which can have the borders
-    #   buffers set, there should be a key that can be pressed that make it so the mouse acts as the
-    #   average position for that position instance 
+
 
     #IDEALLY FOR SPEED:
     #-i can use the average velocity of any ball or combination of balls

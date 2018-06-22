@@ -75,28 +75,28 @@ def load_config_dialog(use_default_config):
             #   make specifics of location control midi signals
             #   figure out speed
             #   check the other todo list
-            cc_location_object['instance number '+str(i)]['balls to average'] = lines[first_cc_location_object_line+1+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['balls to average'] = cc_location_object['instance number '+str(i)]['balls to average'].split(',')
-            cc_location_object['instance number '+str(i)]['window size'] = lines[first_cc_location_object_line+2+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['location border sides']['left'] = lines[first_cc_location_object_line+3+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['location border sides']['right'] = lines[first_cc_location_object_line+4+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['location border sides']['top'] = lines[first_cc_location_object_line+5+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['location border sides']['bottom'] = lines[first_cc_location_object_line+6+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['horizontal']['channel'] = lines[first_cc_location_object_line+7+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['horizontal']['number'] = lines[first_cc_location_object_line+8+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['vertical']['channel'] = lines[first_cc_location_object_line+9+(i*10)].rstrip('\n')
-            cc_location_object['instance number '+str(i)]['vertical']['number'] = lines[first_cc_location_object_line+10+(i*10)].rstrip('\n')
+            cc_location_object[i]['balls to average'] = lines[first_cc_location_object_line+1+(i*10)].rstrip('\n')
+            cc_location_object[i]['balls to average'] = cc_location_object[i]['balls to average'].split(',')
+            cc_location_object[i]['window size'] = lines[first_cc_location_object_line+2+(i*10)].rstrip('\n')
+            cc_location_object[i]['location border sides']['left'] = lines[first_cc_location_object_line+3+(i*10)].rstrip('\n')
+            cc_location_object[i]['location border sides']['right'] = lines[first_cc_location_object_line+4+(i*10)].rstrip('\n')
+            cc_location_object[i]['location border sides']['top'] = lines[first_cc_location_object_line+5+(i*10)].rstrip('\n')
+            cc_location_object[i]['location border sides']['bottom'] = lines[first_cc_location_object_line+6+(i*10)].rstrip('\n')
+            cc_location_object[i]['horizontal']['channel'] = lines[first_cc_location_object_line+7+(i*10)].rstrip('\n')
+            cc_location_object[i]['horizontal']['number'] = lines[first_cc_location_object_line+8+(i*10)].rstrip('\n')
+            cc_location_object[i]['vertical']['channel'] = lines[first_cc_location_object_line+9+(i*10)].rstrip('\n')
+            cc_location_object[i]['vertical']['number'] = lines[first_cc_location_object_line+10+(i*10)].rstrip('\n')
         first_nt_location_object_line = lines.index('begin nt location object\n')
         for i in range (4):
-            nt_location_object['instance number '+str(i)]['balls to average'] = lines[first_nt_location_object_line+1+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['balls to average'] = nt_location_object['instance number '+str(i)]['balls to average'].split(',')
-            nt_location_object['instance number '+str(i)]['window size'] = lines[first_nt_location_object_line+2+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['location border sides']['left'] = lines[first_nt_location_object_line+3+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['location border sides']['right'] = lines[first_nt_location_object_line+4+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['location border sides']['top'] = lines[first_nt_location_object_line+5+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['location border sides']['bottom'] = lines[first_nt_location_object_line+6+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['channel'] = lines[first_nt_location_object_line+7+(i*8)].rstrip('\n')
-            nt_location_object['instance number '+str(i)]['number'] = lines[first_nt_location_object_line+8+(i*8)].rstrip('\n')
+            nt_location_object[i]['balls to average'] = lines[first_nt_location_object_line+1+(i*8)].rstrip('\n')
+            nt_location_object[i]['balls to average'] = nt_location_object[i]['balls to average'].split(',')
+            nt_location_object[i]['window size'] = lines[first_nt_location_object_line+2+(i*8)].rstrip('\n')
+            nt_location_object[i]['location border sides']['left'] = lines[first_nt_location_object_line+3+(i*8)].rstrip('\n')
+            nt_location_object[i]['location border sides']['right'] = lines[first_nt_location_object_line+4+(i*8)].rstrip('\n')
+            nt_location_object[i]['location border sides']['top'] = lines[first_nt_location_object_line+5+(i*8)].rstrip('\n')
+            nt_location_object[i]['location border sides']['bottom'] = lines[first_nt_location_object_line+6+(i*8)].rstrip('\n')
+            nt_location_object[i]['channel'] = lines[first_nt_location_object_line+7+(i*8)].rstrip('\n')
+            nt_location_object[i]['number'] = lines[first_nt_location_object_line+8+(i*8)].rstrip('\n')
         if not use_default_config:
             read_text_file.close()
             current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
@@ -134,22 +134,22 @@ def save_config_dialog():
 
     text_in_config_to_save += 'begin cc location object\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(cc_location_object['instance number '+str(i)]['balls to average']) + '\n'
-        text_in_config_to_save += str(cc_location_object['instance number '+str(i)]['window size']) + '\n'
+        text_in_config_to_save += ','.join(cc_location_object[i]['balls to average']) + '\n'
+        text_in_config_to_save += str(cc_location_object[i]['window size']) + '\n'
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(cc_location_object['instance number '+str(i)]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(cc_location_object[i]['location border sides'][location_border_side]) + '\n'
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                text_in_config_to_save += str(cc_location_object['instance number '+str(i)][location_direction][location_midi_input_type]) + '\n'
+                text_in_config_to_save += str(cc_location_object[i][location_direction][location_midi_input_type]) + '\n'
 
     text_in_config_to_save += 'begin nt location object\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(nt_location_object['instance number '+str(i)]['balls to average']) + '\n'
-        text_in_config_to_save += str(nt_location_object['instance number '+str(i)]['window size']) + '\n'
+        text_in_config_to_save += ','.join(nt_location_object[i]['balls to average']) + '\n'
+        text_in_config_to_save += str(nt_location_object[i]['window size']) + '\n'
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(nt_location_object['instance number '+str(i)]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(nt_location_object[i]['location border sides'][location_border_side]) + '\n'
         for location_midi_input_type in location_midi_input_types:
-            text_in_config_to_save += str(nt_location_object['instance number '+str(i)][location_midi_input_type]) + '\n'
+            text_in_config_to_save += str(nt_location_object[i][location_midi_input_type]) + '\n'
 
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()        
@@ -481,21 +481,21 @@ def selected_all_midi_configs_optionmenu_index_changed(path_phase):
 def set_location_widgets_from_data():
     for location_instance_number in location_instance_numbers:
         for ball_number in ball_numbers:
-            location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].set(ball_number in cc_location_object['instance number '+location_instance_number]['balls to average'])
-        location_variable['cc']['number of frames entry']['instance '+location_instance_number].set(cc_location_object['instance number '+location_instance_number]['window size'])
+            location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].set(ball_number in cc_location_object[location_instance_number]['balls to average'])
+        location_variable['cc']['number of frames entry']['instance '+location_instance_number].set(cc_location_object[location_instance_number]['window size'])
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type].set(cc_location_object['instance number '+location_instance_number][location_direction][location_midi_input_type])
+                location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type].set(cc_location_object[location_instance_number][location_direction][location_midi_input_type])
         for location_border_side in location_border_sides:
-            location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].set(cc_location_object['instance number '+location_instance_number]['location border sides'][location_border_side])
+            location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].set(cc_location_object[location_instance_number]['location border sides'][location_border_side])
     for location_instance_number in location_instance_numbers:
         for ball_number in ball_numbers:    
-            location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].set(ball_number in nt_location_object['instance number '+location_instance_number]['balls to average'])
-        location_variable['nt']['number of frames entry']['instance '+location_instance_number].set(nt_location_object['instance number '+location_instance_number]['window size'])
+            location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].set(ball_number in nt_location_object[location_instance_number]['balls to average'])
+        location_variable['nt']['number of frames entry']['instance '+location_instance_number].set(nt_location_object[location_instance_number]['window size'])
         for location_midi_input_type in location_midi_input_types:
-            location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type].set(nt_location_object['instance number '+location_instance_number][location_midi_input_type])
+            location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type].set(nt_location_object[location_instance_number][location_midi_input_type])
         for location_border_side in location_border_sides:
-            location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].set(nt_location_object['instance number '+location_instance_number]['location border sides'][location_border_side])
+            location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].set(nt_location_object[location_instance_number]['location border sides'][location_border_side])
 
 def set_path_point_buttons_based_on_selected_ball():
     for path_type in path_types:
@@ -541,45 +541,45 @@ def selected_config_midi_channel_changed(*args):
 
 def location_cc_checkbutton_changed(checked,instance_number,ball_number):
     if checked:
-        if not ball_number in cc_location_object['instance number '+instance_number]['balls to average']:
-            cc_location_object['instance number '+instance_number]['balls to average'].append(ball_number)
+        if not ball_number in cc_location_object[instance_number]['balls to average']:
+            cc_location_object[instance_number]['balls to average'].append(ball_number)
     else:
-        if ball_number in cc_location_object['instance number '+instance_number]['balls to average']:
-            cc_location_object['instance number '+instance_number]['balls to average'].remove(ball_number)
-    print(cc_location_object['instance number '+instance_number]['balls to average'])
+        if ball_number in cc_location_object[instance_number]['balls to average']:
+            cc_location_object[instance_number]['balls to average'].remove(ball_number)
+    print(cc_location_object[instance_number]['balls to average'])
 
 def location_nt_checkbutton_changed(checked,instance_number,ball_number):
     if checked:
-        if not ball_number in nt_location_object['instance number '+instance_number]['balls to average']:
-            nt_location_object['instance number '+instance_number]['balls to average'].append(ball_number)
+        if not ball_number in nt_location_object[instance_number]['balls to average']:
+            nt_location_object[instance_number]['balls to average'].append(ball_number)
     else:
-        if ball_number in nt_location_object['instance number '+instance_number]['balls to average']:
-            nt_location_object['instance number '+instance_number]['balls to average'].remove(ball_number)
-    print(nt_location_object['instance number '+instance_number]['balls to average'])
+        if ball_number in nt_location_object[instance_number]['balls to average']:
+            nt_location_object[instance_number]['balls to average'].remove(ball_number)
+    print(nt_location_object[instance_number]['balls to average'])
 
 def location_cc_number_of_frames_changed(entry_text,instance_number):
     print(instance_number)
-    cc_location_object['instance number '+instance_number]['window size'] = entry_text
+    cc_location_object[instance_number]['window size'] = entry_text
 
 def location_nt_number_of_frames_changed(entry_text,instance_number):
     print(instance_number)
-    nt_location_object['instance number '+instance_number]['window size'] = entry_text
+    nt_location_object[instance_number]['window size'] = entry_text
 
 def location_cc_channel_or_number_changed(entry_text,instance_number,location_direction,location_midi_input_type):
     print(instance_number)
-    cc_location_object['instance number '+instance_number][location_direction][location_midi_input_type] = entry_text
+    cc_location_object[instance_number][location_direction][location_midi_input_type] = entry_text
 
 def location_nt_channel_or_number_changed(entry_text,instance_number,location_midi_input_type):
     print(instance_number)
-    nt_location_object['instance number '+instance_number][location_midi_input_type] = entry_text
+    nt_location_object[instance_number][location_midi_input_type] = entry_text
 
 def location_cc_border_changed(entry_text,instance_number,location_border_side):
     print(location_border_side)
-    cc_location_object['instance number '+str(instance_number)]['location border sides'][location_border_side] = entry_text
+    cc_location_object[instance_number]['location border sides'][location_border_side] = entry_text
 
 def location_nt_border_changed(entry_text,instance_number,location_border_side):
     print(location_border_side)
-    nt_location_object['instance number '+str(instance_number)]['location border sides'][location_border_side] = entry_text
+    nt_location_object[instance_number]['location border sides'][location_border_side] = entry_text
 
 #########################     END LOCATION SECTION     ##########################
 
@@ -779,57 +779,57 @@ if use_user_interface:
             #location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
             location_widget['cc']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side])
 
-    location_variable['cc']['checkbutton']['instance 0']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 1'].get(),'0','1'))
-    location_variable['cc']['checkbutton']['instance 0']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 2'].get(),'0','2'))
-    location_variable['cc']['checkbutton']['instance 0']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 3'].get(),'0','3'))
-    location_variable['cc']['checkbutton']['instance 1']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 1'].get(),'1','1'))
-    location_variable['cc']['checkbutton']['instance 1']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 2'].get(),'1','2'))
-    location_variable['cc']['checkbutton']['instance 1']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 3'].get(),'1','3'))
-    location_variable['cc']['checkbutton']['instance 2']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 1'].get(),'2','1'))
-    location_variable['cc']['checkbutton']['instance 2']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 2'].get(),'2','2'))
-    location_variable['cc']['checkbutton']['instance 2']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 3'].get(),'2','3'))
-    location_variable['cc']['checkbutton']['instance 3']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 1'].get(),'3','1'))
-    location_variable['cc']['checkbutton']['instance 3']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 2'].get(),'3','2'))
-    location_variable['cc']['checkbutton']['instance 3']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 3'].get(),'3','3'))
+    location_variable['cc']['checkbutton']['instance 0']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 1'].get(),0,'1'))
+    location_variable['cc']['checkbutton']['instance 0']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 2'].get(),0,'2'))
+    location_variable['cc']['checkbutton']['instance 0']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 3'].get(),0,'3'))
+    location_variable['cc']['checkbutton']['instance 1']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 1'].get(),1,'1'))
+    location_variable['cc']['checkbutton']['instance 1']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 2'].get(),1,'2'))
+    location_variable['cc']['checkbutton']['instance 1']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 3'].get(),1,'3'))
+    location_variable['cc']['checkbutton']['instance 2']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 1'].get(),2,'1'))
+    location_variable['cc']['checkbutton']['instance 2']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 2'].get(),2,'2'))
+    location_variable['cc']['checkbutton']['instance 2']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 3'].get(),2,'3'))
+    location_variable['cc']['checkbutton']['instance 3']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 1'].get(),3,'1'))
+    location_variable['cc']['checkbutton']['instance 3']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 2'].get(),3,'2'))
+    location_variable['cc']['checkbutton']['instance 3']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 3'].get(),3,'3'))
 
-    location_variable['cc']['number of frames entry']['instance 0'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 0'].get(),'0'))
-    location_variable['cc']['number of frames entry']['instance 1'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 1'].get(),'1'))
-    location_variable['cc']['number of frames entry']['instance 2'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 2'].get(),'2'))
-    location_variable['cc']['number of frames entry']['instance 3'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 3'].get(),'3'))
+    location_variable['cc']['number of frames entry']['instance 0'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 0'].get(),0))
+    location_variable['cc']['number of frames entry']['instance 1'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 1'].get(),1))
+    location_variable['cc']['number of frames entry']['instance 2'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 2'].get(),2))
+    location_variable['cc']['number of frames entry']['instance 3'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 3'].get(),3))
 
-    location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].get(),'0','horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].get(),'0','horizontal','number'))
-    location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].get(),'0','vertical','channel'))
-    location_variable['cc']['midi entry']['instance 0']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['number'].get(),'0','vertical','number'))
-    location_variable['cc']['midi entry']['instance 1']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['horizontal']['channel'].get(),'1','horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 1']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['horizontal']['number'].get(),'1','horizontal','number'))
-    location_variable['cc']['midi entry']['instance 1']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['vertical']['channel'].get(),'1','vertical','channel'))
-    location_variable['cc']['midi entry']['instance 1']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['vertical']['number'].get(),'1','vertical','number'))
-    location_variable['cc']['midi entry']['instance 2']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['horizontal']['channel'].get(),'2','horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 2']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['horizontal']['number'].get(),'2','horizontal','number'))
-    location_variable['cc']['midi entry']['instance 2']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['vertical']['channel'].get(),'2','vertical','channel'))
-    location_variable['cc']['midi entry']['instance 2']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['vertical']['number'].get(),'2','vertical','number'))
-    location_variable['cc']['midi entry']['instance 3']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['horizontal']['channel'].get(),'3','horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 3']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['horizontal']['number'].get(),'3','horizontal','number'))
-    location_variable['cc']['midi entry']['instance 3']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['vertical']['channel'].get(),'3','vertical','channel'))
-    location_variable['cc']['midi entry']['instance 3']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['vertical']['number'].get(),'3','vertical','number'))
+    location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].get(),0,'horizontal','channel'))
+    location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].get(),0,'horizontal','number'))
+    location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].get(),0,'vertical','channel'))
+    location_variable['cc']['midi entry']['instance 0']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['number'].get(),0,'vertical','number'))
+    location_variable['cc']['midi entry']['instance 1']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['horizontal']['channel'].get(),1,'horizontal','channel'))
+    location_variable['cc']['midi entry']['instance 1']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['horizontal']['number'].get(),1,'horizontal','number'))
+    location_variable['cc']['midi entry']['instance 1']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['vertical']['channel'].get(),1,'vertical','channel'))
+    location_variable['cc']['midi entry']['instance 1']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['vertical']['number'].get(),1,'vertical','number'))
+    location_variable['cc']['midi entry']['instance 2']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['horizontal']['channel'].get(),2,'horizontal','channel'))
+    location_variable['cc']['midi entry']['instance 2']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['horizontal']['number'].get(),2,'horizontal','number'))
+    location_variable['cc']['midi entry']['instance 2']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['vertical']['channel'].get(),2,'vertical','channel'))
+    location_variable['cc']['midi entry']['instance 2']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['vertical']['number'].get(),2,'vertical','number'))
+    location_variable['cc']['midi entry']['instance 3']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['horizontal']['channel'].get(),3,'horizontal','channel'))
+    location_variable['cc']['midi entry']['instance 3']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['horizontal']['number'].get(),3,'horizontal','number'))
+    location_variable['cc']['midi entry']['instance 3']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['vertical']['channel'].get(),3,'vertical','channel'))
+    location_variable['cc']['midi entry']['instance 3']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['vertical']['number'].get(),3,'vertical','number'))
 
-    location_variable['cc']['border entry']['instance 0']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['left'].get(),'0','left'))
-    location_variable['cc']['border entry']['instance 0']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['right'].get(),'0','right'))
-    location_variable['cc']['border entry']['instance 0']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['top'].get(),'0','top'))
-    location_variable['cc']['border entry']['instance 0']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['bottom'].get(),'0','bottom'))
-    location_variable['cc']['border entry']['instance 1']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['left'].get(),'1','left'))
-    location_variable['cc']['border entry']['instance 1']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['right'].get(),'1','right'))
-    location_variable['cc']['border entry']['instance 1']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['top'].get(),'1','top'))
-    location_variable['cc']['border entry']['instance 1']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['bottom'].get(),'1','bottom'))
-    location_variable['cc']['border entry']['instance 2']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['left'].get(),'2','left'))
-    location_variable['cc']['border entry']['instance 2']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['right'].get(),'2','right'))
-    location_variable['cc']['border entry']['instance 2']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['top'].get(),'2','top'))
-    location_variable['cc']['border entry']['instance 2']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['bottom'].get(),'2','bottom'))
-    location_variable['cc']['border entry']['instance 3']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['left'].get(),'3','left'))
-    location_variable['cc']['border entry']['instance 3']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['right'].get(),'3','right'))
-    location_variable['cc']['border entry']['instance 3']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['top'].get(),'3','top'))
-    location_variable['cc']['border entry']['instance 3']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['bottom'].get(),'3','bottom'))
+    location_variable['cc']['border entry']['instance 0']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['left'].get(),0,'left'))
+    location_variable['cc']['border entry']['instance 0']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['right'].get(),0,'right'))
+    location_variable['cc']['border entry']['instance 0']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['top'].get(),0,'top'))
+    location_variable['cc']['border entry']['instance 0']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['bottom'].get(),0,'bottom'))
+    location_variable['cc']['border entry']['instance 1']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['left'].get(),1,'left'))
+    location_variable['cc']['border entry']['instance 1']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['right'].get(),1,'right'))
+    location_variable['cc']['border entry']['instance 1']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['top'].get(),1,'top'))
+    location_variable['cc']['border entry']['instance 1']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['bottom'].get(),1,'bottom'))
+    location_variable['cc']['border entry']['instance 2']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['left'].get(),2,'left'))
+    location_variable['cc']['border entry']['instance 2']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['right'].get(),2,'right'))
+    location_variable['cc']['border entry']['instance 2']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['top'].get(),2,'top'))
+    location_variable['cc']['border entry']['instance 2']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['bottom'].get(),2,'bottom'))
+    location_variable['cc']['border entry']['instance 3']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['left'].get(),3,'left'))
+    location_variable['cc']['border entry']['instance 3']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['right'].get(),3,'right'))
+    location_variable['cc']['border entry']['instance 3']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['top'].get(),3,'top'))
+    location_variable['cc']['border entry']['instance 3']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['bottom'].get(),3,'bottom'))
 
     location_widget['nt'] = {}
     location_widget['nt']['header label'] = {}
@@ -870,49 +870,49 @@ if use_user_interface:
             #location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
             location_widget['nt']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side])
 
-    location_variable['nt']['checkbutton']['instance 0']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 1'].get(),'0','1'))
-    location_variable['nt']['checkbutton']['instance 0']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 2'].get(),'0','2'))
-    location_variable['nt']['checkbutton']['instance 0']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 3'].get(),'0','3'))
-    location_variable['nt']['checkbutton']['instance 1']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 1'].get(),'1','1'))
-    location_variable['nt']['checkbutton']['instance 1']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 2'].get(),'1','2'))
-    location_variable['nt']['checkbutton']['instance 1']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 3'].get(),'1','3'))
-    location_variable['nt']['checkbutton']['instance 2']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 1'].get(),'2','1'))
-    location_variable['nt']['checkbutton']['instance 2']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 2'].get(),'2','2'))
-    location_variable['nt']['checkbutton']['instance 2']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 3'].get(),'2','3'))
-    location_variable['nt']['checkbutton']['instance 3']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 1'].get(),'3','1'))
-    location_variable['nt']['checkbutton']['instance 3']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 2'].get(),'3','2'))
-    location_variable['nt']['checkbutton']['instance 3']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 3'].get(),'3','3'))
+    location_variable['nt']['checkbutton']['instance 0']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 1'].get(),0,'1'))
+    location_variable['nt']['checkbutton']['instance 0']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 2'].get(),0,'2'))
+    location_variable['nt']['checkbutton']['instance 0']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 3'].get(),0,'3'))
+    location_variable['nt']['checkbutton']['instance 1']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 1'].get(),1,'1'))
+    location_variable['nt']['checkbutton']['instance 1']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 2'].get(),1,'2'))
+    location_variable['nt']['checkbutton']['instance 1']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 3'].get(),1,'3'))
+    location_variable['nt']['checkbutton']['instance 2']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 1'].get(),2,'1'))
+    location_variable['nt']['checkbutton']['instance 2']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 2'].get(),2,'2'))
+    location_variable['nt']['checkbutton']['instance 2']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 3'].get(),2,'3'))
+    location_variable['nt']['checkbutton']['instance 3']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 1'].get(),3,'1'))
+    location_variable['nt']['checkbutton']['instance 3']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 2'].get(),3,'2'))
+    location_variable['nt']['checkbutton']['instance 3']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 3'].get(),3,'3'))
 
-    location_variable['nt']['number of frames entry']['instance 0'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 0'].get(),'0'))
-    location_variable['nt']['number of frames entry']['instance 1'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 1'].get(),'1'))
-    location_variable['nt']['number of frames entry']['instance 2'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 2'].get(),'2'))
-    location_variable['nt']['number of frames entry']['instance 3'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 3'].get(),'3'))
+    location_variable['nt']['number of frames entry']['instance 0'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 0'].get(),0))
+    location_variable['nt']['number of frames entry']['instance 1'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 1'].get(),1))
+    location_variable['nt']['number of frames entry']['instance 2'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 2'].get(),2))
+    location_variable['nt']['number of frames entry']['instance 3'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 3'].get(),3))
 
-    location_variable['nt']['midi entry']['instance 0']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 0']['channel'].get(),'0','channel'))
-    location_variable['nt']['midi entry']['instance 0']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 0']['number'].get(),'0','number'))
-    location_variable['nt']['midi entry']['instance 1']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 1']['channel'].get(),'1','channel'))
-    location_variable['nt']['midi entry']['instance 1']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 1']['number'].get(),'1','number'))
-    location_variable['nt']['midi entry']['instance 2']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 2']['channel'].get(),'2','channel'))
-    location_variable['nt']['midi entry']['instance 2']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 2']['number'].get(),'2','number'))
-    location_variable['nt']['midi entry']['instance 3']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 3']['channel'].get(),'3','channel'))
-    location_variable['nt']['midi entry']['instance 3']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 3']['number'].get(),'3','number'))
+    location_variable['nt']['midi entry']['instance 0']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 0']['channel'].get(),0,'channel'))
+    location_variable['nt']['midi entry']['instance 0']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 0']['number'].get(),0,'number'))
+    location_variable['nt']['midi entry']['instance 1']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 1']['channel'].get(),1,'channel'))
+    location_variable['nt']['midi entry']['instance 1']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 1']['number'].get(),1,'number'))
+    location_variable['nt']['midi entry']['instance 2']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 2']['channel'].get(),2,'channel'))
+    location_variable['nt']['midi entry']['instance 2']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 2']['number'].get(),2,'number'))
+    location_variable['nt']['midi entry']['instance 3']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 3']['channel'].get(),3,'channel'))
+    location_variable['nt']['midi entry']['instance 3']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 3']['number'].get(),3,'number'))
 
-    location_variable['nt']['border entry']['instance 0']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['left'].get(),'0','left'))
-    location_variable['nt']['border entry']['instance 0']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['right'].get(),'0','right'))
-    location_variable['nt']['border entry']['instance 0']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['top'].get(),'0','top'))
-    location_variable['nt']['border entry']['instance 0']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['bottom'].get(),'0','bottom'))
-    location_variable['nt']['border entry']['instance 1']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['left'].get(),'1','left'))
-    location_variable['nt']['border entry']['instance 1']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['right'].get(),'1','right'))
-    location_variable['nt']['border entry']['instance 1']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['top'].get(),'1','top'))
-    location_variable['nt']['border entry']['instance 1']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['bottom'].get(),'1','bottom'))
-    location_variable['nt']['border entry']['instance 2']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['left'].get(),'2','left'))
-    location_variable['nt']['border entry']['instance 2']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['right'].get(),'2','right'))
-    location_variable['nt']['border entry']['instance 2']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['top'].get(),'2','top'))
-    location_variable['nt']['border entry']['instance 2']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['bottom'].get(),'2','bottom'))
-    location_variable['nt']['border entry']['instance 3']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['left'].get(),'3','left'))
-    location_variable['nt']['border entry']['instance 3']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['right'].get(),'3','right'))
-    location_variable['nt']['border entry']['instance 3']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['top'].get(),'3','top'))
-    location_variable['nt']['border entry']['instance 3']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['bottom'].get(),'3','bottom'))
+    location_variable['nt']['border entry']['instance 0']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['left'].get(),0,'left'))
+    location_variable['nt']['border entry']['instance 0']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['right'].get(),0,'right'))
+    location_variable['nt']['border entry']['instance 0']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['top'].get(),0,'top'))
+    location_variable['nt']['border entry']['instance 0']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['bottom'].get(),0,'bottom'))
+    location_variable['nt']['border entry']['instance 1']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['left'].get(),1,'left'))
+    location_variable['nt']['border entry']['instance 1']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['right'].get(),1,'right'))
+    location_variable['nt']['border entry']['instance 1']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['top'].get(),1,'top'))
+    location_variable['nt']['border entry']['instance 1']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['bottom'].get(),1,'bottom'))
+    location_variable['nt']['border entry']['instance 2']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['left'].get(),2,'left'))
+    location_variable['nt']['border entry']['instance 2']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['right'].get(),2,'right'))
+    location_variable['nt']['border entry']['instance 2']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['top'].get(),2,'top'))
+    location_variable['nt']['border entry']['instance 2']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['bottom'].get(),2,'bottom'))
+    location_variable['nt']['border entry']['instance 3']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['left'].get(),3,'left'))
+    location_variable['nt']['border entry']['instance 3']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['right'].get(),3,'right'))
+    location_variable['nt']['border entry']['instance 3']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['top'].get(),3,'top'))
+    location_variable['nt']['border entry']['instance 3']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['bottom'].get(),3,'bottom'))
 ###########################  END LOCATION SECTION  ######################
 
 
@@ -1007,14 +1007,15 @@ if use_user_interface:
 
 begin_program()
 
-#maybe instead of 1ball, 2balls, and 3balls, we could just have radiobuttons that list all the different
-#   things that can be used to send midi messages, like 'path points', speed, position, stop/start,
-#   gather/ungather, apart, some kind of 'held in a certain position button'. This wasy then inside of things like 
-#   position, we could address the issue of which ball/balls to average to chose what position is to be used
-
-
 #maybe there would be someway to address synchronis peaks inside of our current path point setup
 #TODO
+#show time since start
+#make positional grid show accurate number of grids
+#make location squares shown
+#   possibly 
+#maybe nt and cc should be different radiobuttons so that we can have lots of different ones
+#   so they can be triggered and do different things
+#consolidate todo lists
 #make dictionary associations for the two and three ball event type things
 #   check for these associations just like we do the others and have them send cc midi signals(or non cc if the
 #   case may be)
@@ -1036,9 +1037,9 @@ begin_program()
 #           something else to think about with position
 #       Speed - we need a way to map how fast/slow it gets, we could use the actual throws per
 #           second to set the beats per second. Im not sure, but i feel like this looks best with it being
-#           linked to the speed of the juggller, which can be checked by using the speed of held balls maybe
+#           linked to the speed of the juggler, which can be checked by using the speed of held balls maybe
 #if '2 balls' is clicked, we have
-#   apart, synch peaks(this will probably just be columns), collisions.
+#   apart, sync peaks(this will probably just be columns), collisions.
 #
 #set colors of the text of ball 1, ball 2, and ball 3 to the colors that those balls are
 #   set at in the calibration, put them each on colored squares that match their calibration colors and
@@ -1072,37 +1073,20 @@ begin_program()
 #   were using it to set what sound gets made by the next peak, that is going to be a similar to goal
 #   to the past positional stuff
 
-#these are the imports that i removed from the this file, i dont think them being gone will cause any issues, 
-#   but just in case, here they are:
-#from __future__ import print_function
-#import imutils
-#import time #for sending midi
-#from collections import deque # for tracking balls
-#import itertools
-#import collections
-#import pyautogui
-#from scipy import ndimage
-#import datetime
-#from music_helper import get_notes_in_scale
-#from video_helper import *
-#import video_helper
-#import trajectory_helper
-#from trajectory_helper import *
-#import calibration_helper
-#from calibration_helper import check_for_keyboard_input
 
-
+# some kind of 'held in a certain position button'. This wasy then inside of things like 
+#   position, we could address the issue of which ball/balls to average to chose what position is to be used
 
 #eventually probably move over to using pandas instead of the dictionary to database everything
 
-#things for tuesday show:
+#event features desired:
 #speed
 #location
 #gather/ungather and/or start/stop
+#apart
 #so far as left and right balls go, if they are close calls, then they should be rounded to left
 #   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
 #   line of the other actual extreme left/right ball, then they themselves should be considered
 #   left/right
 #timed events, events that only happen at certain times
 #triggered events, events are able to make other events active/inactive
-#figure out which software to use, choose song/s, create piece

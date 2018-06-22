@@ -45,33 +45,37 @@ for ball_config in ball_configs:
 			path_point_object[ball_config][path_type][path_phase] = 0
 
 location_instance_numbers = ['0','1','2','3']
-ball_numbers = ['1','2','3']
+number_of_balls = 5
+ball_numbers = []
+for i in range (1,number_of_balls+1):
+	ball_numbers.append(str(i))
+print(ball_numbers)
 location_directions = ['horizontal','vertical']
 location_midi_input_types = ['channel','number']
 location_border_sides = ['left','right','top','bottom']
-cc_location_object = {}
+cc_location_object = [{},{},{},{}]
 for i in range (4):
-	cc_location_object['instance number '+str(i)] = {}
-	cc_location_object['instance number '+str(i)]['balls to average'] = []
-	cc_location_object['instance number '+str(i)]['window size'] = 10
-	cc_location_object['instance number '+str(i)]['location border sides'] = {}
+	#cc_location_object[i] = {}
+	cc_location_object[i]['balls to average'] = []
+	cc_location_object[i]['window size'] = 10
+	cc_location_object[i]['location border sides'] = {}
 	for location_border_side in location_border_sides:
-		cc_location_object['instance number '+str(i)]['location border sides'][location_border_side] = 0
+		cc_location_object[i]['location border sides'][location_border_side] = 0
 	for location_direction in location_directions:
-		cc_location_object['instance number '+str(i)][location_direction] = {}
+		cc_location_object[i][location_direction] = {}
 		for location_midi_input_type in location_midi_input_types:
-			cc_location_object['instance number '+str(i)][location_direction][location_midi_input_type] = 0
+			cc_location_object[i][location_direction][location_midi_input_type] = 0
 
-nt_location_object = {}
+nt_location_object = [{},{},{},{}]
 for i in range (4):
-	nt_location_object['instance number '+str(i)] = {}
-	nt_location_object['instance number '+str(i)]['balls to average'] = []
-	nt_location_object['instance number '+str(i)]['window size'] = 10
-	nt_location_object['instance number '+str(i)]['location border sides'] = {}
+	#nt_location_object[i] = {}
+	nt_location_object[i]['balls to average'] = []
+	nt_location_object[i]['window size'] = 10
+	nt_location_object[i]['location border sides'] = {}
 	for location_border_side in location_border_sides:
-		nt_location_object['instance number '+str(i)]['location border sides'][location_border_side] = 0
+		nt_location_object[i]['location border sides'][location_border_side] = 0
 	for location_midi_input_type in location_midi_input_types:
-		nt_location_object['instance number '+str(i)][location_midi_input_type] = 0
+		nt_location_object[i][location_midi_input_type] = 0
 
 
 using_midi = True
