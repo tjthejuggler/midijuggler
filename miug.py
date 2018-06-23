@@ -22,7 +22,7 @@ def begin_program():
     else:
         set_path_points_widgets_visibility('show')
         set_path_points_config_inputs_visibility('hide')
-        set_location_widgets_visibility('hide')
+        set_ui_location_objs_visibility('hide')
         root.mainloop()
 
 #########################     BEGIN TOP MAIN SECTION     ##########################
@@ -68,41 +68,41 @@ def load_config_dialog(use_default_config):
             point_setups_note_selection_type[i] = lines[first_point_setup_line+1].split(',')[i].rstrip('\n')
             point_setups_input_type[i] = lines[first_point_setup_line+2].split(',')[i].rstrip('\n')
             point_setups_single_line_input[i] = lines[first_point_setup_line+3].split(',')[i].rstrip('\n')
-        first_cc_location_object_line = lines.index('begin cc location object\n')
+        first_cc_location_obj_line = lines.index('begin cc location object\n')
         for i in range (4):
             #todo get rid of empty balls to average
             #   make buttons for define open up windows like the click drag windows in miug_original
             #   make specifics of location control midi signals
             #   figure out speed
             #   check the other todo list
-            cc_location_object[i]['balls to average'] = lines[first_cc_location_object_line+1+(i*10)].rstrip('\n')
-            cc_location_object[i]['balls to average'] = cc_location_object[i]['balls to average'].split(',')
-            cc_location_object[i]['window size'] = lines[first_cc_location_object_line+2+(i*10)].rstrip('\n')
-            cc_location_object[i]['location border sides']['left'] = lines[first_cc_location_object_line+3+(i*10)].rstrip('\n')
-            cc_location_object[i]['location border sides']['right'] = lines[first_cc_location_object_line+4+(i*10)].rstrip('\n')
-            cc_location_object[i]['location border sides']['top'] = lines[first_cc_location_object_line+5+(i*10)].rstrip('\n')
-            cc_location_object[i]['location border sides']['bottom'] = lines[first_cc_location_object_line+6+(i*10)].rstrip('\n')
-            cc_location_object[i]['horizontal']['channel'] = lines[first_cc_location_object_line+7+(i*10)].rstrip('\n')
-            cc_location_object[i]['horizontal']['number'] = lines[first_cc_location_object_line+8+(i*10)].rstrip('\n')
-            cc_location_object[i]['vertical']['channel'] = lines[first_cc_location_object_line+9+(i*10)].rstrip('\n')
-            cc_location_object[i]['vertical']['number'] = lines[first_cc_location_object_line+10+(i*10)].rstrip('\n')
-        first_nt_location_object_line = lines.index('begin nt location object\n')
+            cc_location_obj[i]['balls to average'] = lines[first_cc_location_obj_line+1+(i*10)].rstrip('\n')
+            cc_location_obj[i]['balls to average'] = cc_location_obj[i]['balls to average'].split(',')
+            cc_location_obj[i]['window size'] = lines[first_cc_location_obj_line+2+(i*10)].rstrip('\n')
+            cc_location_obj[i]['location border sides']['left'] = lines[first_cc_location_obj_line+3+(i*10)].rstrip('\n')
+            cc_location_obj[i]['location border sides']['right'] = lines[first_cc_location_obj_line+4+(i*10)].rstrip('\n')
+            cc_location_obj[i]['location border sides']['top'] = lines[first_cc_location_obj_line+5+(i*10)].rstrip('\n')
+            cc_location_obj[i]['location border sides']['bottom'] = lines[first_cc_location_obj_line+6+(i*10)].rstrip('\n')
+            cc_location_obj[i]['horizontal']['channel'] = lines[first_cc_location_obj_line+7+(i*10)].rstrip('\n')
+            cc_location_obj[i]['horizontal']['number'] = lines[first_cc_location_obj_line+8+(i*10)].rstrip('\n')
+            cc_location_obj[i]['vertical']['channel'] = lines[first_cc_location_obj_line+9+(i*10)].rstrip('\n')
+            cc_location_obj[i]['vertical']['number'] = lines[first_cc_location_obj_line+10+(i*10)].rstrip('\n')
+        first_nt_location_obj_line = lines.index('begin nt location object\n')
         for i in range (4):
-            nt_location_object[i]['balls to average'] = lines[first_nt_location_object_line+1+(i*8)].rstrip('\n')
-            nt_location_object[i]['balls to average'] = nt_location_object[i]['balls to average'].split(',')
-            nt_location_object[i]['window size'] = lines[first_nt_location_object_line+2+(i*8)].rstrip('\n')
-            nt_location_object[i]['location border sides']['left'] = lines[first_nt_location_object_line+3+(i*8)].rstrip('\n')
-            nt_location_object[i]['location border sides']['right'] = lines[first_nt_location_object_line+4+(i*8)].rstrip('\n')
-            nt_location_object[i]['location border sides']['top'] = lines[first_nt_location_object_line+5+(i*8)].rstrip('\n')
-            nt_location_object[i]['location border sides']['bottom'] = lines[first_nt_location_object_line+6+(i*8)].rstrip('\n')
-            nt_location_object[i]['channel'] = lines[first_nt_location_object_line+7+(i*8)].rstrip('\n')
-            nt_location_object[i]['number'] = lines[first_nt_location_object_line+8+(i*8)].rstrip('\n')
+            nt_location_obj[i]['balls to average'] = lines[first_nt_location_obj_line+1+(i*8)].rstrip('\n')
+            nt_location_obj[i]['balls to average'] = nt_location_obj[i]['balls to average'].split(',')
+            nt_location_obj[i]['window size'] = lines[first_nt_location_obj_line+2+(i*8)].rstrip('\n')
+            nt_location_obj[i]['location border sides']['left'] = lines[first_nt_location_obj_line+3+(i*8)].rstrip('\n')
+            nt_location_obj[i]['location border sides']['right'] = lines[first_nt_location_obj_line+4+(i*8)].rstrip('\n')
+            nt_location_obj[i]['location border sides']['top'] = lines[first_nt_location_obj_line+5+(i*8)].rstrip('\n')
+            nt_location_obj[i]['location border sides']['bottom'] = lines[first_nt_location_obj_line+6+(i*8)].rstrip('\n')
+            nt_location_obj[i]['channel'] = lines[first_nt_location_obj_line+7+(i*8)].rstrip('\n')
+            nt_location_obj[i]['number'] = lines[first_nt_location_obj_line+8+(i*8)].rstrip('\n')
         if not use_default_config:
             read_text_file.close()
             current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
             selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
             set_path_point_buttons_based_on_selected_ball()
-            set_location_widgets_from_data()
+            set_ui_location_vars_from_data()
             input_type.set(point_setups_input_type[int(current_midi_config_index.get())])
             point_single_line_input_text.set(point_setups_single_line_input[int(current_midi_config_index.get())])
             note_selection_type.set(point_setups_note_selection_type[int(current_midi_config_index.get())])
@@ -134,22 +134,22 @@ def save_config_dialog():
 
     text_in_config_to_save += 'begin cc location object\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(cc_location_object[i]['balls to average']) + '\n'
-        text_in_config_to_save += str(cc_location_object[i]['window size']) + '\n'
+        text_in_config_to_save += ','.join(cc_location_obj[i]['balls to average']) + '\n'
+        text_in_config_to_save += str(cc_location_obj[i]['window size']) + '\n'
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(cc_location_object[i]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(cc_location_obj[i]['location border sides'][location_border_side]) + '\n'
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                text_in_config_to_save += str(cc_location_object[i][location_direction][location_midi_input_type]) + '\n'
+                text_in_config_to_save += str(cc_location_obj[i][location_direction][location_midi_input_type]) + '\n'
 
     text_in_config_to_save += 'begin nt location object\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(nt_location_object[i]['balls to average']) + '\n'
-        text_in_config_to_save += str(nt_location_object[i]['window size']) + '\n'
+        text_in_config_to_save += ','.join(nt_location_obj[i]['balls to average']) + '\n'
+        text_in_config_to_save += str(nt_location_obj[i]['window size']) + '\n'
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(nt_location_object[i]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(nt_location_obj[i]['location border sides'][location_border_side]) + '\n'
         for location_midi_input_type in location_midi_input_types:
-            text_in_config_to_save += str(nt_location_object[i][location_midi_input_type]) + '\n'
+            text_in_config_to_save += str(nt_location_obj[i][location_midi_input_type]) + '\n'
 
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()        
@@ -219,114 +219,114 @@ def set_path_points_widgets_visibility(show_or_hide):
     else:
         set_path_points_config_inputs_visibility('hide')
 
-def set_location_widgets_visibility(show_or_hide):
+def set_ui_location_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
     print('kok')
-    location_widget['cc']['instance label']['instance 0'].place(x=extra+10,y=150) 
-    location_widget['cc']['instance label']['instance 1'].place(x=extra+10,y=215) 
-    location_widget['cc']['instance label']['instance 2'].place(x=extra+10,y=280) 
-    location_widget['cc']['instance label']['instance 3'].place(x=extra+10,y=345) 
-    location_widget['cc']['checkbutton']['instance 0']['ball 1'].place(x=extra+10,y=185)
-    location_widget['cc']['checkbutton']['instance 0']['ball 2'].place(x=extra+80,y=185)
-    location_widget['cc']['checkbutton']['instance 0']['ball 3'].place(x=extra+150,y=185)
-    location_widget['cc']['checkbutton']['instance 1']['ball 1'].place(x=extra+10,y=250)
-    location_widget['cc']['checkbutton']['instance 1']['ball 2'].place(x=extra+80,y=250)
-    location_widget['cc']['checkbutton']['instance 1']['ball 3'].place(x=extra+150,y=250)
-    location_widget['cc']['checkbutton']['instance 2']['ball 1'].place(x=extra+10,y=315)
-    location_widget['cc']['checkbutton']['instance 2']['ball 2'].place(x=extra+80,y=315)
-    location_widget['cc']['checkbutton']['instance 2']['ball 3'].place(x=extra+150,y=315)
-    location_widget['cc']['checkbutton']['instance 3']['ball 1'].place(x=extra+10,y=380)
-    location_widget['cc']['checkbutton']['instance 3']['ball 2'].place(x=extra+80,y=380)
-    location_widget['cc']['checkbutton']['instance 3']['ball 3'].place(x=extra+150,y=380)
-    location_widget['cc']['number of frames entry']['instance 0'].place(x=extra+270,y=170)
-    location_widget['cc']['number of frames entry']['instance 1'].place(x=extra+270,y=235)
-    location_widget['cc']['number of frames entry']['instance 2'].place(x=extra+270,y=300)
-    location_widget['cc']['number of frames entry']['instance 3'].place(x=extra+270,y=365)
-    location_widget['cc']['header label']['horizontal']['main'].place(x=extra+380,y=100)
-    location_widget['cc']['header label']['horizontal']['channel'].place(x=extra+370,y=130)
-    location_widget['cc']['header label']['horizontal']['number'].place(x=extra+440,y=130) 
-    location_widget['cc']['header label']['vertical']['main'].place(x=extra+530,y=100)  
-    location_widget['cc']['header label']['vertical']['channel'].place(x=extra+520,y=130)
-    location_widget['cc']['header label']['vertical']['number'].place(x=extra+590,y=130)
-    location_widget['cc']['midi entry']['instance 0']['horizontal']['channel'].place(x=extra+370,y=170)
-    location_widget['cc']['midi entry']['instance 0']['horizontal']['number'].place(x=extra+440,y=170)
-    location_widget['cc']['midi entry']['instance 0']['vertical']['channel'].place(x=extra+520,y=170)
-    location_widget['cc']['midi entry']['instance 0']['vertical']['number'].place(x=extra+590,y=170)
-    location_widget['cc']['midi entry']['instance 1']['horizontal']['channel'].place(x=extra+370,y=235)
-    location_widget['cc']['midi entry']['instance 1']['horizontal']['number'].place(x=extra+440,y=235)
-    location_widget['cc']['midi entry']['instance 1']['vertical']['channel'].place(x=extra+520,y=235)
-    location_widget['cc']['midi entry']['instance 1']['vertical']['number'].place(x=extra+590,y=235)
-    location_widget['cc']['midi entry']['instance 2']['horizontal']['channel'].place(x=extra+370,y=300)
-    location_widget['cc']['midi entry']['instance 2']['horizontal']['number'].place(x=extra+440,y=300)
-    location_widget['cc']['midi entry']['instance 2']['vertical']['channel'].place(x=extra+520,y=300)
-    location_widget['cc']['midi entry']['instance 2']['vertical']['number'].place(x=extra+590,y=300)
-    location_widget['cc']['midi entry']['instance 3']['horizontal']['channel'].place(x=extra+370,y=365)
-    location_widget['cc']['midi entry']['instance 3']['horizontal']['number'].place(x=extra+440,y=365)
-    location_widget['cc']['midi entry']['instance 3']['vertical']['channel'].place(x=extra+520,y=365)
-    location_widget['cc']['midi entry']['instance 3']['vertical']['number'].place(x=extra+590,y=365)  
-    location_widget['cc']['border entry']['instance 0']['left'].place(x=extra+670,y=170)
-    location_widget['cc']['border entry']['instance 0']['right'].place(x=extra+730,y=170)
-    location_widget['cc']['border entry']['instance 0']['top'].place(x=extra+790,y=170)
-    location_widget['cc']['border entry']['instance 0']['bottom'].place(x=extra+850,y=170)
-    location_widget['cc']['border entry']['instance 1']['left'].place(x=extra+670,y=235)
-    location_widget['cc']['border entry']['instance 1']['right'].place(x=extra+730,y=235)
-    location_widget['cc']['border entry']['instance 1']['top'].place(x=extra+790,y=235)
-    location_widget['cc']['border entry']['instance 1']['bottom'].place(x=extra+850,y=235)
-    location_widget['cc']['border entry']['instance 2']['left'].place(x=extra+670,y=300)
-    location_widget['cc']['border entry']['instance 2']['right'].place(x=extra+730,y=300)
-    location_widget['cc']['border entry']['instance 2']['top'].place(x=extra+790,y=300)
-    location_widget['cc']['border entry']['instance 2']['bottom'].place(x=extra+850,y=300)
-    location_widget['cc']['border entry']['instance 3']['left'].place(x=extra+670,y=365)
-    location_widget['cc']['border entry']['instance 3']['right'].place(x=extra+730,y=365)
-    location_widget['cc']['border entry']['instance 3']['top'].place(x=extra+790,y=365)
-    location_widget['cc']['border entry']['instance 3']['bottom'].place(x=extra+850,y=365)    
+    ui_location_obj['cc']['0']['instance label'].place(x=extra+10,y=150) 
+    ui_location_obj['cc']['1']['instance label'].place(x=extra+10,y=215) 
+    ui_location_obj['cc']['2']['instance label'].place(x=extra+10,y=280) 
+    ui_location_obj['cc']['3']['instance label'].place(x=extra+10,y=345) 
+    ui_location_obj['cc']['0']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=185)
+    ui_location_obj['cc']['0']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=185)
+    ui_location_obj['cc']['0']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=185)
+    ui_location_obj['cc']['1']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=250)
+    ui_location_obj['cc']['1']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=250)
+    ui_location_obj['cc']['1']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=250)
+    ui_location_obj['cc']['2']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=315)
+    ui_location_obj['cc']['2']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=315)
+    ui_location_obj['cc']['2']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=315)
+    ui_location_obj['cc']['3']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=380)
+    ui_location_obj['cc']['3']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=380)
+    ui_location_obj['cc']['3']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=380)
+    ui_location_obj['cc']['0']['num frames']['widget'].place(x=extra+270,y=170)
+    ui_location_obj['cc']['1']['num frames']['widget'].place(x=extra+270,y=235)
+    ui_location_obj['cc']['2']['num frames']['widget'].place(x=extra+270,y=300)
+    ui_location_obj['cc']['3']['num frames']['widget'].place(x=extra+270,y=365)
+    ui_location_obj['cc']['header label']['horizontal']['main'].place(x=extra+380,y=100)
+    ui_location_obj['cc']['header label']['horizontal']['channel'].place(x=extra+370,y=130)
+    ui_location_obj['cc']['header label']['horizontal']['number'].place(x=extra+440,y=130) 
+    ui_location_obj['cc']['header label']['vertical']['main'].place(x=extra+530,y=100)  
+    ui_location_obj['cc']['header label']['vertical']['channel'].place(x=extra+520,y=130)
+    ui_location_obj['cc']['header label']['vertical']['number'].place(x=extra+590,y=130)
+    ui_location_obj['cc']['0']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=170)
+    ui_location_obj['cc']['0']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=170)
+    ui_location_obj['cc']['0']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=170)
+    ui_location_obj['cc']['0']['midi']['vertical']['number']['widget'].place(x=extra+590,y=170)
+    ui_location_obj['cc']['1']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=235)
+    ui_location_obj['cc']['1']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=235)
+    ui_location_obj['cc']['1']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=235)
+    ui_location_obj['cc']['1']['midi']['vertical']['number']['widget'].place(x=extra+590,y=235)
+    ui_location_obj['cc']['2']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=300)
+    ui_location_obj['cc']['2']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=300)
+    ui_location_obj['cc']['2']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=300)
+    ui_location_obj['cc']['2']['midi']['vertical']['number']['widget'].place(x=extra+590,y=300)
+    ui_location_obj['cc']['3']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=365)
+    ui_location_obj['cc']['3']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=365)
+    ui_location_obj['cc']['3']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=365)
+    ui_location_obj['cc']['3']['midi']['vertical']['number']['widget'].place(x=extra+590,y=365)  
+    ui_location_obj['cc']['0']['border']['left']['widget'].place(x=extra+670,y=170)
+    ui_location_obj['cc']['0']['border']['right']['widget'].place(x=extra+730,y=170)
+    ui_location_obj['cc']['0']['border']['top']['widget'].place(x=extra+790,y=170)
+    ui_location_obj['cc']['0']['border']['bottom']['widget'].place(x=extra+850,y=170)
+    ui_location_obj['cc']['1']['border']['left']['widget'].place(x=extra+670,y=235)
+    ui_location_obj['cc']['1']['border']['right']['widget'].place(x=extra+730,y=235)
+    ui_location_obj['cc']['1']['border']['top']['widget'].place(x=extra+790,y=235)
+    ui_location_obj['cc']['1']['border']['bottom']['widget'].place(x=extra+850,y=235)
+    ui_location_obj['cc']['2']['border']['left']['widget'].place(x=extra+670,y=300)
+    ui_location_obj['cc']['2']['border']['right']['widget'].place(x=extra+730,y=300)
+    ui_location_obj['cc']['2']['border']['top']['widget'].place(x=extra+790,y=300)
+    ui_location_obj['cc']['2']['border']['bottom']['widget'].place(x=extra+850,y=300)
+    ui_location_obj['cc']['3']['border']['left']['widget'].place(x=extra+670,y=365)
+    ui_location_obj['cc']['3']['border']['right']['widget'].place(x=extra+730,y=365)
+    ui_location_obj['cc']['3']['border']['top']['widget'].place(x=extra+790,y=365)
+    ui_location_obj['cc']['3']['border']['bottom']['widget'].place(x=extra+850,y=365)    
 
-    location_widget['nt']['instance label']['instance 0'].place(x=extra+10,y=440) 
-    location_widget['nt']['instance label']['instance 1'].place(x=extra+10,y=505) 
-    location_widget['nt']['instance label']['instance 2'].place(x=extra+10,y=570) 
-    location_widget['nt']['instance label']['instance 3'].place(x=extra+10,y=635) 
-    location_widget['nt']['checkbutton']['instance 0']['ball 1'].place(x=extra+10,y=475)
-    location_widget['nt']['checkbutton']['instance 0']['ball 2'].place(x=extra+80,y=475)
-    location_widget['nt']['checkbutton']['instance 0']['ball 3'].place(x=extra+150,y=475)
-    location_widget['nt']['checkbutton']['instance 1']['ball 1'].place(x=extra+10,y=540)
-    location_widget['nt']['checkbutton']['instance 1']['ball 2'].place(x=extra+80,y=540)
-    location_widget['nt']['checkbutton']['instance 1']['ball 3'].place(x=extra+150,y=540)
-    location_widget['nt']['checkbutton']['instance 2']['ball 1'].place(x=extra+10,y=605)
-    location_widget['nt']['checkbutton']['instance 2']['ball 2'].place(x=extra+80,y=605)
-    location_widget['nt']['checkbutton']['instance 2']['ball 3'].place(x=extra+150,y=605)
-    location_widget['nt']['checkbutton']['instance 3']['ball 1'].place(x=extra+10,y=670)
-    location_widget['nt']['checkbutton']['instance 3']['ball 2'].place(x=extra+80,y=670)
-    location_widget['nt']['checkbutton']['instance 3']['ball 3'].place(x=extra+150,y=670)
-    location_widget['nt']['number of frames entry']['instance 0'].place(x=extra+270,y=460)
-    location_widget['nt']['number of frames entry']['instance 1'].place(x=extra+270,y=525)
-    location_widget['nt']['number of frames entry']['instance 2'].place(x=extra+270,y=595)
-    location_widget['nt']['number of frames entry']['instance 3'].place(x=extra+270,y=660)
-    location_widget['nt']['midi entry']['instance 0']['channel'].place(x=extra+370,y=460)
-    location_widget['nt']['midi entry']['instance 0']['number'].place(x=extra+440,y=460)
-    location_widget['nt']['midi entry']['instance 1']['channel'].place(x=extra+370,y=525)
-    location_widget['nt']['midi entry']['instance 1']['number'].place(x=extra+440,y=525)
-    location_widget['nt']['midi entry']['instance 2']['channel'].place(x=extra+370,y=595)
-    location_widget['nt']['midi entry']['instance 2']['number'].place(x=extra+440,y=595)
-    location_widget['nt']['midi entry']['instance 3']['channel'].place(x=extra+370,y=660)
-    location_widget['nt']['midi entry']['instance 3']['number'].place(x=extra+440,y=660)
-    location_widget['nt']['border entry']['instance 0']['left'].place(x=extra+670,y=460)
-    location_widget['nt']['border entry']['instance 0']['right'].place(x=extra+730,y=460)
-    location_widget['nt']['border entry']['instance 0']['top'].place(x=extra+790,y=460)
-    location_widget['nt']['border entry']['instance 0']['bottom'].place(x=extra+850,y=460)
-    location_widget['nt']['border entry']['instance 1']['left'].place(x=extra+670,y=525)
-    location_widget['nt']['border entry']['instance 1']['right'].place(x=extra+730,y=525)
-    location_widget['nt']['border entry']['instance 1']['top'].place(x=extra+790,y=525)
-    location_widget['nt']['border entry']['instance 1']['bottom'].place(x=extra+850,y=525)
-    location_widget['nt']['border entry']['instance 2']['left'].place(x=extra+670,y=595)
-    location_widget['nt']['border entry']['instance 2']['right'].place(x=extra+730,y=595)
-    location_widget['nt']['border entry']['instance 2']['top'].place(x=extra+790,y=595)
-    location_widget['nt']['border entry']['instance 2']['bottom'].place(x=extra+850,y=595)
-    location_widget['nt']['border entry']['instance 3']['left'].place(x=extra+670,y=660)
-    location_widget['nt']['border entry']['instance 3']['right'].place(x=extra+730,y=660)
-    location_widget['nt']['border entry']['instance 3']['top'].place(x=extra+790,y=660)
-    location_widget['nt']['border entry']['instance 3']['bottom'].place(x=extra+850,y=660)
+    ui_location_obj['nt']['0']['instance label'].place(x=extra+10,y=440) 
+    ui_location_obj['nt']['1']['instance label'].place(x=extra+10,y=505) 
+    ui_location_obj['nt']['2']['instance label'].place(x=extra+10,y=570) 
+    ui_location_obj['nt']['3']['instance label'].place(x=extra+10,y=635) 
+    ui_location_obj['nt']['0']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=475)
+    ui_location_obj['nt']['0']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=475)
+    ui_location_obj['nt']['0']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=475)
+    ui_location_obj['nt']['1']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=540)
+    ui_location_obj['nt']['1']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=540)
+    ui_location_obj['nt']['1']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=540)
+    ui_location_obj['nt']['2']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=605)
+    ui_location_obj['nt']['2']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=605)
+    ui_location_obj['nt']['2']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=605)
+    ui_location_obj['nt']['3']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=670)
+    ui_location_obj['nt']['3']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=670)
+    ui_location_obj['nt']['3']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=670)
+    ui_location_obj['nt']['0']['num frames']['widget'].place(x=extra+270,y=460)
+    ui_location_obj['nt']['1']['num frames']['widget'].place(x=extra+270,y=525)
+    ui_location_obj['nt']['2']['num frames']['widget'].place(x=extra+270,y=595)
+    ui_location_obj['nt']['3']['num frames']['widget'].place(x=extra+270,y=660)
+    ui_location_obj['nt']['0']['midi']['channel']['widget'].place(x=extra+370,y=460)
+    ui_location_obj['nt']['0']['midi']['number']['widget'].place(x=extra+440,y=460)
+    ui_location_obj['nt']['1']['midi']['channel']['widget'].place(x=extra+370,y=525)
+    ui_location_obj['nt']['1']['midi']['number']['widget'].place(x=extra+440,y=525)
+    ui_location_obj['nt']['2']['midi']['channel']['widget'].place(x=extra+370,y=595)
+    ui_location_obj['nt']['2']['midi']['number']['widget'].place(x=extra+440,y=595)
+    ui_location_obj['nt']['3']['midi']['channel']['widget'].place(x=extra+370,y=660)
+    ui_location_obj['nt']['3']['midi']['number']['widget'].place(x=extra+440,y=660)
+    ui_location_obj['nt']['0']['border']['left']['widget'].place(x=extra+670,y=460)
+    ui_location_obj['nt']['0']['border']['right']['widget'].place(x=extra+730,y=460)
+    ui_location_obj['nt']['0']['border']['top']['widget'].place(x=extra+790,y=460)
+    ui_location_obj['nt']['0']['border']['bottom']['widget'].place(x=extra+850,y=460)
+    ui_location_obj['nt']['1']['border']['left']['widget'].place(x=extra+670,y=525)
+    ui_location_obj['nt']['1']['border']['right']['widget'].place(x=extra+730,y=525)
+    ui_location_obj['nt']['1']['border']['top']['widget'].place(x=extra+790,y=525)
+    ui_location_obj['nt']['1']['border']['bottom']['widget'].place(x=extra+850,y=525)
+    ui_location_obj['nt']['2']['border']['left']['widget'].place(x=extra+670,y=595)
+    ui_location_obj['nt']['2']['border']['right']['widget'].place(x=extra+730,y=595)
+    ui_location_obj['nt']['2']['border']['top']['widget'].place(x=extra+790,y=595)
+    ui_location_obj['nt']['2']['border']['bottom']['widget'].place(x=extra+850,y=595)
+    ui_location_obj['nt']['3']['border']['left']['widget'].place(x=extra+670,y=660)
+    ui_location_obj['nt']['3']['border']['right']['widget'].place(x=extra+730,y=660)
+    ui_location_obj['nt']['3']['border']['top']['widget'].place(x=extra+790,y=660)
+    ui_location_obj['nt']['3']['border']['bottom']['widget'].place(x=extra+850,y=660)
 
 def set_path_points_config_inputs_visibility(show_or_hide):
     extra = 0
@@ -345,15 +345,15 @@ def set_path_points_config_inputs_visibility(show_or_hide):
 def selected_event_type_changed(*args):
     if selected_event_type.get() == 'path points':
         set_path_points_widgets_visibility('show')
-        set_location_widgets_visibility('hide')
+        set_ui_location_objs_visibility('hide')
         set_speed_widgets_visibility('hide')
     if selected_event_type.get() == 'location':
         set_path_points_widgets_visibility('hide')
-        set_location_widgets_visibility('show')
+        set_ui_location_objs_visibility('show')
         set_speed_widgets_visibility('hide')
     if selected_event_type.get() == 'speed':
         set_path_points_widgets_visibility('hide')
-        set_location_widgets_visibility('hide')
+        set_ui_location_objs_visibility('hide')
         set_speed_widgets_visibility('show')
 
 #########################     END TOP MAIN SECTION     ##########################
@@ -478,24 +478,24 @@ def selected_all_midi_configs_optionmenu_index_changed(path_phase):
         path_point_object[current_path_point_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
     current_midi_config_index.set(index_for_all_path_phase_midi_configs)
 
-def set_location_widgets_from_data():
-    for location_instance_number in location_instance_numbers:
+def set_ui_location_vars_from_data():
+    for inst_num in location_inst_nums:
         for ball_number in ball_numbers:
-            location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].set(ball_number in cc_location_object[location_instance_number]['balls to average'])
-        location_variable['cc']['number of frames entry']['instance '+location_instance_number].set(cc_location_object[location_instance_number]['window size'])
+            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in cc_location_obj['balls to average'])
+        ui_location_obj['cc'][inst_num]['num frames']['var'].set(cc_location_obj['window size'])
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type].set(cc_location_object[location_instance_number][location_direction][location_midi_input_type])
+                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(cc_location_obj[location_direction][location_midi_input_type])
         for location_border_side in location_border_sides:
-            location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].set(cc_location_object[location_instance_number]['location border sides'][location_border_side])
-    for location_instance_number in location_instance_numbers:
+            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].set(cc_location_obj['location border sides'][location_border_side])
+    for inst_num in location_inst_nums:
         for ball_number in ball_numbers:    
-            location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].set(ball_number in nt_location_object[location_instance_number]['balls to average'])
-        location_variable['nt']['number of frames entry']['instance '+location_instance_number].set(nt_location_object[location_instance_number]['window size'])
+            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in nt_location_obj['balls to average'])
+        ui_location_obj['nt'][inst_num]['num frames']['var'].set(nt_location_obj['window size'])
         for location_midi_input_type in location_midi_input_types:
-            location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type].set(nt_location_object[location_instance_number][location_midi_input_type])
+            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].set(nt_location_obj[location_midi_input_type])
         for location_border_side in location_border_sides:
-            location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].set(nt_location_object[location_instance_number]['location border sides'][location_border_side])
+            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].set(nt_location_obj['location border sides'][location_border_side])
 
 def set_path_point_buttons_based_on_selected_ball():
     for path_type in path_types:
@@ -539,61 +539,62 @@ def selected_config_midi_channel_changed(*args):
 
 #########################     BEGIN LOCATION SECTION     ##########################
 
-def location_cc_checkbutton_changed(checked,instance_number,ball_number):
+def location_cc_checkbutton_changed(checked,inst_num,ball_number):
     print('checked')
     print(checked)
     print('ball_number')
     print(ball_number)
-    print('instance_number')
-    print(instance_number)
+    print('inst_num')
+    print(inst_num)
     if checked:
-        if not ball_number in cc_location_object[int(instance_number)]['balls to average']:
-            cc_location_object[int(instance_number)]['balls to average'].append(ball_number)
+        if not ball_number in cc_location_obj[int(inst_num)]['balls to average']:
+            cc_location_obj[int(inst_num)]['balls to average'].append(ball_number)
     else:
-        if ball_number in cc_location_object[int(instance_number)]['balls to average']:
-            cc_location_object[int(instance_number)]['balls to average'].remove(ball_number)
-    print(cc_location_object[int(instance_number)]['balls to average'])
+        if ball_number in cc_location_obj[int(inst_num)]['balls to average']:
+            cc_location_obj[int(inst_num)]['balls to average'].remove(ball_number)
+    print(cc_location_obj[int(inst_num)]['balls to average'])
 
-def location_nt_checkbutton_changed(checked,instance_number,ball_number):
+def location_nt_checkbutton_changed(checked,inst_num,ball_number):
     print('checked')
     print(checked)
     print('ball_number')
     print(ball_number)
-    print('instance_number')
-    print(instance_number)
+    print('inst_num')
+    print(inst_num)
     if checked:
-        if not ball_number in nt_location_object[instance_number]['balls to average']:
-            nt_location_object[instance_number]['balls to average'].append(ball_number)
+        if not ball_number in nt_location_obj[int(inst_num)]['balls to average']:
+            nt_location_obj[int(inst_num)]['balls to average'].append(ball_number)
     else:
-        if ball_number in nt_location_object[instance_number]['balls to average']:
-            nt_location_object[instance_number]['balls to average'].remove(ball_number)
-    print(nt_location_object[instance_number]['balls to average'])
+        if ball_number in nt_location_obj[int(inst_num)]['balls to average']:
+            nt_location_obj[int(inst_num)]['balls to average'].remove(ball_number)
+    print(nt_location_obj[int(inst_num)]['balls to average'])
 
-def location_cc_number_of_frames_changed(entry_text,instance_number):
-    print(entry_text)
-    print(instance_number)
-    cc_location_object[instance_number]['window size'] = entry_text
+def location_number_of_frames_changed(location_type,entry_text,inst_num):
+    print('location_type '+location_type)
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    if location_type == 'cc':
+        cc_location_obj[inst_num]['window size'] = entry_text
+    if location_type == 'nt':
+        nt_location_obj[inst_num]['window size'] = entry_text
 
-def location_nt_number_of_frames_changed(entry_text,instance_number):
-    print(entry_text)
-    print(instance_number)
-    nt_location_object[instance_number]['window size'] = entry_text
+def location_cc_channel_or_number_changed(entry_text,inst_num,location_direction,location_midi_input_type):
+    print(inst_num)
+    cc_location_obj[inst_num][location_midi_input_type] = entry_text
 
-def location_cc_channel_or_number_changed(entry_text,instance_number,location_direction,location_midi_input_type):
-    print(instance_number)
-    cc_location_object[instance_number][location_direction][location_midi_input_type] = entry_text
+def location_nt_channel_or_number_changed(entry_text,inst_num,location_midi_input_type):
+    print(inst_num)
+    nt_location_obj[inst_num][location_midi_input_type] = entry_text
 
-def location_nt_channel_or_number_changed(entry_text,instance_number,location_midi_input_type):
-    print(instance_number)
-    nt_location_object[instance_number][location_midi_input_type] = entry_text
-
-def location_cc_border_changed(entry_text,instance_number,location_border_side):
-    print(location_border_side)
-    cc_location_object[instance_number]['location border sides'][location_border_side] = entry_text
-
-def location_nt_border_changed(entry_text,instance_number,location_border_side):
-    print(location_border_side)
-    nt_location_object[instance_number]['location border sides'][location_border_side] = entry_text
+def location_border_changed(location_type,entry_text,inst_num,location_border_side):
+    print('location_type '+location_type)
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    print('location_border_side '+location_border_side)
+    if location_type == 'cc':
+        cc_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
+    if location_type == 'nt':
+        nt_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
 
 #########################     END LOCATION SECTION     ##########################
 
@@ -728,165 +729,131 @@ if use_user_interface:
 
 ###########################  BEGIN LOCATION SECTION  ######################
 
-    location_widget = {}
-    location_variable = {}
-    location_widget['cc'] = {}
-    location_widget['cc']['header label'] = {}
+    ui_location_obj = {}
+    ui_location_obj['cc'] = {}
+    ui_location_obj['cc']['header label'] = {}
     for location_direction in location_directions:
-        location_widget['cc']['header label'][location_direction] = {}        
-        location_widget['cc']['header label'][location_direction]['main'] = ttk.Label(root, text=location_direction,font=('Courier', 10))
-        location_widget['cc']['header label'][location_direction]['channel'] = ttk.Label(root, text='Channel',font=('Courier', 8))
-        location_widget['cc']['header label'][location_direction]['number'] = ttk.Label(root, text='Number',font=('Courier', 8))
-   
-    location_widget['cc']['instance label'] = {}
-    location_widget['cc']['checkbutton'] = {}
-    location_widget['cc']['number of frames entry'] = {}
-    location_widget['cc']['midi entry'] = {}
-    location_widget['cc']['border entry'] = {}  
-    location_variable['cc'] = {}
-    location_variable['cc']['checkbutton'] = {}
-    location_variable['cc']['number of frames entry'] = {}
-    location_variable['cc']['midi entry'] = {}
-    location_variable['cc']['border entry'] = {}    
-    for location_instance_number in location_instance_numbers:
-        location_widget['cc']['instance label']['instance '+location_instance_number] = ttk.Label(root, text='CC Location '+location_instance_number,font=('Courier', 16)) 
-        location_widget['cc']['checkbutton']['instance '+location_instance_number] = {}
-        location_variable['cc']['checkbutton']['instance '+location_instance_number] = {}
-        for ball_number in ball_numbers:
-            location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = IntVar()
-            this_location_variable = location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get()
-            location_widget['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number], command=lambda this_location_variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number],location_instance_number=location_instance_number,ball_number=ball_number: location_cc_checkbutton_changed(this_location_variable.get,location_instance_number,ball_number))            
-        location_variable['cc']['number of frames entry']['instance '+location_instance_number] = StringVar(root)
-        location_variable['cc']['number of frames entry']['instance '+location_instance_number].set(10)
-        this_variable = location_variable['cc']['number of frames entry']['instance '+location_instance_number].get()
-        location_variable['cc']['number of frames entry']['instance '+location_instance_number].trace('w', lambda this_variable=this_variable,location_instance_number=location_instance_number: location_cc_number_of_frames_changed(this_variable,location_instance_number))
-        location_widget['cc']['number of frames entry']['instance '+location_instance_number] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['number of frames entry']['instance '+location_instance_number])
+        ui_location_obj['cc']['header label'][location_direction] = {}        
+        ui_location_obj['cc']['header label'][location_direction]['main'] = ttk.Label(
+            root, text=location_direction,font=('Courier', 10))
+        ui_location_obj['cc']['header label'][location_direction]['channel'] = ttk.Label(
+            root, text='Channel',font=('Courier', 8))
+        ui_location_obj['cc']['header label'][location_direction]['number'] = ttk.Label(
+            root, text='Number',font=('Courier', 8))
 
-        location_variable['cc']['midi entry']['instance '+location_instance_number] = {}
-        location_widget['cc']['midi entry']['instance '+location_instance_number] = {}
+    for inst_num in location_inst_nums:
+        ui_location_obj['cc'][inst_num] = {}
+        ui_location_obj['cc'][inst_num]['instance label'] = {}
+        ui_location_obj['cc'][inst_num]['checkbutton'] = {}
+        ui_location_obj['cc'][inst_num]['num frames'] = {}      
+        ui_location_obj['cc'][inst_num]['midi'] = {}
+        ui_location_obj['cc'][inst_num]['border'] = {}         
+        ui_location_obj['cc'][inst_num]['instance label'] = ttk.Label(
+            root, text='CC Location '+inst_num,font=('Courier', 16)) 
+        ui_location_obj['cc'][inst_num]['checkbutton'] = {}
+        for ball_number in ball_numbers:
+            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number] = {}
+            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+            this_ui_location_obj = ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].get()
+            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+                root, text='Ball '+ball_number, variable= \
+                ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                command=lambda this_ui_location_obj= \
+                ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                inst_num=inst_num,ball_number=ball_number: location_cc_checkbutton_changed(
+                    this_ui_location_obj.get(),inst_num,ball_number))
+        ui_location_obj['cc'][inst_num]['num frames'] = {}            
+        ui_location_obj['cc'][inst_num]['num frames']['var'] = StringVar(root)
+        ui_location_obj['cc'][inst_num]['num frames']['var'].set(10)
+
+        this_variable = ui_location_obj['cc'][inst_num]['num frames']['var']
+        ui_location_obj['cc'][inst_num]['num frames']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            location_number_of_frames_changed('cc',this_variable.get(),inst_num))
+
+        ui_location_obj['cc'][inst_num]['num frames']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['num frames']['var'])
+        ui_location_obj['cc'][inst_num]['midi'] = {}
         for location_direction in location_directions:
-            location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction] = {}
-            location_widget['cc']['midi entry']['instance '+location_instance_number][location_direction] = {}
+            ui_location_obj['cc'][inst_num]['midi'][location_direction] = {}
             for location_midi_input_type in location_midi_input_types:
-                location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type] = StringVar(root)
-                #location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type].get(),location_instance_number,location_direction,location_midi_input_type))
-                location_widget['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['midi entry']['instance '+location_instance_number][location_direction][location_midi_input_type])
-
-        location_widget['cc']['border entry']['instance '+location_instance_number] = {}
-        location_variable['cc']['border entry']['instance '+location_instance_number] = {}
+                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type] = {}
+                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'] = StringVar(root)
+                this_variable = ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var']
+                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].trace(
+                    'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
+                    location_midi_input_type=location_midi_input_type: location_cc_channel_or_number_changed(
+                    ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type].get(),
+                    inst_num,location_direction,location_midi_input_type))
+                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
+                ttk.Entry(root, width = 4,textvariable= \
+                    ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
+        ui_location_obj['cc'][inst_num]['border'] = {}
         for location_border_side in location_border_sides:
-            location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side] = StringVar(root)
-            #location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
-            location_widget['cc']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side])
-
-    '''location_variable['cc']['number of frames entry']['instance 0'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 0'].get(),0))
-    location_variable['cc']['number of frames entry']['instance 1'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 1'].get(),1))
-    location_variable['cc']['number of frames entry']['instance 2'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 2'].get(),2))
-    location_variable['cc']['number of frames entry']['instance 3'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 3'].get(),3))
-'''
-    location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].get(),0,'horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].get(),0,'horizontal','number'))
-    location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].get(),0,'vertical','channel'))
-    location_variable['cc']['midi entry']['instance 0']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['number'].get(),0,'vertical','number'))
-    location_variable['cc']['midi entry']['instance 1']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['horizontal']['channel'].get(),1,'horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 1']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['horizontal']['number'].get(),1,'horizontal','number'))
-    location_variable['cc']['midi entry']['instance 1']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['vertical']['channel'].get(),1,'vertical','channel'))
-    location_variable['cc']['midi entry']['instance 1']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 1']['vertical']['number'].get(),1,'vertical','number'))
-    location_variable['cc']['midi entry']['instance 2']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['horizontal']['channel'].get(),2,'horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 2']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['horizontal']['number'].get(),2,'horizontal','number'))
-    location_variable['cc']['midi entry']['instance 2']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['vertical']['channel'].get(),2,'vertical','channel'))
-    location_variable['cc']['midi entry']['instance 2']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 2']['vertical']['number'].get(),2,'vertical','number'))
-    location_variable['cc']['midi entry']['instance 3']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['horizontal']['channel'].get(),3,'horizontal','channel'))
-    location_variable['cc']['midi entry']['instance 3']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['horizontal']['number'].get(),3,'horizontal','number'))
-    location_variable['cc']['midi entry']['instance 3']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['vertical']['channel'].get(),3,'vertical','channel'))
-    location_variable['cc']['midi entry']['instance 3']['vertical']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 3']['vertical']['number'].get(),3,'vertical','number'))
-
-    location_variable['cc']['border entry']['instance 0']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['left'].get(),0,'left'))
-    location_variable['cc']['border entry']['instance 0']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['right'].get(),0,'right'))
-    location_variable['cc']['border entry']['instance 0']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['top'].get(),0,'top'))
-    location_variable['cc']['border entry']['instance 0']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 0']['bottom'].get(),0,'bottom'))
-    location_variable['cc']['border entry']['instance 1']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['left'].get(),1,'left'))
-    location_variable['cc']['border entry']['instance 1']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['right'].get(),1,'right'))
-    location_variable['cc']['border entry']['instance 1']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['top'].get(),1,'top'))
-    location_variable['cc']['border entry']['instance 1']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 1']['bottom'].get(),1,'bottom'))
-    location_variable['cc']['border entry']['instance 2']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['left'].get(),2,'left'))
-    location_variable['cc']['border entry']['instance 2']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['right'].get(),2,'right'))
-    location_variable['cc']['border entry']['instance 2']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['top'].get(),2,'top'))
-    location_variable['cc']['border entry']['instance 2']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 2']['bottom'].get(),2,'bottom'))
-    location_variable['cc']['border entry']['instance 3']['left'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['left'].get(),3,'left'))
-    location_variable['cc']['border entry']['instance 3']['right'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['right'].get(),3,'right'))
-    location_variable['cc']['border entry']['instance 3']['top'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['top'].get(),3,'top'))
-    location_variable['cc']['border entry']['instance 3']['bottom'].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance 3']['bottom'].get(),3,'bottom'))
-
-    location_widget['nt'] = {}
-    location_widget['nt']['header label'] = {}
-    location_widget['nt']['instance label'] = {}
-    location_widget['nt']['checkbutton'] = {}
-    location_widget['nt']['number of frames entry'] = {}
-    location_widget['nt']['midi entry'] = {}
-    location_widget['nt']['border entry'] = {}
-    location_variable['nt'] = {}
-    location_variable['nt']['checkbutton'] = {}
-    location_variable['nt']['number of frames entry'] = {}
-    location_variable['nt']['midi entry'] = {}
-    location_variable['nt']['border entry'] = {}    
-    for location_instance_number in location_instance_numbers:
-        location_widget['nt']['instance label']['instance '+location_instance_number] = ttk.Label(root, text='NT Location '+location_instance_number,font=('Courier', 16)) 
-        location_widget['nt']['checkbutton']['instance '+location_instance_number] = {}
-        location_variable['nt']['checkbutton']['instance '+location_instance_number] = {}
+            ui_location_obj['cc'][inst_num]['border'][location_border_side] = {}
+            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
+            this_variable = ui_location_obj['cc'][inst_num]['border'][location_border_side]['var']
+            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].trace(
+                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
+                location_border_changed('cc',this_variable.get(),inst_num,location_border_side))
+            ui_location_obj['cc'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
+                root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'])
+    
+    ui_location_obj['nt'] = {}
+    for inst_num in location_inst_nums:
+        ui_location_obj['nt'][inst_num] = {}
+        ui_location_obj['nt'][inst_num]['header label'] = {}
+        ui_location_obj['nt'][inst_num]['instance label'] = {}
+        ui_location_obj['nt'][inst_num]['checkbutton'] = {}
+        ui_location_obj['nt'][inst_num]['num frames'] = {}
+        ui_location_obj['nt'][inst_num]['midi'] = {}
+        ui_location_obj['nt'][inst_num]['midi']['var'] = {}
+        ui_location_obj['nt'][inst_num]['border'] = {}
+        ui_location_obj['nt'][inst_num]['instance label'] = ttk.Label(root, text='NT Location '+inst_num,font=('Courier', 16)) 
+        ui_location_obj['nt'][inst_num]['checkbutton'] = {}
         for ball_number in ball_numbers:
-            location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = IntVar()
-            this_location_variable = location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get()
-            location_widget['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number], command=lambda this_location_variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number],location_instance_number=location_instance_number,ball_number=ball_number: location_nt_checkbutton_changed(this_location_variable.get,location_instance_number,ball_number))  
-        location_variable['nt']['number of frames entry']['instance '+location_instance_number] = StringVar(root)
-        location_variable['nt']['number of frames entry']['instance '+location_instance_number].set(10)
-        #location_variable['nt']['number of frames entry']['instance '+location_instance_number].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance '+location_instance_number].get(),location_instance_number))
-        location_widget['nt']['number of frames entry']['instance '+location_instance_number] = ttk.Entry(root, width = 4,textvariable=location_variable['nt']['number of frames entry']['instance '+location_instance_number])    
+            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number] = {}
+            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+            this_ui_location_obj = ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].get()
+            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+                root, text='Ball '+ball_number, \
+                variable=ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                command=lambda this_ui_location_obj= \
+                ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                inst_num=inst_num,ball_number=ball_number: location_nt_checkbutton_changed(
+                    this_ui_location_obj.get(),inst_num,ball_number))
+        ui_location_obj['nt'][inst_num]['num frames'] = {}              
+        ui_location_obj['nt'][inst_num]['num frames']['var'] = StringVar(root)
+        ui_location_obj['nt'][inst_num]['num frames']['var'].set(10)
+        this_variable = ui_location_obj['nt'][inst_num]['num frames']['var']
+        ui_location_obj['nt'][inst_num]['num frames']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            location_number_of_frames_changed('nt',this_variable.get(),inst_num))
+        ui_location_obj['nt'][inst_num]['num frames']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['num frames']['var'])    
         
-        location_variable['nt']['midi entry']['instance '+location_instance_number] = {}
-        location_widget['nt']['midi entry']['instance '+location_instance_number] = {}
+        ui_location_obj['nt'][inst_num]['midi'] = {}
         for location_midi_input_type in location_midi_input_types:
-            location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type] = StringVar(root)
-            #location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type].get(),location_instance_number,location_direction,location_midi_input_type))
-            location_widget['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type] = ttk.Entry(root, width = 4,textvariable=location_variable['nt']['midi entry']['instance '+location_instance_number][location_midi_input_type])
-
-        location_widget['nt']['border entry']['instance '+location_instance_number] = {}
-        location_variable['nt']['border entry']['instance '+location_instance_number] = {}
+            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type] = {}
+            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
+            this_variable = ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var']
+            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].trace(
+                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
+                location_midi_input_type = location_midi_input_type: \
+                location_nt_channel_or_number_changed(this_variable,inst_num,location_midi_input_type))
+            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
+                root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'])
+        ui_location_obj['nt'][inst_num]['border'] = {}
         for location_border_side in location_border_sides:
-            location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side] = StringVar(root)
-            #location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
-            location_widget['nt']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side])
+            ui_location_obj['nt'][inst_num]['border'][location_border_side] = {}
+            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
+            this_variable = ui_location_obj['nt'][inst_num]['border'][location_border_side]['var']
+            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].trace(
+                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
+                location_border_changed('nt',this_variable.get(),inst_num,location_border_side))
+            ui_location_obj['nt'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
+                root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'])
 
-    location_variable['nt']['number of frames entry']['instance 0'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 0'].get(),0))
-    location_variable['nt']['number of frames entry']['instance 1'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 1'].get(),1))
-    location_variable['nt']['number of frames entry']['instance 2'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 2'].get(),2))
-    location_variable['nt']['number of frames entry']['instance 3'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 3'].get(),3))
-
-    location_variable['nt']['midi entry']['instance 0']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 0']['channel'].get(),0,'channel'))
-    location_variable['nt']['midi entry']['instance 0']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 0']['number'].get(),0,'number'))
-    location_variable['nt']['midi entry']['instance 1']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 1']['channel'].get(),1,'channel'))
-    location_variable['nt']['midi entry']['instance 1']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 1']['number'].get(),1,'number'))
-    location_variable['nt']['midi entry']['instance 2']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 2']['channel'].get(),2,'channel'))
-    location_variable['nt']['midi entry']['instance 2']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 2']['number'].get(),2,'number'))
-    location_variable['nt']['midi entry']['instance 3']['channel'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 3']['channel'].get(),3,'channel'))
-    location_variable['nt']['midi entry']['instance 3']['number'].trace('w', lambda *args: location_nt_channel_or_number_changed(location_variable['nt']['midi entry']['instance 3']['number'].get(),3,'number'))
-
-    location_variable['nt']['border entry']['instance 0']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['left'].get(),0,'left'))
-    location_variable['nt']['border entry']['instance 0']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['right'].get(),0,'right'))
-    location_variable['nt']['border entry']['instance 0']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['top'].get(),0,'top'))
-    location_variable['nt']['border entry']['instance 0']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 0']['bottom'].get(),0,'bottom'))
-    location_variable['nt']['border entry']['instance 1']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['left'].get(),1,'left'))
-    location_variable['nt']['border entry']['instance 1']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['right'].get(),1,'right'))
-    location_variable['nt']['border entry']['instance 1']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['top'].get(),1,'top'))
-    location_variable['nt']['border entry']['instance 1']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 1']['bottom'].get(),1,'bottom'))
-    location_variable['nt']['border entry']['instance 2']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['left'].get(),2,'left'))
-    location_variable['nt']['border entry']['instance 2']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['right'].get(),2,'right'))
-    location_variable['nt']['border entry']['instance 2']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['top'].get(),2,'top'))
-    location_variable['nt']['border entry']['instance 2']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 2']['bottom'].get(),2,'bottom'))
-    location_variable['nt']['border entry']['instance 3']['left'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['left'].get(),3,'left'))
-    location_variable['nt']['border entry']['instance 3']['right'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['right'].get(),3,'right'))
-    location_variable['nt']['border entry']['instance 3']['top'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['top'].get(),3,'top'))
-    location_variable['nt']['border entry']['instance 3']['bottom'].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance 3']['bottom'].get(),3,'bottom'))
 ###########################  END LOCATION SECTION  ######################
 
 
