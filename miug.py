@@ -570,10 +570,12 @@ def location_nt_checkbutton_changed(checked,instance_number,ball_number):
     print(nt_location_object[instance_number]['balls to average'])
 
 def location_cc_number_of_frames_changed(entry_text,instance_number):
+    print(entry_text)
     print(instance_number)
     cc_location_object[instance_number]['window size'] = entry_text
 
 def location_nt_number_of_frames_changed(entry_text,instance_number):
+    print(entry_text)
     print(instance_number)
     nt_location_object[instance_number]['window size'] = entry_text
 
@@ -756,7 +758,8 @@ if use_user_interface:
             location_widget['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number], command=lambda this_location_variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number],location_instance_number=location_instance_number,ball_number=ball_number: location_cc_checkbutton_changed(this_location_variable.get,location_instance_number,ball_number))            
         location_variable['cc']['number of frames entry']['instance '+location_instance_number] = StringVar(root)
         location_variable['cc']['number of frames entry']['instance '+location_instance_number].set(10)
-        #location_variable['cc']['number of frames entry']['instance '+location_instance_number].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance '+location_instance_number].get(),location_instance_number))
+        this_variable = location_variable['cc']['number of frames entry']['instance '+location_instance_number].get()
+        location_variable['cc']['number of frames entry']['instance '+location_instance_number].trace('w', lambda this_variable=this_variable,location_instance_number=location_instance_number: location_cc_number_of_frames_changed(this_variable,location_instance_number))
         location_widget['cc']['number of frames entry']['instance '+location_instance_number] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['number of frames entry']['instance '+location_instance_number])
 
         location_variable['cc']['midi entry']['instance '+location_instance_number] = {}
@@ -776,11 +779,11 @@ if use_user_interface:
             #location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
             location_widget['cc']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side])
 
-    location_variable['cc']['number of frames entry']['instance 0'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 0'].get(),0))
+    '''location_variable['cc']['number of frames entry']['instance 0'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 0'].get(),0))
     location_variable['cc']['number of frames entry']['instance 1'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 1'].get(),1))
     location_variable['cc']['number of frames entry']['instance 2'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 2'].get(),2))
     location_variable['cc']['number of frames entry']['instance 3'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 3'].get(),3))
-
+'''
     location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['channel'].get(),0,'horizontal','channel'))
     location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['horizontal']['number'].get(),0,'horizontal','number'))
     location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].trace('w', lambda *args: location_cc_channel_or_number_changed(location_variable['cc']['midi entry']['instance 0']['vertical']['channel'].get(),0,'vertical','channel'))
@@ -835,7 +838,6 @@ if use_user_interface:
             location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = IntVar()
             this_location_variable = location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get()
             location_widget['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number], command=lambda this_location_variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number],location_instance_number=location_instance_number,ball_number=ball_number: location_nt_checkbutton_changed(this_location_variable.get,location_instance_number,ball_number))  
-            location_widget['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number])   
         location_variable['nt']['number of frames entry']['instance '+location_instance_number] = StringVar(root)
         location_variable['nt']['number of frames entry']['instance '+location_instance_number].set(10)
         #location_variable['nt']['number of frames entry']['instance '+location_instance_number].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance '+location_instance_number].get(),location_instance_number))
