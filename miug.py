@@ -100,12 +100,12 @@ def load_config_dialog(use_default_config):
         if not use_default_config:
             read_text_file.close()
             current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
-            selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
+            selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
             set_path_point_buttons_based_on_selected_ball()
             set_location_widgets_from_data()
-            input_type.set(point_setups_input_type[int(current_point_config_index.get())])
-            point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
-            note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
+            input_type.set(point_setups_input_type[int(current_midi_config_index.get())])
+            point_single_line_input_text.set(point_setups_single_line_input[int(current_midi_config_index.get())])
+            note_selection_type.set(point_setups_note_selection_type[int(current_midi_config_index.get())])
     except FileNotFoundError:
         pass
 
@@ -176,7 +176,7 @@ def set_path_points_widgets_visibility(show_or_hide):
     path_config_optionmenu_label['ball 2'].place(x=extra+130,y=130)
     path_config_optionmenu['ball 1'].place(x=extra+60,y=130)
     path_config_optionmenu_label['ball 1'].place(x=extra+10,y=130)
-    current_ball_config_label.place(x=extra+500,y=100)
+    current_path_point_config_label.place(x=extra+500,y=100)
     selected_config_midi_channel_optionmenu.place(x=extra+780,y=150)
     selected_config_midi_channel_optionmenu_label.place(x=extra+680,y=150)
     path_point_pattern_image_label['left'].place(x=extra+70,y=200)
@@ -212,7 +212,7 @@ def set_path_points_widgets_visibility(show_or_hide):
     path_point_button['right cross']['peak'].place(x=extra+578,y=236)
     path_point_button['right cross']['catch'].place(x=extra+683,y=345)
     path_point_button['right cross']['throw'].place(x=extra+595,y=380)
-    current_point_config_label.place(x=extra+10,y=435)
+    current_midi_config_label.place(x=extra+10,y=435)
     ball_and_point_separator.place(x=extra+0, y=425, relwidth=1)
     if show_or_hide == 'show':
         set_path_points_config_inputs_visibility('show')
@@ -443,40 +443,40 @@ def selected_midi_type_to_send_changed(*args):
 ###########################  BEGIN PATH POINTS SECTION  #################################
 
 def note_selection_type_changed(*args):
-    if note_selection_type.get() == 'current positional' and current_point_config_index.get() != '0':
+    if note_selection_type.get() == 'current positional' and current_midi_config_index.get() != '0':
         arpeggio_input_type.place(x=280,y=540)
-    if note_selection_type.get() == 'previous positional'and current_point_config_index.get() != '0':
+    if note_selection_type.get() == 'previous positional'and current_midi_config_index.get() != '0':
         arpeggio_input_type.place(x=280,y=540)
-    if note_selection_type.get() == 'penultimate positional'and current_point_config_index.get() != '0':
+    if note_selection_type.get() == 'penultimate positional'and current_midi_config_index.get() != '0':
         arpeggio_input_type.place(x=280,y=540)
-    if note_selection_type.get() == 'rotational'and current_point_config_index.get() != '0':
+    if note_selection_type.get() == 'rotational'and current_midi_config_index.get() != '0':
         arpeggio_input_type.place(x=1280,y=540)
         if input_type.get() == 'arpeggio':
             input_type.set('chord')
-    point_setups_note_selection_type[int(current_point_config_index.get())] = note_selection_type.get()
+    point_setups_note_selection_type[int(current_midi_config_index.get())] = note_selection_type.get()
 
 def input_type_changed(*args):
-    point_setups_input_type[int(current_point_config_index.get())] = input_type.get()
+    point_setups_input_type[int(current_midi_config_index.get())] = input_type.get()
 
 def point_single_line_input_changed(*args):
-    point_setups_single_line_input[int(current_point_config_index.get())] = point_single_line_input_text.get()
+    point_setups_single_line_input[int(current_midi_config_index.get())] = point_single_line_input_text.get()
 
 def path_point_button_clicked(ball_config,path_type,path_phase):
     print(path_type)
     print(path_phase)
-    global current_point_config_index,path_point_object 
+    global current_midi_config_index,path_point_object 
     path_point_object[ball_config][path_type][path_phase] += 1
     if path_point_object[ball_config][path_type][path_phase] > number_of_used_path_point_configurations + 1:
         path_point_object[ball_config][path_type][path_phase] = 0
     set_path_point_buttons_based_on_selected_ball()
-    current_point_config_index.set(path_point_object[ball_config][path_type][path_phase]) 
+    current_midi_config_index.set(path_point_object[ball_config][path_type][path_phase]) 
 
 def selected_all_midi_configs_optionmenu_index_changed(path_phase):
     index_for_all_path_phase_midi_configs = int(all_midi_configs_optionmenu_index[path_phase].get())
     for path_type in path_types:
         midi_config_number_of_current_path_config_number[path_type][path_phase].set(index_for_all_path_phase_midi_configs)
-        path_point_object[current_ball_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
-    current_point_config_index.set(index_for_all_path_phase_midi_configs)
+        path_point_object[current_path_point_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
+    current_midi_config_index.set(index_for_all_path_phase_midi_configs)
 
 def set_location_widgets_from_data():
     for location_instance_number in location_instance_numbers:
@@ -500,36 +500,36 @@ def set_location_widgets_from_data():
 def set_path_point_buttons_based_on_selected_ball():
     for path_type in path_types:
         for path_phase in path_phases:
-            midi_config_number_of_current_path_config_number[path_type][path_phase].set(path_point_object[current_ball_config_letter.get()][path_type][path_phase])
+            midi_config_number_of_current_path_config_number[path_type][path_phase].set(path_point_object[current_path_point_config_letter.get()][path_type][path_phase])
 
 def path_config_number_changed(ball_number):
-    global current_ball_config_index, current_ball_config_letter
+    global current_path_point_config_index, current_path_point_config_letter
     if path_config['ball '+ball_number].get() == 'X':
-        current_ball_config_index = 0
-        current_ball_config_letter.set('X')
+        current_path_point_config_index = 0
+        current_path_point_config_letter.set('X')
         selected_configs_of_balls[int(ball_number)-1] = 'X'
     if path_config['ball '+ball_number].get() == 'Y':
-        current_ball_config_index = 1
-        current_ball_config_letter.set('Y')
+        current_path_point_config_index = 1
+        current_path_point_config_letter.set('Y')
         selected_configs_of_balls[int(ball_number)-1] = 'Y'
     if path_config['ball '+ball_number].get() == 'Z':
-        current_ball_config_index = 2
-        current_ball_config_letter.set('Z')
+        current_path_point_config_index = 2
+        current_path_point_config_letter.set('Z')
         selected_configs_of_balls[int(ball_number)-1] = 'Z'
     set_path_point_buttons_based_on_selected_ball()
-    selected_config_midi_channel.set(selected_config_midi_channels[current_ball_config_index])
+    selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
 
-def current_point_config_index_changed(*args):
-    if current_point_config_index.get() == '0':
+def current_midi_config_index_changed(*args):
+    if current_midi_config_index.get() == '0':
         set_path_points_config_inputs_visibility('hide')
     else:
         set_path_points_config_inputs_visibility('show')
-    input_type.set(point_setups_input_type[int(current_point_config_index.get())])
-    point_single_line_input_text.set(point_setups_single_line_input[int(current_point_config_index.get())])
-    note_selection_type.set(point_setups_note_selection_type[int(current_point_config_index.get())])
+    input_type.set(point_setups_input_type[int(current_midi_config_index.get())])
+    point_single_line_input_text.set(point_setups_single_line_input[int(current_midi_config_index.get())])
+    note_selection_type.set(point_setups_note_selection_type[int(current_midi_config_index.get())])
 
 def selected_config_midi_channel_changed(*args):
-    selected_config_midi_channels[current_ball_config_index] = int(selected_config_midi_channel.get())
+    selected_config_midi_channels[current_path_point_config_index] = int(selected_config_midi_channel.get())
     print(selected_config_midi_channels)
 
 ###########################  END PATH POINTS SECTION  #################################
@@ -540,15 +540,27 @@ def selected_config_midi_channel_changed(*args):
 #########################     BEGIN LOCATION SECTION     ##########################
 
 def location_cc_checkbutton_changed(checked,instance_number,ball_number):
+    print('checked')
+    print(checked)
+    print('ball_number')
+    print(ball_number)
+    print('instance_number')
+    print(instance_number)
     if checked:
-        if not ball_number in cc_location_object[instance_number]['balls to average']:
-            cc_location_object[instance_number]['balls to average'].append(ball_number)
+        if not ball_number in cc_location_object[int(instance_number)]['balls to average']:
+            cc_location_object[int(instance_number)]['balls to average'].append(ball_number)
     else:
-        if ball_number in cc_location_object[instance_number]['balls to average']:
-            cc_location_object[instance_number]['balls to average'].remove(ball_number)
-    print(cc_location_object[instance_number]['balls to average'])
+        if ball_number in cc_location_object[int(instance_number)]['balls to average']:
+            cc_location_object[int(instance_number)]['balls to average'].remove(ball_number)
+    print(cc_location_object[int(instance_number)]['balls to average'])
 
 def location_nt_checkbutton_changed(checked,instance_number,ball_number):
+    print('checked')
+    print(checked)
+    print('ball_number')
+    print(ball_number)
+    print('instance_number')
+    print(instance_number)
     if checked:
         if not ball_number in nt_location_object[instance_number]['balls to average']:
             nt_location_object[instance_number]['balls to average'].append(ball_number)
@@ -598,11 +610,11 @@ if use_user_interface:
             midi_config_number_of_current_path_config_number[path_type][path_phase] = StringVar()
             midi_config_number_of_current_path_config_number[path_type][path_phase].set('0')    
  
-    current_ball_config_letter = StringVar()
-    current_ball_config_letter.set('X')
-    current_ball_config_index = 0
-    current_point_config_index = StringVar()
-    current_point_config_index.set('0')
+    current_path_point_config_letter = StringVar()
+    current_path_point_config_letter.set('X')
+    current_path_point_config_index = 0
+    current_midi_config_index = StringVar()
+    current_midi_config_index.set('0')
 
     selected_config_midi_channel = StringVar(root)
     ball_config_choices = {'Y','X','Z'}
@@ -619,10 +631,10 @@ if use_user_interface:
         path_config_optionmenu['ball '+ball_number] = OptionMenu(root, path_config['ball '+ball_number], *ball_config_choices)
         path_config_optionmenu_label['ball '+ball_number] = Label(root, text='ball '+ball_number)
 
-    current_ball_config_label = Label(root, textvariable=current_ball_config_letter, font=('Courier', 60))
-    current_ball_config_label.place(x=10,y=100)
-    current_point_config_label = Label(root, textvariable=current_point_config_index, font=('Courier', 60))
-    current_point_config_label.place(x=10,y=435)
+    current_path_point_config_label = Label(root, textvariable=current_path_point_config_letter, font=('Courier', 60))
+    current_path_point_config_label.place(x=10,y=100)
+    current_midi_config_label = Label(root, textvariable=current_midi_config_index, font=('Courier', 60))
+    current_midi_config_label.place(x=10,y=435)
 
     note_selection_type = StringVar()
     current_positional_note_selection_type = Radiobutton(root, text='Positional(current)', variable=note_selection_type, value='current positional')
@@ -681,28 +693,13 @@ if use_user_interface:
     path_point_button = {}
     for path_type in path_types:
         path_point_button[path_type] = {}
-        #for path_phase in path_phases:
-            #path_point_button[path_type][path_phase] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number[path_type][path_phase],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),path_type,path_phase),font=('Courier', 10),border=0,height=1,width=1)
-    #!!!!!IT WOULD SEEM LIKE THE LINE ABOVE WOULD WORK IN PLACE OF THE LINES BELOW, BUT IT DOESN'T        
-
-    path_point_button['left column']['peak'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['left column']['peak'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'left column','peak'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['left column']['catch'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['left column']['catch'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'left column','catch'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['left column']['throw'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['left column']['throw'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'left column','throw'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['left cross']['peak'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['left cross']['peak'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'left cross','peak'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['left cross']['catch'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['left cross']['catch'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'left cross','catch'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['left cross']['throw'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['left cross']['throw'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'left cross','throw'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['mid column']['peak'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['mid column']['peak'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'mid column','peak'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['mid column']['catch'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['mid column']['catch'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'mid column','catch'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['mid column']['throw'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['mid column']['throw'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'mid column','throw'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['mid cross']['peak'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['mid cross']['peak'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'mid cross','peak'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['mid cross']['catch'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['mid cross']['catch'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'mid cross','catch'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['mid cross']['throw'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['mid cross']['throw'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'mid cross','throw'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['right column']['peak'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['right column']['peak'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'right column','peak'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['right column']['catch'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['right column']['catch'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'right column','catch'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['right column']['throw'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['right column']['throw'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'right column','throw'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['right cross']['peak'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['right cross']['peak'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'right cross','peak'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['right cross']['catch'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['right cross']['catch'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'right cross','catch'),font=('Courier', 10),border=0,height=1,width=1)
-    path_point_button['right cross']['throw'] = ttk.Button(root,textvariable=midi_config_number_of_current_path_config_number['right cross']['throw'],command=lambda: path_point_button_clicked(current_ball_config_letter.get(),'right cross','throw'),font=('Courier', 10),border=0,height=1,width=1)
+        for path_phase in path_phases:
+            current_letter = current_path_point_config_letter.get()
+            path_point_button[path_type][path_phase] = ttk.Button(
+                root,textvariable=midi_config_number_of_current_path_config_number[path_type][path_phase], \
+                command=lambda current_letter=current_letter, path_type=path_type, path_phase=path_phase: \
+                path_point_button_clicked(current_letter,path_type,path_phase), \
+                font=('Courier', 10),border=0,height=1,width=1)
 
     all_possible_point_config_indices = ['0','1','2','3','4','5','6']
     
@@ -723,7 +720,7 @@ if use_user_interface:
     for ball_number in ball_numbers:
         path_config['ball '+ball_number].trace('w', lambda *args: path_config_number_changed(ball_number))
 
-    current_point_config_index.trace('w', current_point_config_index_changed)
+    current_midi_config_index.trace('w', current_midi_config_index_changed)
     selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 ###########################  END PATH POINTS SECTION  #################################
 
@@ -755,8 +752,8 @@ if use_user_interface:
         location_variable['cc']['checkbutton']['instance '+location_instance_number] = {}
         for ball_number in ball_numbers:
             location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = IntVar()
-            #location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get(),location_instance_number,ball_number))
-            location_widget['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number])            
+            this_location_variable = location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get()
+            location_widget['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number], command=lambda this_location_variable=location_variable['cc']['checkbutton']['instance '+location_instance_number]['ball '+ball_number],location_instance_number=location_instance_number,ball_number=ball_number: location_cc_checkbutton_changed(this_location_variable.get,location_instance_number,ball_number))            
         location_variable['cc']['number of frames entry']['instance '+location_instance_number] = StringVar(root)
         location_variable['cc']['number of frames entry']['instance '+location_instance_number].set(10)
         #location_variable['cc']['number of frames entry']['instance '+location_instance_number].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance '+location_instance_number].get(),location_instance_number))
@@ -778,19 +775,6 @@ if use_user_interface:
             location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side] = StringVar(root)
             #location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_cc_border_changed(location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
             location_widget['cc']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['cc']['border entry']['instance '+location_instance_number][location_border_side])
-
-    location_variable['cc']['checkbutton']['instance 0']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 1'].get(),0,'1'))
-    location_variable['cc']['checkbutton']['instance 0']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 2'].get(),0,'2'))
-    location_variable['cc']['checkbutton']['instance 0']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 0']['ball 3'].get(),0,'3'))
-    location_variable['cc']['checkbutton']['instance 1']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 1'].get(),1,'1'))
-    location_variable['cc']['checkbutton']['instance 1']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 2'].get(),1,'2'))
-    location_variable['cc']['checkbutton']['instance 1']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 1']['ball 3'].get(),1,'3'))
-    location_variable['cc']['checkbutton']['instance 2']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 1'].get(),2,'1'))
-    location_variable['cc']['checkbutton']['instance 2']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 2'].get(),2,'2'))
-    location_variable['cc']['checkbutton']['instance 2']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 2']['ball 3'].get(),2,'3'))
-    location_variable['cc']['checkbutton']['instance 3']['ball 1'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 1'].get(),3,'1'))
-    location_variable['cc']['checkbutton']['instance 3']['ball 2'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 2'].get(),3,'2'))
-    location_variable['cc']['checkbutton']['instance 3']['ball 3'].trace('w', lambda *args: location_cc_checkbutton_changed(location_variable['cc']['checkbutton']['instance 3']['ball 3'].get(),3,'3'))
 
     location_variable['cc']['number of frames entry']['instance 0'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 0'].get(),0))
     location_variable['cc']['number of frames entry']['instance 1'].trace('w', lambda *args: location_cc_number_of_frames_changed(location_variable['cc']['number of frames entry']['instance 1'].get(),1))
@@ -849,7 +833,8 @@ if use_user_interface:
         location_variable['nt']['checkbutton']['instance '+location_instance_number] = {}
         for ball_number in ball_numbers:
             location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = IntVar()
-            #location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get(),location_instance_number,ball_number))
+            this_location_variable = location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number].get()
+            location_widget['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number], command=lambda this_location_variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number],location_instance_number=location_instance_number,ball_number=ball_number: location_nt_checkbutton_changed(this_location_variable.get,location_instance_number,ball_number))  
             location_widget['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number] = Checkbutton(root, text='Ball '+ball_number, variable=location_variable['nt']['checkbutton']['instance '+location_instance_number]['ball '+ball_number])   
         location_variable['nt']['number of frames entry']['instance '+location_instance_number] = StringVar(root)
         location_variable['nt']['number of frames entry']['instance '+location_instance_number].set(10)
@@ -869,19 +854,6 @@ if use_user_interface:
             location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side] = StringVar(root)
             #location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].trace('w', lambda *args: location_nt_border_changed(location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side].get(),location_instance_number,location_border_side))
             location_widget['nt']['border entry']['instance '+location_instance_number][location_border_side] = ttk.Entry(root, width = 4,textvariable=location_variable['nt']['border entry']['instance '+location_instance_number][location_border_side])
-
-    location_variable['nt']['checkbutton']['instance 0']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 1'].get(),0,'1'))
-    location_variable['nt']['checkbutton']['instance 0']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 2'].get(),0,'2'))
-    location_variable['nt']['checkbutton']['instance 0']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 0']['ball 3'].get(),0,'3'))
-    location_variable['nt']['checkbutton']['instance 1']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 1'].get(),1,'1'))
-    location_variable['nt']['checkbutton']['instance 1']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 2'].get(),1,'2'))
-    location_variable['nt']['checkbutton']['instance 1']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 1']['ball 3'].get(),1,'3'))
-    location_variable['nt']['checkbutton']['instance 2']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 1'].get(),2,'1'))
-    location_variable['nt']['checkbutton']['instance 2']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 2'].get(),2,'2'))
-    location_variable['nt']['checkbutton']['instance 2']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 2']['ball 3'].get(),2,'3'))
-    location_variable['nt']['checkbutton']['instance 3']['ball 1'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 1'].get(),3,'1'))
-    location_variable['nt']['checkbutton']['instance 3']['ball 2'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 2'].get(),3,'2'))
-    location_variable['nt']['checkbutton']['instance 3']['ball 3'].trace('w', lambda *args: location_nt_checkbutton_changed(location_variable['nt']['checkbutton']['instance 3']['ball 3'].get(),3,'3'))
 
     location_variable['nt']['number of frames entry']['instance 0'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 0'].get(),0))
     location_variable['nt']['number of frames entry']['instance 1'].trace('w', lambda *args: location_nt_number_of_frames_changed(location_variable['nt']['number of frames entry']['instance 1'].get(),1))

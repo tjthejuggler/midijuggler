@@ -45,7 +45,7 @@ for ball_config in ball_configs:
 			path_point_object[ball_config][path_type][path_phase] = 0
 
 location_instance_numbers = ['0','1','2','3']
-number_of_balls = 5
+number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
 	ball_numbers.append(str(i))
