@@ -137,7 +137,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
                     largest_contour_index=j
         if largest_area>0:            
             x, y = get_contour_center(contours[largest_contour_index])
-            settings.all_cx[i].append(x)
+            settings.all_cx[i].append(640-x)
             settings.all_cy[i].append(y)
             number_of_contours_seen = number_of_contours_seen+1
         else:

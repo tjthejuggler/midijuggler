@@ -73,6 +73,7 @@ for inst_num in location_inst_nums:
 	nt_location_obj[inst_num]['window size'] = 10
 	nt_location_obj[inst_num]['location border sides'] = {}
 	for location_border_side in location_border_sides:
+		print('here again')
 		nt_location_obj[inst_num]['location border sides'][location_border_side] = 0
 	for location_midi_input_type in location_midi_input_types:
 		nt_location_obj[inst_num][location_midi_input_type] = 0

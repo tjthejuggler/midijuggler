@@ -75,28 +75,28 @@ def load_config_dialog(use_default_config):
             #   make specifics of location control midi signals
             #   figure out speed
             #   check the other todo list
-            cc_location_obj[i]['balls to average'] = lines[first_cc_location_obj_line+1+(i*10)].rstrip('\n')
-            cc_location_obj[i]['balls to average'] = cc_location_obj[i]['balls to average'].split(',')
-            cc_location_obj[i]['window size'] = lines[first_cc_location_obj_line+2+(i*10)].rstrip('\n')
-            cc_location_obj[i]['location border sides']['left'] = lines[first_cc_location_obj_line+3+(i*10)].rstrip('\n')
-            cc_location_obj[i]['location border sides']['right'] = lines[first_cc_location_obj_line+4+(i*10)].rstrip('\n')
-            cc_location_obj[i]['location border sides']['top'] = lines[first_cc_location_obj_line+5+(i*10)].rstrip('\n')
-            cc_location_obj[i]['location border sides']['bottom'] = lines[first_cc_location_obj_line+6+(i*10)].rstrip('\n')
-            cc_location_obj[i]['horizontal']['channel'] = lines[first_cc_location_obj_line+7+(i*10)].rstrip('\n')
-            cc_location_obj[i]['horizontal']['number'] = lines[first_cc_location_obj_line+8+(i*10)].rstrip('\n')
-            cc_location_obj[i]['vertical']['channel'] = lines[first_cc_location_obj_line+9+(i*10)].rstrip('\n')
-            cc_location_obj[i]['vertical']['number'] = lines[first_cc_location_obj_line+10+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['balls to average'] = lines[first_cc_location_obj_line+1+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['balls to average'] = cc_location_obj[str(i)]['balls to average'].split(',')
+            cc_location_obj[str(i)]['window size'] = lines[first_cc_location_obj_line+2+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['location border sides']['left'] = lines[first_cc_location_obj_line+3+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['location border sides']['right'] = lines[first_cc_location_obj_line+4+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['location border sides']['top'] = lines[first_cc_location_obj_line+5+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['location border sides']['bottom'] = lines[first_cc_location_obj_line+6+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['horizontal']['channel'] = lines[first_cc_location_obj_line+7+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['horizontal']['number'] = lines[first_cc_location_obj_line+8+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['vertical']['channel'] = lines[first_cc_location_obj_line+9+(i*10)].rstrip('\n')
+            cc_location_obj[str(i)]['vertical']['number'] = lines[first_cc_location_obj_line+10+(i*10)].rstrip('\n')
         first_nt_location_obj_line = lines.index('begin nt location object\n')
         for i in range (4):
-            nt_location_obj[i]['balls to average'] = lines[first_nt_location_obj_line+1+(i*8)].rstrip('\n')
-            nt_location_obj[i]['balls to average'] = nt_location_obj[i]['balls to average'].split(',')
-            nt_location_obj[i]['window size'] = lines[first_nt_location_obj_line+2+(i*8)].rstrip('\n')
-            nt_location_obj[i]['location border sides']['left'] = lines[first_nt_location_obj_line+3+(i*8)].rstrip('\n')
-            nt_location_obj[i]['location border sides']['right'] = lines[first_nt_location_obj_line+4+(i*8)].rstrip('\n')
-            nt_location_obj[i]['location border sides']['top'] = lines[first_nt_location_obj_line+5+(i*8)].rstrip('\n')
-            nt_location_obj[i]['location border sides']['bottom'] = lines[first_nt_location_obj_line+6+(i*8)].rstrip('\n')
-            nt_location_obj[i]['channel'] = lines[first_nt_location_obj_line+7+(i*8)].rstrip('\n')
-            nt_location_obj[i]['number'] = lines[first_nt_location_obj_line+8+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['balls to average'] = lines[first_nt_location_obj_line+1+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['balls to average'] = nt_location_obj[str(i)]['balls to average'].split(',')
+            nt_location_obj[str(i)]['window size'] = lines[first_nt_location_obj_line+2+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['location border sides']['left'] = lines[first_nt_location_obj_line+3+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['location border sides']['right'] = lines[first_nt_location_obj_line+4+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['location border sides']['top'] = lines[first_nt_location_obj_line+5+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['location border sides']['bottom'] = lines[first_nt_location_obj_line+6+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['channel'] = lines[first_nt_location_obj_line+7+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['number'] = lines[first_nt_location_obj_line+8+(i*8)].rstrip('\n')
         if not use_default_config:
             read_text_file.close()
             current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
@@ -113,6 +113,7 @@ def start_camera():
     settings.show_color_calibration = False
     settings.show_main_camera = True
     settings.show_location_define = False
+    print(cc_location_obj['0']['horizontal'])
     run_camera()
 #with new save setup
 #   first row should be column names
@@ -134,22 +135,22 @@ def save_config_dialog():
 
     text_in_config_to_save += 'begin cc location object\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(cc_location_obj[i]['balls to average']) + '\n'
-        text_in_config_to_save += str(cc_location_obj[i]['window size']) + '\n'
+        text_in_config_to_save += ','.join(cc_location_obj[str(i)]['balls to average']) + '\n'
+        text_in_config_to_save += str(cc_location_obj[str(i)]['window size']) + '\n'
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(cc_location_obj[i]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(cc_location_obj[str(i)]['location border sides'][location_border_side]) + '\n'
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                text_in_config_to_save += str(cc_location_obj[i][location_direction][location_midi_input_type]) + '\n'
+                text_in_config_to_save += str(cc_location_obj[str(i)][location_direction][location_midi_input_type]) + '\n'
 
     text_in_config_to_save += 'begin nt location object\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(nt_location_obj[i]['balls to average']) + '\n'
-        text_in_config_to_save += str(nt_location_obj[i]['window size']) + '\n'
+        text_in_config_to_save += ','.join(nt_location_obj[str(i)]['balls to average']) + '\n'
+        text_in_config_to_save += str(nt_location_obj[str(i)]['window size']) + '\n'
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(nt_location_obj[i]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(nt_location_obj[str(i)]['location border sides'][location_border_side]) + '\n'
         for location_midi_input_type in location_midi_input_types:
-            text_in_config_to_save += str(nt_location_obj[i][location_midi_input_type]) + '\n'
+            text_in_config_to_save += str(nt_location_obj[str(i)][location_midi_input_type]) + '\n'
 
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()        
@@ -223,7 +224,6 @@ def set_ui_location_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    print('kok')
     ui_location_obj['cc']['0']['instance label'].place(x=extra+10,y=150) 
     ui_location_obj['cc']['1']['instance label'].place(x=extra+10,y=215) 
     ui_location_obj['cc']['2']['instance label'].place(x=extra+10,y=280) 
@@ -462,8 +462,6 @@ def point_single_line_input_changed(*args):
     point_setups_single_line_input[int(current_midi_config_index.get())] = point_single_line_input_text.get()
 
 def path_point_button_clicked(ball_config,path_type,path_phase):
-    print(path_type)
-    print(path_phase)
     global current_midi_config_index,path_point_object 
     path_point_object[ball_config][path_type][path_phase] += 1
     if path_point_object[ball_config][path_type][path_phase] > number_of_used_path_point_configurations + 1:
@@ -481,21 +479,21 @@ def selected_all_midi_configs_optionmenu_index_changed(path_phase):
 def set_ui_location_vars_from_data():
     for inst_num in location_inst_nums:
         for ball_number in ball_numbers:
-            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in cc_location_obj['balls to average'])
-        ui_location_obj['cc'][inst_num]['num frames']['var'].set(cc_location_obj['window size'])
+            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in cc_location_obj[str(inst_num)]['balls to average'])
+        ui_location_obj['cc'][inst_num]['num frames']['var'].set(cc_location_obj[str(inst_num)]['window size'])
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(cc_location_obj[location_direction][location_midi_input_type])
+                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(cc_location_obj[str(inst_num)][location_direction][location_midi_input_type])
         for location_border_side in location_border_sides:
-            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].set(cc_location_obj['location border sides'][location_border_side])
+            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].set(cc_location_obj[str(inst_num)]['location border sides'][location_border_side])
     for inst_num in location_inst_nums:
         for ball_number in ball_numbers:    
-            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in nt_location_obj['balls to average'])
-        ui_location_obj['nt'][inst_num]['num frames']['var'].set(nt_location_obj['window size'])
+            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in nt_location_obj[str(inst_num)]['balls to average'])
+        ui_location_obj['nt'][inst_num]['num frames']['var'].set(nt_location_obj[str(inst_num)]['window size'])
         for location_midi_input_type in location_midi_input_types:
-            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].set(nt_location_obj[location_midi_input_type])
+            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].set(nt_location_obj[str(inst_num)][location_midi_input_type])
         for location_border_side in location_border_sides:
-            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].set(nt_location_obj['location border sides'][location_border_side])
+            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].set(nt_location_obj[str(inst_num)]['location border sides'][location_border_side])
 
 def set_path_point_buttons_based_on_selected_ball():
     for path_type in path_types:
@@ -530,7 +528,6 @@ def current_midi_config_index_changed(*args):
 
 def selected_config_midi_channel_changed(*args):
     selected_config_midi_channels[current_path_point_config_index] = int(selected_config_midi_channel.get())
-    print(selected_config_midi_channels)
 
 ###########################  END PATH POINTS SECTION  #################################
 
@@ -580,11 +577,15 @@ def location_number_of_frames_changed(location_type,entry_text,inst_num):
 
 def location_cc_channel_or_number_changed(entry_text,inst_num,location_direction,location_midi_input_type):
     print(inst_num)
-    cc_location_obj[inst_num][location_midi_input_type] = entry_text
+    print(entry_text)
+    print(location_direction)
+    cc_location_obj[inst_num][location_direction][location_midi_input_type] = str(entry_text)
+    print(cc_location_obj['0'][location_direction]['channel'])
 
 def location_nt_channel_or_number_changed(entry_text,inst_num,location_midi_input_type):
     print(inst_num)
-    nt_location_obj[inst_num][location_midi_input_type] = entry_text
+    print(entry_text)
+    nt_location_obj[inst_num][location_midi_input_type] = str(entry_text)
 
 def location_border_changed(location_type,entry_text,inst_num,location_border_side):
     print('location_type '+location_type)
@@ -592,10 +593,12 @@ def location_border_changed(location_type,entry_text,inst_num,location_border_si
     print('inst_num '+str(inst_num))
     print('location_border_side '+location_border_side)
     if location_type == 'cc':
-        cc_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
+        cc_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
+        print('lol')
+        print(cc_location_obj[str(inst_num)]['location border sides'][location_border_side])
     if location_type == 'nt':
-        nt_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
-
+        nt_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
+    print( cc_location_obj[str(inst_num)]['location border sides'])
 #########################     END LOCATION SECTION     ##########################
 
 
@@ -781,8 +784,7 @@ if use_user_interface:
                 ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].trace(
                     'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
                     location_midi_input_type=location_midi_input_type: location_cc_channel_or_number_changed(
-                    ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type].get(),
-                    inst_num,location_direction,location_midi_input_type))
+                    this_variable.get(),inst_num,location_direction,location_midi_input_type))
                 ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
                 ttk.Entry(root, width = 4,textvariable= \
                     ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
@@ -836,7 +838,7 @@ if use_user_interface:
             ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].trace(
                 'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
                 location_midi_input_type = location_midi_input_type: \
-                location_nt_channel_or_number_changed(this_variable,inst_num,location_midi_input_type))
+                location_nt_channel_or_number_changed(this_variable.get(),inst_num,location_midi_input_type))
             ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
                 root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'])
         ui_location_obj['nt'][inst_num]['border'] = {}
@@ -945,6 +947,7 @@ if use_user_interface:
 begin_program()
 #TODO
 #consolidate todo lists
+#do some test to get location nt working
 
 #THINGS TO ADD TO MAIN CAMERA
 #show time since start

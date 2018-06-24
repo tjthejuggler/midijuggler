@@ -18,6 +18,8 @@ midi_associations = {}
 use_adjust_song_magnitude = False
 use_override_notes,override_notes = False,[]
 soundscape_image = cv2.imread('soundscape.png',1)
+can_send_nt_location_midi_note = [True,True,True,True]
+
 
 def position_to_midi_value(current_position, max_position, edge_buffer):
     value = 0
@@ -342,20 +344,27 @@ def create_individual_ball_audio(ball_index):
 def is_valid_cc_location_input(location_instance_number,location_direction):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
-    if any(i in list_of_ball_numbers for i in cc_location_object['instance number '+str(location_instance_number)]['balls to average']):
-        if int(cc_location_object['instance number '+str(location_instance_number)]['window size']) > 0:
-            if cc_location_object['instance number '+str(location_instance_number)][location_direction]['channel'].isdigit():
-                if cc_location_object['instance number '+str(location_instance_number)][location_direction]['number'].isdigit():
+    print('val1')
+    print(location_instance_number)
+    print(cc_location_obj[str(location_instance_number)])
+    print(cc_location_obj[str(location_instance_number)]['balls to average'])
+    if any(i in list_of_ball_numbers for i in cc_location_obj[str(location_instance_number)]['balls to average']):
+        print('val2')
+        if int(cc_location_obj[str(location_instance_number)]['window size']) > 0:
+            print('val3')
+            if str(cc_location_obj[str(location_instance_number)][location_direction]['channel']).isdigit():
+                print('val4')
+                if str(cc_location_obj[str(location_instance_number)][location_direction]['number']).isdigit():
                     is_valid = True
     return is_valid
 
 def is_valid_nt_location_input(location_instance_number):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
-    if any(i in list_of_ball_numbers for i in nt_location_object['instance number '+str(location_instance_number)]['balls to average']):
-        if int(nt_location_object['instance number '+str(location_instance_number)]['window size']) > 0:
-            if nt_location_object['instance number '+str(location_instance_number)]['channel'].isdigit():
-                if nt_location_object['instance number '+str(location_instance_number)]['number'].isdigit():
+    if any(i in list_of_ball_numbers for i in nt_location_obj[str(location_instance_number)]['balls to average']):
+        if int(nt_location_obj[str(location_instance_number)]['window size']) > 0:
+            if nt_location_obj[str(location_instance_number)]['channel'].isdigit():
+                if nt_location_obj[str(location_instance_number)]['number'].isdigit():
                     is_valid = True
     return is_valid
 
@@ -363,48 +372,64 @@ def create_multiple_ball_audio():
     execute_cc_location()
     execute_nt_location()
 
+#todo
+#   retest horizontal cc
+#   test vertical cc
+
+
+
 def execute_nt_location():
     for i in range (4):
-        for location_direction in location_directions:
-            if is_valid_nt_location_input(i,location_direction):
-                ball_numbers_to_average = nt_location_object['instance number '+str(i)]['balls to average']
-                if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
-                print('ball_numbers_to_average'+str(ball_numbers_to_average))
-                window_size = nt_location_object['instance number '+str(i)]['window size']
-                channel = nt_location_object['instance number '+str(i)][location_direction]['channel']
-                number = nt_location_object['instance number '+str(i)][location_direction]['number']
-                list_of_ball_average_positions = [[]]
-                ave_cx = []
-                ave_cy = []
-                for ball_number in ball_numbers_to_average:
-                    print('ball_number'+str(int(ball_number)))
-                    Cx, Cy = average_position_of_single_ball(ball_number,window_size)
-                    print('Cx '+str(Cx))
-                    print('Cy '+str(Cy))
-                    if Cx >= 0:
-                        ave_cx.append(Cx) 
-                        ave_cy.append(Cy)
-                    left_border = cc_location_object['instance number '+str(i)]['location border sides']['left']
-                    right_border = cc_location_object['instance number '+str(i)]['location border sides']['right']
-                    top_border = cc_location_object['instance number '+str(i)]['location border sides']['top']
-                    bottom_border = cc_location_object['instance number '+str(i)]['location border sides']['bottom']
-                    if (np.average(ave_cx) > right_border and np.average(ave_cx) < left_border 
-                        and np.average(ave_cy) > bottom_border and np.average(ave_cy) < top_border):
-                        send_midi_messages(channel, notes, 60, modulators)  
+        if is_valid_nt_location_input(i):
+            ball_numbers_to_average = nt_location_obj[str(i)]['balls to average']
+            if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
+            print('ball_numbers_to_average'+str(ball_numbers_to_average))
+            window_size = nt_location_obj[str(i)]['window size']
+            channel = nt_location_obj[str(i)]['channel']
+            number = nt_location_obj[str(i)]['number']
+            list_of_ball_average_positions = [[]]
+            ave_cx = []
+            ave_cy = []
+            for ball_number in ball_numbers_to_average:
+                print('ball_number'+str(ball_number))
+                print('window_size'+str(window_size))
+                Cx, Cy = average_position_of_single_ball(ball_number,window_size)
+                print('Cx '+str(Cx))
+                print('Cy '+str(Cy))
+                if Cx >= 0:
+                    ave_cx.append(Cx) 
+                    ave_cy.append(Cy)
+                print( nt_location_obj[str(i)]['location border sides'])
+                left_border = nt_location_obj[str(i)]['location border sides']['left']
+                right_border = nt_location_obj[str(i)]['location border sides']['right']
+                top_border = nt_location_obj[str(i)]['location border sides']['top']
+                bottom_border = nt_location_obj[str(i)]['location border sides']['bottom']
+                print('np.average(ave_cx)' +str(np.average(ave_cx)))
+                print('np.average(ave_cy)' +str(np.average(ave_cy)))
+                print(left_border)
+                print(right_border)
+                print(top_border)
+                print(bottom_border)
+                if (np.average(ave_cx) > int(left_border) and np.average(ave_cx) < int(right_border) 
+                    and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
+                    if can_send_nt_location_midi_note[i]:
+                        print('sendM')
+                        send_midi_note(int(channel),int(number),60)
+                        can_send_nt_location_midi_note[i] = False
+                else:
+                    can_send_nt_location_midi_note[i] = True
 
-               
-#in the midst of making the sstuff above, after we see if ave_cx is between our left/right border, so the same with y and
-#   then send the midi note
 def execute_cc_location():
     for i in range (4):
         for location_direction in location_directions:
             if is_valid_cc_location_input(i,location_direction):
-                ball_numbers_to_average = cc_location_object['instance number '+str(i)]['balls to average']
+                ball_numbers_to_average = cc_location_obj[str(i)]['balls to average']
                 if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
                 print('ball_numbers_to_average'+str(ball_numbers_to_average))
-                window_size = cc_location_object['instance number '+str(i)]['window size']
-                channel = cc_location_object['instance number '+str(i)][location_direction]['channel']
-                number = cc_location_object['instance number '+str(i)][location_direction]['number']
+                print(cc_location_obj[str(i)][location_direction]['channel'])
+                window_size = cc_location_obj[str(i)]['window size']
+                channel = cc_location_obj[str(i)][location_direction]['channel']
+                number = cc_location_obj[str(i)][location_direction]['number']
                 list_of_ball_average_positions = [[]]
                 ave_cx = []
                 ave_cy = []
@@ -417,12 +442,12 @@ def execute_cc_location():
                         ave_cx.append(Cx) 
                         ave_cy.append(Cy)                          
                 if location_direction == 'horizontal':
-                    first_edge = cc_location_object['instance number '+str(i)]['location border sides']['left']
-                    second_edge = cc_location_object['instance number '+str(i)]['location border sides']['right']
+                    first_edge = cc_location_obj[str(i)]['location border sides']['left']
+                    second_edge = cc_location_obj[str(i)]['location border sides']['right']
                     send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cx),channel,number)
                 if location_direction == 'vertical':
-                    first_edge = cc_location_object['instance number '+str(i)]['location border sides']['top']
-                    second_edge = cc_location_object['instance number '+str(i)]['location border sides']['bottom']
+                    first_edge = cc_location_obj[str(i)]['location border sides']['top']
+                    second_edge = cc_location_obj[str(i)]['location border sides']['bottom']
                     send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cy),channel,number)
         #more todo
         #   test the veretical axis of the cc location
@@ -495,7 +520,7 @@ def send_midi_cc_based_on_average_position(location_direction,first_edge,second_
         distance_between_edge_and_average_position = abs(first_edge-average_position)
         value = max(0,(distance_between_edge_and_average_position/distance_between_edges)*128)
 
-    print(channel +','+ number +','+str(value) )
+    print(str(channel) +','+ str(number) +','+str(value) )
 
     send_midi_cc(int(channel),int(number),value)
 
