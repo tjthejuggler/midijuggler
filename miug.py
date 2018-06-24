@@ -547,12 +547,12 @@ def location_cc_checkbutton_changed(checked,inst_num,ball_number):
     print('inst_num')
     print(inst_num)
     if checked:
-        if not ball_number in cc_location_obj[int(inst_num)]['balls to average']:
-            cc_location_obj[int(inst_num)]['balls to average'].append(ball_number)
+        if not ball_number in cc_location_obj[inst_num]['balls to average']:
+            cc_location_obj[inst_num]['balls to average'].append(ball_number)
     else:
-        if ball_number in cc_location_obj[int(inst_num)]['balls to average']:
-            cc_location_obj[int(inst_num)]['balls to average'].remove(ball_number)
-    print(cc_location_obj[int(inst_num)]['balls to average'])
+        if ball_number in cc_location_obj[inst_num]['balls to average']:
+            cc_location_obj[inst_num]['balls to average'].remove(ball_number)
+    print(cc_location_obj[inst_num]['balls to average'])
 
 def location_nt_checkbutton_changed(checked,inst_num,ball_number):
     print('checked')
@@ -562,12 +562,12 @@ def location_nt_checkbutton_changed(checked,inst_num,ball_number):
     print('inst_num')
     print(inst_num)
     if checked:
-        if not ball_number in nt_location_obj[int(inst_num)]['balls to average']:
-            nt_location_obj[int(inst_num)]['balls to average'].append(ball_number)
+        if not ball_number in nt_location_obj[inst_num]['balls to average']:
+            nt_location_obj[inst_num]['balls to average'].append(ball_number)
     else:
-        if ball_number in nt_location_obj[int(inst_num)]['balls to average']:
-            nt_location_obj[int(inst_num)]['balls to average'].remove(ball_number)
-    print(nt_location_obj[int(inst_num)]['balls to average'])
+        if ball_number in nt_location_obj[inst_num]['balls to average']:
+            nt_location_obj[inst_num]['balls to average'].remove(ball_number)
+    print(nt_location_obj[inst_num]['balls to average'])
 
 def location_number_of_frames_changed(location_type,entry_text,inst_num):
     print('location_type '+location_type)
@@ -697,11 +697,11 @@ if use_user_interface:
     for path_type in path_types:
         path_point_button[path_type] = {}
         for path_phase in path_phases:
-            current_letter = current_path_point_config_letter.get()
+            current_letter = current_path_point_config_letter
             path_point_button[path_type][path_phase] = ttk.Button(
                 root,textvariable=midi_config_number_of_current_path_config_number[path_type][path_phase], \
                 command=lambda current_letter=current_letter, path_type=path_type, path_phase=path_phase: \
-                path_point_button_clicked(current_letter,path_type,path_phase), \
+                path_point_button_clicked(current_letter.get(),path_type,path_phase), \
                 font=('Courier', 10),border=0,height=1,width=1)
 
     all_possible_point_config_indices = ['0','1','2','3','4','5','6']
@@ -721,7 +721,7 @@ if use_user_interface:
     all_midi_configs_optionmenu_index['throw'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('throw'))
 
     for ball_number in ball_numbers:
-        path_config['ball '+ball_number].trace('w', lambda *args: path_config_number_changed(ball_number))
+        path_config['ball '+ball_number].trace('w', lambda *args, ball_number=ball_number: path_config_number_changed(ball_number))
 
     current_midi_config_index.trace('w', current_midi_config_index_changed)
     selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
@@ -765,12 +765,10 @@ if use_user_interface:
         ui_location_obj['cc'][inst_num]['num frames'] = {}            
         ui_location_obj['cc'][inst_num]['num frames']['var'] = StringVar(root)
         ui_location_obj['cc'][inst_num]['num frames']['var'].set(10)
-
         this_variable = ui_location_obj['cc'][inst_num]['num frames']['var']
         ui_location_obj['cc'][inst_num]['num frames']['var'].trace(
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
             location_number_of_frames_changed('cc',this_variable.get(),inst_num))
-
         ui_location_obj['cc'][inst_num]['num frames']['widget'] = ttk.Entry(
             root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['num frames']['var'])
         ui_location_obj['cc'][inst_num]['midi'] = {}
@@ -797,8 +795,7 @@ if use_user_interface:
                 'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
                 location_border_changed('cc',this_variable.get(),inst_num,location_border_side))
             ui_location_obj['cc'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'])
-    
+                root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'])    
     ui_location_obj['nt'] = {}
     for inst_num in location_inst_nums:
         ui_location_obj['nt'][inst_num] = {}
@@ -814,10 +811,10 @@ if use_user_interface:
         for ball_number in ball_numbers:
             ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_location_obj = ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].get()
+            this_ui_location_obj = ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var']
             ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
-                root, text='Ball '+ball_number, \
-                variable=ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                root, text='Ball '+ball_number, variable= \
+                ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 command=lambda this_ui_location_obj= \
                 ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 inst_num=inst_num,ball_number=ball_number: location_nt_checkbutton_changed(
@@ -830,8 +827,7 @@ if use_user_interface:
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
             location_number_of_frames_changed('nt',this_variable.get(),inst_num))
         ui_location_obj['nt'][inst_num]['num frames']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['num frames']['var'])    
-        
+            root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['num frames']['var'])        
         ui_location_obj['nt'][inst_num]['midi'] = {}
         for location_midi_input_type in location_midi_input_types:
             ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type] = {}
@@ -947,22 +943,24 @@ if use_user_interface:
 
 
 begin_program()
-
-#maybe there would be someway to address synchronis peaks inside of our current path point setup
 #TODO
+#consolidate todo lists
+
+#THINGS TO ADD TO MAIN CAMERA
 #show time since start
 #make positional grid show accurate number of grids
-#make location squares shown
-#   possibly 
+#   in other words, make the positional grid be hooked up to the number of notes
+#make location squares shown possibly 
+#maybe there would be someway to address synchronis peaks inside of our current path point setup
+
+#IN UI
+#make path points, location, speed, whatever else be dropdowns instead of checkboxes
+#make more divider lines between every different section in path points, it should be seperated at
+#   the same places that the saves are seperated
 #maybe nt and cc should be different radiobuttons so that we can have lots of different ones
 #   so they can be triggered and do different things
-#consolidate todo lists
-#make dictionary associations for the two and three ball event type things
-#   check for these associations just like we do the others and have them send cc midi signals(or non cc if the
-#   case may be)
 #get note and chord working in UI
-#make the positional grid be hooked up to the number of notes
-#when a ball config is loaded, the point config section should be set based on what point configs are used
+#when a path point config is loaded, the midi config section should be set based on what midi configs are used
 #note or velocity entries losing focus while blank causes crash
 #tell user in color calibration that Q will leave calibration mode, maybe at the bottom of the calibration windows
 #make arpeggio be several single line entries, maybe for now just leave it as one line that is seperated
@@ -970,22 +968,6 @@ begin_program()
 #       row of optionmenu choices for midi,note,chord. unless we move arpegio over to the first row
 #if i put a number on a path point and then dont put any notes in its textfield, it crashes
 #   
-# if '3 balls' is clicked,
-#   then we show all the things that could control cc messages such as speed, average 
-#   position(both on the x and the y), gather(maybe stop moving overrides the need for this one),
-#   stop moving, start moving
-#       Position - buffer size, this may be different for x and y
-#           something else to think about with position
-#       Speed - we need a way to map how fast/slow it gets, we could use the actual throws per
-#           second to set the beats per second. Im not sure, but i feel like this looks best with it being
-#           linked to the speed of the juggler, which can be checked by using the speed of held balls maybe
-#if '2 balls' is clicked, we have
-#   apart, sync peaks(this will probably just be columns), collisions.
-#
-#set colors of the text of ball 1, ball 2, and ball 3 to the colors that those balls are
-#   set at in the calibration, put them each on colored squares that match their calibration colors and
-#   make their font white or something
-
 
 
 #eventual:
@@ -1013,18 +995,25 @@ begin_program()
 #in midi helper look into create_individual_ball_audio where it mentions 'putt' and see how we
 #   were using it to set what sound gets made by the next peak, that is going to be a similar to goal
 #   to the past positional stuff
+#probably move over to using pandas instead of the dictionary to database everything
+#when balls are refered to in the ui, make their text be the same color as their calibrated colors
+#a different save/load for the color/gravity
+#   calibrations since we want to do the same performances in different places with different balls
 
 
-# some kind of 'held in a certain position button'. This wasy then inside of things like 
-#   position, we could address the issue of which ball/balls to average to chose what position is to be used
-
-#eventually probably move over to using pandas instead of the dictionary to database everything
 
 #event features desired:
 #speed
+#   we need a way to map how fast/slow it gets, we could use the actual throws per
+#           second to set the beats per second. Im not sure, but i feel like this looks best with it being
+#           linked to the speed of the juggler, which can be checked by using the speed of held balls maybe
+#if '2 balls' is clicked, we have
 #location
+#   for nt maybe we will want to give it an amount of time that it must be held in one place while in a box
 #gather/ungather and/or start/stop
 #apart
+#sync peaks
+#collisions
 #so far as left and right balls go, if they are close calls, then they should be rounded to left
 #   or right, balls should only be considered mid if they are clearly mid, if they overlap the vertical
 #   line of the other actual extreme left/right ball, then they themselves should be considered
