@@ -317,7 +317,7 @@ def average_position_of_single_ball(ball_number, window_length):
     print(average_positions)
     return average_positions[0],average_positions[1]
 
-def create_individual_ball_audio(ball_index):
+def create_individual_ball_path_point_audio(ball_index):
     global use_override_notes,override_notes,last_note_sent
     is_ongoing = False
     if use_adjust_song_magnitude:
@@ -371,12 +371,6 @@ def is_valid_nt_location_input(location_instance_number):
 def create_multiple_ball_audio():
     execute_cc_location()
     execute_nt_location()
-
-#todo
-#   retest horizontal cc
-#   test vertical cc
-
-
 
 def execute_nt_location():
     for i in range (4):
@@ -449,40 +443,6 @@ def execute_cc_location():
                     first_edge = cc_location_obj[str(i)]['location border sides']['top']
                     second_edge = cc_location_obj[str(i)]['location border sides']['bottom']
                     send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cy),channel,number)
-        #more todo
-        #   test the veretical axis of the cc location
-        #   get the nt location working,
-        #       it should just send its note whenever the average position goes from not being in the box to being in the
-        #           box. there should probably also be a certain amount of time that must between triggers to avoid
-        #           flickering near edges of the box.
-        #       another entry that would be useful here would be is the amount of time that it must be in an
-        #           area before it triggers its thing. although not sure if this is good or not since then it would
-        #           just look/feel like a delay
-        #   make the location inputs only allow numbers in ui
-        #   show a circle where the average is in the imshow
-        #       the average circle could be a certain color and there could also be lines/box that shows where
-        #       the edges are for that instance
-        #   make a begin and end time for each different midi feature
-        #   make a way for midi features to be able to be turned on and off by other features
-        #       this could be done in place of midi channel/number, somehow those entries
-        #           could also be used to turn other features on/off
-        #   hook up what we have with position to the velocity lists as well
-        #       make the ui for this
-        #   make the speed function below be just like the location function, except using velocity. maybe it would
-        #       be good to only use velocity from frames where the balls are 'held'
-        #NEW SAVE SYSTEM
-        #   make an entry next to save button and an optionmenu next to load button, the optionmenu is populated with
-        #       all previous saves. the entry is used to create the file which keeps track of which of all the other
-        #       sections are currently selected
-        #   each section (path point configs, midi config, nt location, cc location..) has its own create new option
-        #       which is used to make a new config which can then be used in setting up the whole master setup
-        #   make the screen wider, to the left of each of the location instances there should be optionmenus
-        #       that are full of the different premade arrangments, selecting them should fill in the blanks
-        #       there needs to be a way to create new ones as well. maybe leave it editable as is and just add
-        #       a save button, but maybe make it all greyed out and make a new popup window for creating new ones.
-        #eventual todo
-        #   make it so that the savefiledialog creates a folder that holds a bunch of differnt saved files,
-        #       one for each different aspect of the ui as well as anything else that should be saved
 
         #send_midi_cc_based_on_average_speed_while_held()
         #send_midi_cc_based_on_average_speed() 
@@ -490,13 +450,6 @@ def execute_cc_location():
 def send_midi_cc_based_on_average_speed_while_held():
     for i in range(3):#average all 6 velocities together over a certain amount of time and then get a low
         print(i)#and high number to be the 0, 128 and figure it out from there
-
-
-
-    #IDEALLY FOR SPEED:
-    #-i can use the average velocity of any ball or combination of balls
-    #-there are calibration windows that can be opened where the extreme fast juggling can be performed
-    #       as well as the extreme slow juggling
 
 def send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position,channel,number):
     value = 0
@@ -594,213 +547,3 @@ def create_association_object():
                     midi_associations['ball '+str(i)][path_phase][path_type]['times_position_triggered'] = [-1]*len(settings.scale_to_use)
                     midi_associations['ball '+str(i)][path_phase][path_type]['notes'] = notes_to_use
                     midi_associations['ball '+str(i)][path_phase][path_type]['magnitude'] = midi_magnitude
-    #print(midi_associations)
-
-    '''#midi_associations['ball '+str(i)]['peak']['mid column']['modulator'] = [['width',0,0], ['height',0,1]]    
-        #midi_associations['ball '+str(i)]['peak']['mid column'] = {}
-        #midi_associations['ball '+str(i)]['peak']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-        #midi_associations['ball '+str(i)]['peak']['mid column']['notes']['scale_type'] = 
-        #midi_associations['ball '+str(i)]['peak']['mid column']['notes']['root'] = 
-        #midi_associations['ball '+str(i)]['peak']['mid column']['notes'][''] = chord/scale/individual
-        ui_point_index_for_left_column_peak = left_column_peak_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_left_column_peak > 0:
-            if point_setups_input_type[ui_point_index_for_left_column_peak] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_left_column_peak].split(',')))
-            midi_associations['ball '+str(i)]['peak']['left column'] = {}
-            midi_associations['ball '+str(i)]['peak']['left column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['peak']['left column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_left_column_peak]
-            midi_associations['ball '+str(i)]['peak']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['peak']['left column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['peak']['left column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_right_column_peak = right_column_peak_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_right_column_peak > 0:
-            if point_setups_input_type[ui_point_index_for_right_column_peak] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_right_column_peak].split(','))) 
-            midi_associations['ball '+str(i)]['peak']['right column'] = {}
-            midi_associations['ball '+str(i)]['peak']['right column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['peak']['right column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_right_column_peak]
-            midi_associations['ball '+str(i)]['peak']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['peak']['right column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['peak']['right column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]] 
-        ui_point_index_for_mid_cross_peak = mid_cross_peak_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_mid_cross_peak > 0:
-            if point_setups_input_type[ui_point_index_for_mid_cross_peak] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_mid_cross_peak].split(',')))
-            midi_associations['ball '+str(i)]['peak']['mid cross'] = {}
-            midi_associations['ball '+str(i)]['peak']['mid cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['peak']['mid cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_mid_cross_peak]
-            midi_associations['ball '+str(i)]['peak']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['peak']['mid cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['peak']['mid cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_left_cross_peak = left_cross_peak_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_left_cross_peak > 0:
-            if point_setups_input_type[ui_point_index_for_left_cross_peak] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_left_cross_peak].split(',')))    
-            midi_associations['ball '+str(i)]['peak']['left cross'] = {}
-            midi_associations['ball '+str(i)]['peak']['left cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['peak']['left cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_left_cross_peak]
-            midi_associations['ball '+str(i)]['peak']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['peak']['left cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['peak']['left cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_right_cross_peak = right_cross_peak_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_right_cross_peak > 0:
-            if point_setups_input_type[ui_point_index_for_right_cross_peak] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_right_cross_peak].split(',')))           
-            midi_associations['ball '+str(i)]['peak']['right cross'] = {}
-            midi_associations['ball '+str(i)]['peak']['right cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['peak']['right cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_right_cross_peak]
-            midi_associations['ball '+str(i)]['peak']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['peak']['right cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['peak']['right cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
-
-        midi_associations['ball '+str(i)]['catch'] = {}
-        ui_point_index_for_mid_column_catch = mid_column_catch_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_mid_column_catch > 0:
-            if point_setups_input_type[ui_point_index_for_mid_column_catch] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_mid_column_catch].split(',')))
-            midi_associations['ball '+str(i)]['catch']['mid column'] = {}
-            midi_associations['ball '+str(i)]['catch']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['catch']['mid column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_mid_column_catch]
-            midi_associations['ball '+str(i)]['catch']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['catch']['mid column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['catch']['mid column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['catch']['mid column']['modulator'] = [['width',0,0], ['height',0,1]]    
-        #midi_associations['ball '+str(i)]['catch']['mid column'] = {}
-        #midi_associations['ball '+str(i)]['catch']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-        #midi_associations['ball '+str(i)]['catch']['mid column']['notes']['scale_type'] = 
-        #midi_associations['ball '+str(i)]['catch']['mid column']['notes']['root'] = 
-        #midi_associations['ball '+str(i)]['catch']['mid column']['notes'][''] = chord/scale/individual
-        ui_point_index_for_left_column_catch = left_column_catch_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_left_column_catch > 0:
-            if point_setups_input_type[ui_point_index_for_left_column_catch] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_left_column_catch].split(',')))
-            midi_associations['ball '+str(i)]['catch']['left column'] = {}
-            midi_associations['ball '+str(i)]['catch']['left column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['catch']['left column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_left_column_catch]
-            midi_associations['ball '+str(i)]['catch']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['catch']['left column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['catch']['left column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['catch']['left column']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_right_column_catch = right_column_catch_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_right_column_catch > 0:
-            if point_setups_input_type[ui_point_index_for_right_column_catch] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_right_column_catch].split(','))) 
-            midi_associations['ball '+str(i)]['catch']['right column'] = {}
-            midi_associations['ball '+str(i)]['catch']['right column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['catch']['right column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_right_column_catch]
-            midi_associations['ball '+str(i)]['catch']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['catch']['right column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['catch']['right column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['catch']['right column']['modulator'] = [['width',0,0], ['height',0,1]] 
-        ui_point_index_for_mid_cross_catch = mid_cross_catch_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_mid_cross_catch > 0:
-            if point_setups_input_type[ui_point_index_for_mid_cross_catch] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_mid_cross_catch].split(',')))
-            midi_associations['ball '+str(i)]['catch']['mid cross'] = {}
-            midi_associations['ball '+str(i)]['catch']['mid cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['catch']['mid cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_mid_cross_catch]
-            midi_associations['ball '+str(i)]['catch']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['catch']['mid cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['catch']['mid cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['catch']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_left_cross_catch = left_cross_catch_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_left_cross_catch > 0:
-            if point_setups_input_type[ui_point_index_for_left_cross_catch] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_left_cross_catch].split(',')))    
-            midi_associations['ball '+str(i)]['catch']['left cross'] = {}
-            midi_associations['ball '+str(i)]['catch']['left cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['catch']['left cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_left_cross_catch]
-            midi_associations['ball '+str(i)]['catch']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['catch']['left cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['catch']['left cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['catch']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_right_cross_catch = right_cross_catch_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_right_cross_catch > 0:
-            if point_setups_input_type[ui_point_index_for_right_cross_catch] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_right_cross_catch].split(',')))           
-            midi_associations['ball '+str(i)]['catch']['right cross'] = {}
-            midi_associations['ball '+str(i)]['catch']['right cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['catch']['right cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_right_cross_catch]
-            midi_associations['ball '+str(i)]['catch']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['catch']['right cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['catch']['right cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['catch']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
-
-        midi_associations['ball '+str(i)]['throw'] = {}
-        ui_point_index_for_mid_column_throw = mid_column_throw_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_mid_column_throw > 0:
-            if point_setups_input_type[ui_point_index_for_mid_column_throw] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_mid_column_throw].split(',')))
-            midi_associations['ball '+str(i)]['throw']['mid column'] = {}
-            midi_associations['ball '+str(i)]['throw']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['throw']['mid column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_mid_column_throw]
-            midi_associations['ball '+str(i)]['throw']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['throw']['mid column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['throw']['mid column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['mid column']['modulator'] = [['width',0,0], ['height',0,1]]    
-        #midi_associations['ball '+str(i)]['throw']['mid column'] = {}
-        #midi_associations['ball '+str(i)]['throw']['mid column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-        #midi_associations['ball '+str(i)]['throw']['mid column']['notes']['scale_type'] = 
-        #midi_associations['ball '+str(i)]['throw']['mid column']['notes']['root'] = 
-        #midi_associations['ball '+str(i)]['throw']['mid column']['notes'][''] = chord/scale/individual
-        ui_point_index_for_left_column_throw = left_column_throw_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_left_column_throw > 0:
-            if point_setups_input_type[ui_point_index_for_left_column_throw] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_left_column_throw].split(',')))
-            midi_associations['ball '+str(i)]['throw']['left column'] = {}
-            midi_associations['ball '+str(i)]['throw']['left column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['throw']['left column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_left_column_throw]
-            midi_associations['ball '+str(i)]['throw']['left column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['throw']['left column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['throw']['left column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['left column']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_right_column_throw = right_column_throw_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_right_column_throw > 0:
-            if point_setups_input_type[ui_point_index_for_right_column_throw] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_right_column_throw].split(','))) 
-            midi_associations['ball '+str(i)]['throw']['right column'] = {}
-            midi_associations['ball '+str(i)]['throw']['right column']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['throw']['right column']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_right_column_throw]
-            midi_associations['ball '+str(i)]['throw']['right column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['throw']['right column']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['throw']['right column']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['right column']['modulator'] = [['width',0,0], ['height',0,1]] 
-        ui_point_index_for_mid_cross_throw = mid_cross_throw_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_mid_cross_throw > 0:
-            if point_setups_input_type[ui_point_index_for_mid_cross_throw] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_mid_cross_throw].split(',')))
-            midi_associations['ball '+str(i)]['throw']['mid cross'] = {}
-            midi_associations['ball '+str(i)]['throw']['mid cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['throw']['mid cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_mid_cross_throw]
-            midi_associations['ball '+str(i)]['throw']['mid cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['throw']['mid cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['throw']['mid cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_left_cross_throw = left_cross_throw_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_left_cross_throw > 0:
-            if point_setups_input_type[ui_point_index_for_left_cross_throw] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_left_cross_throw].split(',')))    
-            midi_associations['ball '+str(i)]['throw']['left cross'] = {}
-            midi_associations['ball '+str(i)]['throw']['left cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['throw']['left cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_left_cross_throw]
-            midi_associations['ball '+str(i)]['throw']['left cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['throw']['left cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['throw']['left cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]
-        ui_point_index_for_right_cross_throw = right_cross_throw_path_point_configuration_index[ball_config_index_to_use[i]]
-        if ui_point_index_for_right_cross_throw > 0:
-            if point_setups_input_type[ui_point_index_for_right_cross_throw] == 'midi':
-                notes_to_use = list(map(int,point_setups_single_line_input[ui_point_index_for_right_cross_throw].split(',')))           
-            midi_associations['ball '+str(i)]['throw']['right cross'] = {}
-            midi_associations['ball '+str(i)]['throw']['right cross']['channel'] = selected_config_midi_channels[ball_config_index_to_use[i]]
-            midi_associations['ball '+str(i)]['throw']['right cross']['note_selection_mode'] = point_setups_note_selection_type[ui_point_index_for_right_cross_throw]
-            midi_associations['ball '+str(i)]['throw']['right cross']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-            midi_associations['ball '+str(i)]['throw']['right cross']['notes'] = notes_to_use
-            midi_associations['ball '+str(i)]['throw']['right cross']['magnitude'] = midi_magnitude
-        #midi_associations['ball '+str(i)]['throw']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
-

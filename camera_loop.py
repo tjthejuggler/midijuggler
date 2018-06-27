@@ -83,7 +83,7 @@ def run_camera():
                 #print(settings.all_cx[0][-1])
                 if settings.all_cx[ball_index][-1] != 'X':          
                     analyze_trajectory(ball_index,relative_positions[ball_index],frame_count,average_fps)
-                    create_individual_ball_audio(ball_index)
+                    create_individual_ball_path_point_audio(ball_index)
             create_multiple_ball_audio()
         all_mask = show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,len(settings.scale_to_use))               
         two_frames_ago = previous_frame
