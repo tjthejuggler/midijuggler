@@ -90,6 +90,8 @@ for inst_num in speed_inst_nums:
 	for speed_midi_input_type in speed_midi_input_types:
 		speed_obj[inst_num][speed_midi_input_type] = 0
 
+
+
 #POSSIBLE WAYS TO MEASURE JUGGLING SPEED
 #	peaks/throws/catches per minute
 #		an issue with this is that the cascade and chops with the same number of peaks per second
@@ -104,6 +106,21 @@ for inst_num in speed_inst_nums:
 #			the velocity of all balls
 #				OR MAYBE all we would need to use is the velocity of all balls
 
+apart_inst_nums = ['0','1','2','3']
+number_of_balls = 3
+ball_numbers = []
+for i in range (1,number_of_balls+1):
+	ball_numbers.append(str(i))
+print(ball_numbers)
+apart_midi_input_types = ['channel','number']
+apart_obj = {}
+for inst_num in apart_inst_nums:
+	apart_obj[inst_num] = {}
+	apart_obj[inst_num]['active'] = 0
+	apart_obj[inst_num]['balls to average'] = []
+	speed_obj[inst_num]['distance'] = 10
+	for apart_midi_input_type in apart_midi_input_types:
+		apart_obj[inst_num][apart_midi_input_type] = 0
 
 
 #APART
@@ -111,6 +128,23 @@ for inst_num in speed_inst_nums:
 #		they can be 2 specific balls, or they can be any two balls
 #INPUT NEEDED:
 #	midi channel, number, threshold
+
+movement_inst_nums = ['0','1','2','3']
+number_of_balls = 3
+ball_numbers = []
+for i in range (1,number_of_balls+1):
+	ball_numbers.append(str(i))
+print(ball_numbers)
+movement_midi_input_types = ['channel','number']
+movement_obj = {}
+for inst_num in movement_inst_nums:
+	movement_obj[inst_num] = {}
+	movement_obj[inst_num]['active'] = 0
+	movement_obj[inst_num]['move or stop'] = 'move'
+	movement_obj[inst_num]['sensitivity'] = 10
+	for movement_midi_input_type in movement_midi_input_types:
+		movement_obj[inst_num][movement_midi_input_type] = 0
+
 
 #GATHER
 

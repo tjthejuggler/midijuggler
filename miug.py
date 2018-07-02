@@ -468,7 +468,44 @@ def set_ui_location_spot_objs_visibility(show_or_hide):
     ui_location_obj['nt']['3']['border']['bottom']['widget'].place(x=extra+850,y=365)
 
 def set_apart_widgets_visibility(show_or_hide):
-    print('apart')
+    extra = 0
+    if show_or_hide == 'hide':
+        extra = 1000
+    ui_apart_obj['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
+    ui_apart_obj['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
+    ui_apart_obj['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
+    ui_apart_obj['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_apart_obj['0']['instance label'].place(x=extra+60,y=150) 
+    ui_apart_obj['1']['instance label'].place(x=extra+60,y=215) 
+    ui_apart_obj['2']['instance label'].place(x=extra+60,y=280) 
+    ui_apart_obj['3']['instance label'].place(x=extra+60,y=345) 
+    ui_apart_obj['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
+    ui_apart_obj['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
+    ui_apart_obj['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
+    ui_apart_obj['1']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=250)
+    ui_apart_obj['1']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=250)
+    ui_apart_obj['1']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=250)
+    ui_apart_obj['2']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=315)
+    ui_apart_obj['2']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=315)
+    ui_apart_obj['2']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=315)
+    ui_apart_obj['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
+    ui_apart_obj['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
+    ui_apart_obj['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
+    ui_apart_obj['0']['distance']['widget'].place(x=extra+270,y=170)
+    ui_apart_obj['1']['distance']['widget'].place(x=extra+270,y=235)
+    ui_apart_obj['2']['distance']['widget'].place(x=extra+270,y=300)
+    ui_apart_obj['3']['distance']['widget'].place(x=extra+270,y=365)
+    ui_apart_obj['header label']['channel'].place(x=extra+370,y=130)
+    ui_apart_obj['header label']['number'].place(x=extra+440,y=130) 
+    ui_apart_obj['header label']['distance'].place(x=extra+250,y=130)
+    ui_apart_obj['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
+    ui_apart_obj['0']['midi']['number']['widget'].place(x=extra+440,y=170)
+    ui_apart_obj['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
+    ui_apart_obj['1']['midi']['number']['widget'].place(x=extra+440,y=235)
+    ui_apart_obj['2']['midi']['channel']['widget'].place(x=extra+370,y=300)
+    ui_apart_obj['2']['midi']['number']['widget'].place(x=extra+440,y=300)
+    ui_apart_obj['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
+    ui_apart_obj['3']['midi']['number']['widget'].place(x=extra+440,y=365)
 
 def set_gather_widgets_visibility(show_or_hide):
     print('gather')
@@ -477,7 +514,40 @@ def set_collision_widgets_visibility(show_or_hide):
     print('collision')
 
 def set_movement_widgets_visibility(show_or_hide):
-    print('movement')
+    extra = 0
+    if show_or_hide == 'hide':
+        extra = 1000
+    ui_movement_obj['0']['active']['widget'].place(x=extra+10,y=150) 
+    ui_movement_obj['1']['active']['widget'].place(x=extra+10,y=215) 
+    ui_movement_obj['2']['active']['widget'].place(x=extra+10,y=280) 
+    ui_movement_obj['3']['active']['widget'].place(x=extra+10,y=345) 
+    ui_movement_obj['0']['instance label'].place(x=extra+60,y=150) 
+    ui_movement_obj['1']['instance label'].place(x=extra+60,y=215) 
+    ui_movement_obj['2']['instance label'].place(x=extra+60,y=280) 
+    ui_movement_obj['3']['instance label'].place(x=extra+60,y=345) 
+    ui_movement_obj['0']['radiobutton']['move'].place(x=extra+50,y=185)
+    ui_movement_obj['0']['radiobutton']['stop'].place(x=extra+120,y=185)
+    ui_movement_obj['1']['radiobutton']['move'].place(x=extra+50,y=250)
+    ui_movement_obj['1']['radiobutton']['stop'].place(x=extra+120,y=250)
+    ui_movement_obj['2']['radiobutton']['move'].place(x=extra+50,y=315)
+    ui_movement_obj['2']['radiobutton']['stop'].place(x=extra+120,y=315)
+    ui_movement_obj['3']['radiobutton']['move'].place(x=extra+50,y=380)
+    ui_movement_obj['3']['radiobutton']['stop'].place(x=extra+120,y=380)
+    ui_movement_obj['0']['sensitivity']['widget'].place(x=extra+270,y=170)
+    ui_movement_obj['1']['sensitivity']['widget'].place(x=extra+270,y=235)
+    ui_movement_obj['2']['sensitivity']['widget'].place(x=extra+270,y=300)
+    ui_movement_obj['3']['sensitivity']['widget'].place(x=extra+270,y=365)
+    ui_movement_obj['header label']['channel'].place(x=extra+370,y=130)
+    ui_movement_obj['header label']['number'].place(x=extra+440,y=130) 
+    ui_movement_obj['header label']['sensitivity'].place(x=extra+250,y=130)
+    ui_movement_obj['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
+    ui_movement_obj['0']['midi']['number']['widget'].place(x=extra+440,y=170)
+    ui_movement_obj['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
+    ui_movement_obj['1']['midi']['number']['widget'].place(x=extra+440,y=235)
+    ui_movement_obj['2']['midi']['channel']['widget'].place(x=extra+370,y=300)
+    ui_movement_obj['2']['midi']['number']['widget'].place(x=extra+440,y=300)
+    ui_movement_obj['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
+    ui_movement_obj['3']['midi']['number']['widget'].place(x=extra+440,y=365)
 
 def set_path_points_config_inputs_visibility(show_or_hide):
     extra = 0
@@ -856,6 +926,74 @@ def speed_channel_or_number_changed(entry_text,inst_num,speed_midi_input_type):
     speed_obj[inst_num][speed_midi_input_type] = str(entry_text)
 #########################     END SPEED SECTION     ##########################
 
+#########################     BEGIN APART SECTION     ##########################
+def apart_active_checkbutton_changed(checked,inst_num):
+    print('checked')
+    print(checked)
+    print('inst_num')
+    print(inst_num)
+    apart_obj[inst_num]['active'] = checked
+    print(apart_obj[inst_num]['active'])
+
+def apart_ball_number_checkbutton_changed(checked,inst_num,ball_number):
+    print('checked')
+    print(checked)
+    print('ball_number')
+    print(ball_number)
+    print('inst_num')
+    print(inst_num)
+    if checked:
+        if not ball_number in apart_obj[inst_num]['balls to average']:
+            apart_obj[inst_num]['balls to average'].append(ball_number)
+    else:
+        if ball_number in apart_obj[inst_num]['balls to average']:
+            apart_obj[inst_num]['balls to average'].remove(ball_number)
+    if '' in apart_obj[inst_num]['balls to average']: apart_obj[inst_num]['balls to average'].remove('')
+    print(apart_obj[inst_num]['balls to average'])
+
+def apart_distance_changed(entry_text,inst_num):
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    apart_obj[inst_num]['distance'] = str(entry_text)    
+
+def apart_channel_or_number_changed(entry_text,inst_num,apart_midi_input_type):
+    print('apart_midi_input_type '+apart_midi_input_type)
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    apart_obj[inst_num][apart_midi_input_type] = str(entry_text)
+#########################     END APART SECTION     ##########################
+
+
+#########################     END MOVEMENT SECTION     ##########################
+def movement_active_checkbutton_changed(checked,inst_num):
+    print('checked')
+    print(checked)
+    print('inst_num')
+    print(inst_num)
+    movement_obj[inst_num]['active'] = checked
+    print(movement_obj[inst_num]['active'])
+
+def movement_radiobutton_changed(move_or_stop,inst_num):
+    print('move_or_stop')
+    print(move_or_stop)
+    print('inst_num')
+    print(inst_num)
+    movement_obj[inst_num]['move or stop'] = move_or_stop
+    print(movement_obj[inst_num]['move or stop'])
+
+def movement_sensitivity_changed(entry_text,inst_num):
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    movement_obj[inst_num]['sensitivity'] = str(entry_text)    
+
+def movement_channel_or_number_changed(entry_text,inst_num,movement_midi_input_type):
+    print('movement_midi_input_type '+movement_midi_input_type)
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    movement_obj[inst_num][movement_midi_input_type] = str(entry_text)
+
+
+#########################     END MOVEMENT SECTION     ##########################
 
 
 if use_user_interface:
@@ -1265,6 +1403,126 @@ if use_user_interface:
             ttk.Entry(root, width = 4,textvariable= \
                 ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'])
 ###########################  END SPEED SECTION  ######################
+
+
+###########################  BEGIN APART SECTION  #################################
+    ui_apart_obj = {}
+    ui_apart_obj['header label'] = {}
+    ui_apart_obj['header label']['distance'] = ttk.Label(
+        root, text='Distance',font=('Courier', 10))
+    ui_apart_obj['header label']['channel'] = ttk.Label(
+        root, text='Channel',font=('Courier', 8))
+    ui_apart_obj['header label']['number'] = ttk.Label(
+        root, text='Number',font=('Courier', 8))
+
+    for inst_num in apart_inst_nums:
+        ui_apart_obj[inst_num] = {}
+        ui_apart_obj[inst_num]['instance label'] = {}
+        ui_apart_obj[inst_num]['checkbutton'] = {}
+        ui_apart_obj[inst_num]['distance'] = {} 
+        ui_apart_obj[inst_num]['midi'] = {}       
+        ui_apart_obj[inst_num]['instance label'] = ttk.Label(
+            root, text='apart '+inst_num,font=('Courier', 16)) 
+        ui_apart_obj[inst_num]['checkbutton']['active'] = {}
+        ui_apart_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
+        this_ui_apart_obj = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
+        ui_apart_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_apart_obj[inst_num]['checkbutton']['active']['var'], \
+            command=lambda this_ui_apart_obj= \
+            ui_apart_obj[inst_num]['checkbutton']['active']['var'], \
+            inst_num=inst_num: apart_active_checkbutton_changed(
+                this_ui_apart_obj.get(),inst_num))  
+        for ball_number in ball_numbers:
+            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
+            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+            this_ui_apart_obj = ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].get()
+            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+                root, text='Ball '+ball_number, variable= \
+                ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                command=lambda this_ui_apart_obj= \
+                ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                inst_num=inst_num,ball_number=ball_number: apart_ball_number_checkbutton_changed(
+                    this_ui_apart_obj.get(),inst_num,ball_number))     
+        ui_apart_obj[inst_num]['distance']['var'] = StringVar(root)
+        ui_apart_obj[inst_num]['distance']['var'].set(10)
+        this_variable = ui_apart_obj[inst_num]['distance']['var']
+        ui_apart_obj[inst_num]['distance']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            apart_distance_changed(this_variable.get(),inst_num))
+        ui_apart_obj[inst_num]['distance']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_apart_obj[inst_num]['distance']['var'])       
+        ui_apart_obj[inst_num]['midi'] = {}
+        for apart_midi_input_type in apart_midi_input_types:
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type] = {}
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'] = StringVar(root)
+            this_variable = ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var']
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].trace(
+                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, \
+                apart_midi_input_type=apart_midi_input_type: apart_channel_or_number_changed(
+                this_variable.get(),inst_num,apart_midi_input_type))
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['widget'] = \
+            ttk.Entry(root, width = 4,textvariable= \
+                ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'])
+###########################  END APART SECTION  #################################
+
+###########################  BEGIN MOVEMENT SECTION  #################################
+
+    ui_movement_obj = {}
+    ui_movement_obj['header label'] = {}
+    ui_movement_obj['header label']['sensitivity'] = ttk.Label(
+        root, text='sensitivity',font=('Courier', 10))
+    ui_movement_obj['header label']['channel'] = ttk.Label(
+        root, text='Channel',font=('Courier', 8))
+    ui_movement_obj['header label']['number'] = ttk.Label(
+        root, text='Number',font=('Courier', 8))
+
+    for inst_num in movement_inst_nums:
+        ui_movement_obj[inst_num] = {}
+        ui_movement_obj[inst_num]['instance label'] = {}
+        ui_movement_obj[inst_num]['active'] = {}
+        ui_movement_obj[inst_num]['sensitivity'] = {} 
+        ui_movement_obj[inst_num]['midi'] = {}       
+        ui_movement_obj[inst_num]['instance label'] = ttk.Label(
+            root, text='movement '+inst_num,font=('Courier', 16)) 
+        ui_movement_obj[inst_num]['active']['var'] = IntVar()
+        this_ui_movement_obj = ui_movement_obj[inst_num]['active']['var'].get()
+        ui_movement_obj[inst_num]['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_movement_obj[inst_num]['active']['var'], \
+            command=lambda this_ui_movement_obj= \
+            ui_movement_obj[inst_num]['active']['var'], \
+            inst_num=inst_num: movement_active_checkbutton_changed(
+                this_ui_movement_obj.get(),inst_num))          
+        ui_movement_obj[inst_num]['radiobutton'] = {}
+        ui_movement_obj[inst_num]['radiobutton']['var'] = StringVar()
+        this_variable = ui_movement_obj[inst_num]['radiobutton']['var']
+        ui_movement_obj[inst_num]['radiobutton']['move'] = Radiobutton(root, text='Move', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='move', font=('Courier', 10))
+        ui_movement_obj[inst_num]['radiobutton']['stop'] = Radiobutton(root, text='Stop', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='stop', font=('Courier', 10))
+        ui_movement_obj[inst_num]['radiobutton']['var'].set('move')
+        ui_movement_obj[inst_num]['radiobutton']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            movement_radiobutton_changed(this_variable.get(),inst_num))
+        ui_movement_obj[inst_num]['sensitivity']['var'] = StringVar(root)
+        ui_movement_obj[inst_num]['sensitivity']['var'].set(10)
+        this_variable = ui_movement_obj[inst_num]['sensitivity']['var']
+        ui_movement_obj[inst_num]['sensitivity']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            movement_sensitivity_changed(this_variable.get(),inst_num))
+        ui_movement_obj[inst_num]['sensitivity']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_movement_obj[inst_num]['sensitivity']['var'])       
+        ui_movement_obj[inst_num]['midi'] = {}
+        for movement_midi_input_type in movement_midi_input_types:
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type] = {}
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'] = StringVar(root)
+            this_variable = ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var']
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].trace(
+                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, \
+                movement_midi_input_type=movement_midi_input_type: movement_channel_or_number_changed(
+                this_variable.get(),inst_num,movement_midi_input_type))
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['widget'] = \
+            ttk.Entry(root, width = 4,textvariable= \
+                ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'])
+
+###########################  END MOVEMENT SECTION  #################################
 
 ###########################  BEGIN TOP MAIN SECTION  #################################
     current_file_name_label = ttk.Label(root, text='original.txt',font=('Courier', 16))
