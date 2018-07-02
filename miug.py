@@ -3,6 +3,7 @@ from camera_loop import *
 import rtmidi #for sending midi
 from midi_helper import *
 import csv
+import os
 
 use_user_interface = True
 
@@ -18,7 +19,7 @@ def begin_program():
     print(False)
     setup_midi()
     if not use_user_interface:
-        load_config_dialog(True)
+        load_config_file(True)
         start_camera()
     else:
         selected_event_type.set('path points')
@@ -26,14 +27,13 @@ def begin_program():
     root.mainloop()
 
 #########################     BEGIN TOP MAIN SECTION     ##########################
-def load_config_dialog(use_default_config):
+def load_config_file(use_default_config):
     if use_default_config:
         load_config_file_name = 'zz.txt'
     else:
-        global current_file_name_label
-        load_config_file_name = askopenfilename()
+        load_config_file_name = load_file_name.get()+'.txt'
     try:
-        read_text_file = open(load_config_file_name, 'r')
+        read_text_file = open('saved/'+load_config_file_name, 'r')
         lines = read_text_file.readlines()
         first_line = lines.index("begin path point instance obj\n") + 1
         for i in range(number_of_path_point_instances):
@@ -103,12 +103,12 @@ def load_config_dialog(use_default_config):
             speed_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
         if not use_default_config:
             read_text_file.close()
-            current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
             selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
             set_widgets_from_data()
             input_type.set(path_point_midi_obj[int(current_midi_config_index.get())]['input type'])
             point_single_line_input_text.set(path_point_midi_obj[int(current_midi_config_index.get())]['input'])
             note_selection_type.set(path_point_midi_obj[int(current_midi_config_index.get())]['note selection type'])
+            save_file_name.set(load_file_name.get().split('.')[0])
     except FileNotFoundError:
         pass
 
@@ -126,9 +126,11 @@ def start_camera():
     run_camera()
 #with new save setup
 #   first row should be column names
-def save_config_dialog():
-    config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
-    current_file_name_label.config(text=str(config_to_save.name.split('/')[-1]))
+def save_config_file():
+    
+    config_to_save = open('saved/'+save_file_name.get()+".txt","w+")   
+
+    #config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
     text_in_config_to_save = ''
     text_in_config_to_save += 'begin path point instance obj\n'
     for i in range(number_of_path_point_instances):
@@ -178,7 +180,16 @@ def save_config_dialog():
             text_in_config_to_save += str(speed_obj[str(i)][speed_midi_input_type]) + ','
         text_in_config_to_save += '\n'
     config_to_save.write(text_in_config_to_save)
-    config_to_save.close()        
+    config_to_save.close()
+
+    m = load_file_name_type_optionmenu.children['menu']
+    m.delete(0,END)
+    path = 'saved/'
+    load_file_name_choices = [f.split('.')[0] for f in os.listdir(path) if f.endswith('.txt')]
+    for val in load_file_name_choices:
+        m.add_command(label=val,command=lambda v=load_file_name,l=val:v.set(l))
+    load_file_name.set(save_file_name.get())
+  
 
 def show_gravity_calibration_window():
     print('gravity')
@@ -1525,17 +1536,31 @@ if use_user_interface:
 ###########################  END MOVEMENT SECTION  #################################
 
 ###########################  BEGIN TOP MAIN SECTION  #################################
-    current_file_name_label = ttk.Label(root, text='original.txt',font=('Courier', 16))
-    current_file_name_label.place(x=200,y=10)  
-
     start_button = ttk.Button(root,text='Start',fg='red',font=('Courier','16'),command=start_camera,height=2,width=13)
     start_button.place(x=664,y=710)
 
-    save_button = ttk.Button(root,text='Save',fg='blue',command=save_config_dialog,height=1,width=9)
-    save_button.place(x=100,y=10)
+    save_button = ttk.Button(root,text='Save',fg='blue',command=save_config_file,height=1,width=9)
+    save_button.place(x=10,y=10)
 
-    load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_dialog(False),height=1,width=9)
-    load_button.place(x=10,y=10)
+    save_file_name = StringVar(root)
+    save_file_name.set('')
+    save_file_name_entry = ttk.Entry(root, width = 15,textvariable=save_file_name)
+    save_file_name_entry.place(x=100,y=10)    
+
+    load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_file(False),height=1,width=9)
+    load_button.place(x=10,y=50)
+
+    #when a save happens we should repopulate the load optionmenu
+    load_file_name = StringVar(root)
+    path = 'saved/'
+    load_file_name_choices = [f.split('.')[0] for f in os.listdir(path) if f.endswith('.txt')]
+    if len(load_file_name_choices) < 1:
+        load_file_name_choices.append('')
+    load_file_name.set('')
+    load_file_name_type_optionmenu = OptionMenu(root, load_file_name, *load_file_name_choices)
+    load_file_name_type_optionmenu.place(x=100,y=50)  
+
+
 
     selected_event_type = StringVar(root)
 
