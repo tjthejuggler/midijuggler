@@ -135,7 +135,7 @@ def get_midi_from_letter(letter, current_octave):
 loop_creator_counter = 0
 
 def loop_creator(note):
-    print('p')
+    #print('p')
     global loop_creator_counter
     if loop_creator_counter == 0:
         send_midi_note_on_only(2,note,100)
@@ -305,16 +305,16 @@ def average_position_of_single_ball(ball_number, window_length):
     axes = [[x for x in all_cx[ball_number-1] if x is not 'X'], [x for x in all_cy[ball_number-1] if x is not 'X']]
     average_positions = [-1,-1]
     average_duration = min(len(axes[0]), int(window_length))
-    print('average_duration'+str(average_duration))
+    #print('average_duration'+str(average_duration))
     axis_num = 0
     for axis in axes:
         if average_duration>0:
             average_position_of_current_axis= np.average(axis[-average_duration+1:])
             average_positions[axis_num] = average_position_of_current_axis
         axis_num += 1
-    print("average_position_of_single_ball")
+    '''print("average_position_of_single_ball")
     print(axes)
-    print(average_positions)
+    print(average_positions)'''
     return average_positions[0],average_positions[1]
 
 def create_individual_ball_path_point_audio(ball_index):
@@ -330,42 +330,46 @@ def create_individual_ball_path_point_audio(ball_index):
             soundscape_color = soundscape_image[all_cy[ball_index][-1],all_cx[ball_index][-1]]
             send_midi_note_from_soundscape_color(soundscape_color)
         else:
-            if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
-                #print('path_type[ball_index]')
-                #print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
-                channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
-                modulators = get_midi_modulation(ball_index,path_phase,path_type)
-                send_midi_messages(channel, notes, magnitude, modulators)                      
+            if ('ball '+str(ball_index)) in midi_associations:
+                if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
+                    #print('path_type[ball_index]')
+                    #print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
+                    channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
+                    modulators = get_midi_modulation(ball_index,path_phase,path_type)
+                    send_midi_messages(channel, notes, magnitude, modulators)                      
     else:
         note, magnitude = get_wav_sample(ball_index)
         modulation = get_wav_modulation(ball_index)
         send_wav_messages(note, magnitude, modulation)
 
-def is_valid_cc_location_input(location_instance_number,location_direction):
+def is_valid_cc_location_input(inst_num,location_direction):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
     print('val1')
-    print(location_instance_number)
-    print(cc_location_obj[str(location_instance_number)])
-    print(cc_location_obj[str(location_instance_number)]['balls to average'])
-    if any(i in list_of_ball_numbers for i in cc_location_obj[str(location_instance_number)]['balls to average']):
-        print('val2')
-        if int(cc_location_obj[str(location_instance_number)]['window size']) > 0:
-            print('val3')
-            if str(cc_location_obj[str(location_instance_number)][location_direction]['channel']).isdigit():
-                print('val4')
-                if str(cc_location_obj[str(location_instance_number)][location_direction]['number']).isdigit():
-                    is_valid = True
+    '''print(inst_num)
+    print(cc_location_obj[str(inst_num)])
+    print(cc_location_obj[str(inst_num)]['balls to average'])'''
+    if cc_location_obj[str(inst_num)]['active'] == 1:
+        if any(i in list_of_ball_numbers for i in cc_location_obj[str(inst_num)]['balls to average']):
+            print('val2')
+            if int(cc_location_obj[str(inst_num)]['window size']) > 0:
+                print('val3')
+                if str(cc_location_obj[str(inst_num)][location_direction]['channel']).isdigit():
+                    print('val4')
+                    if str(cc_location_obj[str(inst_num)][location_direction]['number']).isdigit():
+                        is_valid = True
     return is_valid
 
-def is_valid_nt_location_input(location_instance_number):
+def is_valid_nt_location_input(inst_num):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
-    if any(i in list_of_ball_numbers for i in nt_location_obj[str(location_instance_number)]['balls to average']):
-        if int(nt_location_obj[str(location_instance_number)]['window size']) > 0:
-            if nt_location_obj[str(location_instance_number)]['channel'].isdigit():
-                if nt_location_obj[str(location_instance_number)]['number'].isdigit():
-                    is_valid = True
+    if nt_location_obj[str(inst_num)]['active'] == 1:
+        print('nt active')
+        if any(i in list_of_ball_numbers for i in nt_location_obj[str(inst_num)]['balls to average']):
+            if int(nt_location_obj[str(inst_num)]['window size']) > 0:
+                if nt_location_obj[str(inst_num)]['channel'].isdigit():
+                    if nt_location_obj[str(inst_num)]['number'].isdigit():
+                        is_valid = True
     return is_valid
 
 def create_multiple_ball_audio():
@@ -377,7 +381,7 @@ def execute_nt_location():
         if is_valid_nt_location_input(i):
             ball_numbers_to_average = nt_location_obj[str(i)]['balls to average']
             if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
-            print('ball_numbers_to_average'+str(ball_numbers_to_average))
+            #print('ball_numbers_to_average'+str(ball_numbers_to_average))
             window_size = nt_location_obj[str(i)]['window size']
             channel = nt_location_obj[str(i)]['channel']
             number = nt_location_obj[str(i)]['number']
@@ -385,29 +389,29 @@ def execute_nt_location():
             ave_cx = []
             ave_cy = []
             for ball_number in ball_numbers_to_average:
-                print('ball_number'+str(ball_number))
-                print('window_size'+str(window_size))
+                #print('ball_number'+str(ball_number))
+                #print('window_size'+str(window_size))
                 Cx, Cy = average_position_of_single_ball(ball_number,window_size)
-                print('Cx '+str(Cx))
-                print('Cy '+str(Cy))
+                #print('Cx '+str(Cx))
+                #print('Cy '+str(Cy))
                 if Cx >= 0:
                     ave_cx.append(Cx) 
                     ave_cy.append(Cy)
-                print( nt_location_obj[str(i)]['location border sides'])
+                #print( nt_location_obj[str(i)]['location border sides'])
                 left_border = nt_location_obj[str(i)]['location border sides']['left']
                 right_border = nt_location_obj[str(i)]['location border sides']['right']
                 top_border = nt_location_obj[str(i)]['location border sides']['top']
                 bottom_border = nt_location_obj[str(i)]['location border sides']['bottom']
-                print('np.average(ave_cx)' +str(np.average(ave_cx)))
+                '''print('np.average(ave_cx)' +str(np.average(ave_cx)))
                 print('np.average(ave_cy)' +str(np.average(ave_cy)))
                 print(left_border)
                 print(right_border)
                 print(top_border)
-                print(bottom_border)
+                print(bottom_border)'''
                 if (np.average(ave_cx) > int(left_border) and np.average(ave_cx) < int(right_border) 
                     and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
                     if can_send_nt_location_midi_note[i]:
-                        print('sendM')
+                        #print('sendM')
                         send_midi_note(int(channel),int(number),60)
                         can_send_nt_location_midi_note[i] = False
                 else:
@@ -419,8 +423,8 @@ def execute_cc_location():
             if is_valid_cc_location_input(i,location_direction):
                 ball_numbers_to_average = cc_location_obj[str(i)]['balls to average']
                 if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
-                print('ball_numbers_to_average'+str(ball_numbers_to_average))
-                print(cc_location_obj[str(i)][location_direction]['channel'])
+                #print('ball_numbers_to_average'+str(ball_numbers_to_average))
+                #print(cc_location_obj[str(i)][location_direction]['channel'])
                 window_size = cc_location_obj[str(i)]['window size']
                 channel = cc_location_obj[str(i)][location_direction]['channel']
                 number = cc_location_obj[str(i)][location_direction]['number']
@@ -428,10 +432,10 @@ def execute_cc_location():
                 ave_cx = []
                 ave_cy = []
                 for ball_number in ball_numbers_to_average:
-                    print('ball_number'+str(int(ball_number)))
+                    #print('ball_number'+str(int(ball_number)))
                     Cx, Cy =average_position_of_single_ball(ball_number,window_size)
-                    print('Cx '+str(Cx))
-                    print('Cy '+str(Cy))
+                    #print('Cx '+str(Cx))
+                    #print('Cy '+str(Cy))
                     if Cx >= 0:
                         ave_cx.append(Cx) 
                         ave_cy.append(Cy)                          
@@ -455,8 +459,8 @@ def send_midi_cc_based_on_average_position(location_direction,first_edge,second_
     value = 0
     first_edge = int(first_edge)
     second_edge = int(second_edge)
-    print('all_cx[1][-1]'+str(all_cx[1][-1]))
-    print('average_position'+str(average_position))
+    #print('all_cx[1][-1]'+str(all_cx[1][-1]))
+    #print('average_position'+str(average_position))
 
     if location_direction == 'vertical':
         size = settings.frame_height        
@@ -473,7 +477,7 @@ def send_midi_cc_based_on_average_position(location_direction,first_edge,second_
         distance_between_edge_and_average_position = abs(first_edge-average_position)
         value = max(0,(distance_between_edge_and_average_position/distance_between_edges)*128)
 
-    print(str(channel) +','+ str(number) +','+str(value) )
+    #print(str(channel) +','+ str(number) +','+str(value) )
 
     send_midi_cc(int(channel),int(number),value)
 
@@ -523,27 +527,25 @@ def create_association_object():
     column_notes_to_use = settings.scale_to_use
     ball_config_index_to_use = [0,0,0]
 
-    for i in range(3):
+    for i in range(number_of_path_point_instances):
+        if path_point_instance_obj[i]['active'] == 1:
+            ball_number = path_point_instance_obj[i]['ball number']
+            path_config = path_point_instance_obj[i]['path config'] = ''
+            midi_channel = path_point_instance_obj[i]['midi channel'] = ''
+            #print(selected_config_midi_channels[path_config_index[i]])
+            midi_associations['ball '+ball_number] = {}
+            for path_phase in path_phases:
+                midi_associations['ball '+ball_number][path_phase] = {}
+                for path_type in path_types:
+                    midi_associations['ball '+ball_number][path_phase][path_type] = {}
+                    path_point_midi_index = path_point_path_obj[path_config][path_type][path_phase]
+                    if path_point_midi_index > 0:
+                        if path_point_midi_obj[path_point_midi_index]['input type'] == 'midi':
+                            notes_to_use = list(map(int,path_point_midi_obj[path_point_midi_index]['input'].split(',')))
+                        midi_associations['ball '+ball_number][path_phase][path_type]['channel'] = midi_channel
+                        midi_associations['ball '+ball_number][path_phase][path_type]['note_selection_mode'] = path_point_midi_obj[path_point_midi_index]['note selection type']
+                        midi_associations['ball '+ball_number][path_phase][path_type]['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+                        midi_associations['ball '+ball_number][path_phase][path_type]['notes'] = notes_to_use
+                        midi_associations['ball '+ball_number][path_phase][path_type]['magnitude'] = midi_magnitude
 
-        if selected_configs_of_balls[i] == 'X':
-            ball_config_index_to_use = 0
-        if selected_configs_of_balls[i] == 'Y':
-            ball_config_index_to_use = 1
-        if selected_configs_of_balls[i] == 'Z':
-            ball_config_index_to_use = 2
 
-        #print(selected_config_midi_channels[ball_config_index_to_use[i]])
-        midi_associations['ball '+str(i)] = {}
-        for path_phase in path_phases:
-            midi_associations['ball '+str(i)][path_phase] = {}
-            for path_type in path_types:
-                midi_associations['ball '+str(i)][path_phase][path_type] = {}
-                ui_path_point_index = path_point_object[selected_configs_of_balls[i]][path_type][path_phase]
-                if ui_path_point_index > 0:
-                    if point_setups_input_type[ui_path_point_index] == 'midi':
-                        notes_to_use = list(map(int,point_setups_single_line_input[ui_path_point_index].split(',')))
-                    midi_associations['ball '+str(i)][path_phase][path_type]['channel'] = selected_config_midi_channels[ball_config_index_to_use]
-                    midi_associations['ball '+str(i)][path_phase][path_type]['note_selection_mode'] = point_setups_note_selection_type[ui_path_point_index]
-                    midi_associations['ball '+str(i)][path_phase][path_type]['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-                    midi_associations['ball '+str(i)][path_phase][path_type]['notes'] = notes_to_use
-                    midi_associations['ball '+str(i)][path_phase][path_type]['magnitude'] = midi_magnitude

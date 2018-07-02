@@ -15,6 +15,7 @@ if use_user_interface:
     from PIL import ImageTk, Image
 #print(average_position_of_multiple_single_ball_average_positions([[1,1],[2,10]]))
 def begin_program():
+    print(False)
     setup_midi()
     if not use_user_interface:
         load_config_dialog(True)
@@ -34,79 +35,88 @@ def load_config_dialog(use_default_config):
     try:
         read_text_file = open(load_config_file_name, 'r')
         lines = read_text_file.readlines()
-        #for row in ball_config_file:
-        #    ball_configs[row[0]] = ball_configs[row[1]] 
-        if not use_default_config:
-            path_config['ball 1'].set(lines[0].split(',')[0])
-            path_config['ball 2'].set(lines[0].split(',')[1])
-            path_config['ball 3'].set(lines[0].split(',')[2].rstrip('\n'))
+        first_line = lines.index("begin path point instance obj\n") + 1
+        for i in range(number_of_path_point_instances):
+            path_point_instance_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
+            path_point_instance_obj[i]['ball number'] = lines[first_line+i].split(',')[1]
+            path_point_instance_obj[i]['path config'] = lines[first_line+i].split(',')[2]
+            path_point_instance_obj[i]['midi channel'] = lines[first_line+i].split(',')[3].rstrip('\n')
+        first_line = lines.index("begin path point path obj\n") + 1
         for i in range (3):
-            selected_configs_of_balls[i] = lines[0].split(',')[i].rstrip('\n')
-            selected_config_midi_channels[i] = lines[1].split(',')[i].rstrip('\n')
-            ball_configs = ['X','Y','Z']
-            path_point_object[ball_configs[i]]['left column']['peak'] = int(lines[2+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['left column']['catch'] = int(lines[3+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['left column']['throw'] = int(lines[4+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['left cross']['peak'] = int(lines[5+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['left cross']['catch'] = int(lines[6+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['left cross']['throw'] = int(lines[7+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['mid column']['peak'] = int(lines[8+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['mid column']['catch'] = int(lines[9+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['mid column']['throw'] = int(lines[10+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['mid cross']['peak'] = int(lines[11+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['mid cross']['catch'] = int(lines[12+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['mid cross']['throw'] = int(lines[13+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['right column']['peak'] = int(lines[14+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['right column']['catch'] = int(lines[15+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['right column']['throw'] = int(lines[16+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['right cross']['peak'] = int(lines[17+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['right cross']['catch'] = int(lines[18+(i*18)].split(',')[-1].rstrip('\n'))
-            path_point_object[ball_configs[i]]['right cross']['throw'] = int(lines[19+(i*18)].split(',')[-1].rstrip('\n'))
-        first_point_setup_line = lines.index("begin point setup\n")
+            path_configs = ['X','Y','Z']
+            path_point_path_obj[path_configs[i]]['left column']['peak'] = int(lines[first_line+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['left column']['catch'] = int(lines[first_line+1+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['left column']['throw'] = int(lines[first_line+2+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['left cross']['peak'] = int(lines[first_line+3+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['left cross']['catch'] = int(lines[first_line+4+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['left cross']['throw'] = int(lines[first_line+5+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['mid column']['peak'] = int(lines[first_line+6+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['mid column']['catch'] = int(lines[first_line+7+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['mid column']['throw'] = int(lines[first_line+8+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['mid cross']['peak'] = int(lines[first_line+9+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['mid cross']['catch'] = int(lines[first_line+10+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['mid cross']['throw'] = int(lines[first_line+11+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['right column']['peak'] = int(lines[first_line+12+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['right column']['catch'] = int(lines[first_line+13+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['right column']['throw'] = int(lines[first_line+14+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['right cross']['peak'] = int(lines[first_line+15+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['right cross']['catch'] = int(lines[first_line+16+(i*18)].split(',')[-1].rstrip('\n'))
+            path_point_path_obj[path_configs[i]]['right cross']['throw'] = int(lines[first_line+17+(i*18)].split(',')[-1].rstrip('\n'))
+        first_line = lines.index("begin path point midi obj\n") + 1
         for i in range (6):
-            point_setups_note_selection_type[i] = lines[first_point_setup_line+1].split(',')[i].rstrip('\n')
-            point_setups_input_type[i] = lines[first_point_setup_line+2].split(',')[i].rstrip('\n')
-            point_setups_single_line_input[i] = lines[first_point_setup_line+3].split(',')[i].rstrip('\n')
-        first_cc_location_obj_line = lines.index('begin cc location object\n')
+            path_point_midi_obj[i]['note selection type'] = lines[first_line+i].split(',')[0]
+            path_point_midi_obj[i]['input type'] = lines[first_line+i].split(',')[1]
+            path_point_midi_obj[i]['input'] = lines[first_line+i].split(',')[2].rstrip('\n')
+        first_line = lines.index('begin cc location obj\n') + 1
         for i in range (4):
-            #todo get rid of empty balls to average
-            #   make buttons for define open up windows like the click drag windows in miug_original
-            #   make specifics of location control midi signals
-            #   figure out speed
-            #   check the other todo list
-            cc_location_obj[str(i)]['balls to average'] = lines[first_cc_location_obj_line+1+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['balls to average'] = cc_location_obj[str(i)]['balls to average'].split(',')
-            cc_location_obj[str(i)]['window size'] = lines[first_cc_location_obj_line+2+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['location border sides']['left'] = lines[first_cc_location_obj_line+3+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['location border sides']['right'] = lines[first_cc_location_obj_line+4+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['location border sides']['top'] = lines[first_cc_location_obj_line+5+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['location border sides']['bottom'] = lines[first_cc_location_obj_line+6+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['horizontal']['channel'] = lines[first_cc_location_obj_line+7+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['horizontal']['number'] = lines[first_cc_location_obj_line+8+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['vertical']['channel'] = lines[first_cc_location_obj_line+9+(i*10)].rstrip('\n')
-            cc_location_obj[str(i)]['vertical']['number'] = lines[first_cc_location_obj_line+10+(i*10)].rstrip('\n')
-        first_nt_location_obj_line = lines.index('begin nt location object\n')
+            cc_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            cc_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
+            cc_location_obj[str(i)]['balls to average'] = cc_location_obj[str(i)]['balls to average'].split(';')
+            cc_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
+            cc_location_obj[str(i)]['location border sides']['left'] = lines[first_line+i].split(',')[3]
+            cc_location_obj[str(i)]['location border sides']['right'] = lines[first_line+i].split(',')[4]
+            cc_location_obj[str(i)]['location border sides']['top'] = lines[first_line+i].split(',')[5]
+            cc_location_obj[str(i)]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
+            cc_location_obj[str(i)]['horizontal']['channel'] = lines[first_line+i].split(',')[7]
+            cc_location_obj[str(i)]['horizontal']['number'] = lines[first_line+i].split(',')[8]
+            cc_location_obj[str(i)]['vertical']['channel'] = lines[first_line+i].split(',')[9]
+            cc_location_obj[str(i)]['vertical']['number'] = lines[first_line+i].split(',')[10].rstrip('\n')
+        first_line = lines.index('begin nt location obj\n') + 1
         for i in range (4):
-            nt_location_obj[str(i)]['balls to average'] = lines[first_nt_location_obj_line+1+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['balls to average'] = nt_location_obj[str(i)]['balls to average'].split(',')
-            nt_location_obj[str(i)]['window size'] = lines[first_nt_location_obj_line+2+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['location border sides']['left'] = lines[first_nt_location_obj_line+3+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['location border sides']['right'] = lines[first_nt_location_obj_line+4+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['location border sides']['top'] = lines[first_nt_location_obj_line+5+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['location border sides']['bottom'] = lines[first_nt_location_obj_line+6+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['channel'] = lines[first_nt_location_obj_line+7+(i*8)].rstrip('\n')
-            nt_location_obj[str(i)]['number'] = lines[first_nt_location_obj_line+8+(i*8)].rstrip('\n')
+            nt_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            nt_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
+            nt_location_obj[str(i)]['balls to average'] = nt_location_obj[str(i)]['balls to average'].split(';')
+            nt_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
+            nt_location_obj[str(i)]['location border sides']['left'] = lines[first_line+i].split(',')[3]
+            nt_location_obj[str(i)]['location border sides']['right'] = lines[first_line+i].split(',')[4]
+            nt_location_obj[str(i)]['location border sides']['top'] = lines[first_line+i].split(',')[5]
+            nt_location_obj[str(i)]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
+            nt_location_obj[str(i)]['channel'] = lines[first_line+i].split(',')[7]
+            nt_location_obj[str(i)]['number'] = lines[first_line+i].split(',')[8].rstrip('\n')
+        first_line = lines.index('begin speed obj\n') + 1
+        for i in range (4):
+            speed_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            speed_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
+            speed_obj[str(i)]['balls to average'] = speed_obj[str(i)]['balls to average'].split(';')
+            speed_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
+            speed_obj[str(i)]['channel'] = lines[first_line+i].split(',')[3]
+            speed_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
         if not use_default_config:
             read_text_file.close()
             current_file_name_label.config(text=str(load_config_file_name.split('/')[-1]))
             selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
-            set_path_point_buttons_based_on_selected_ball()
-            set_ui_location_vars_from_data()
-            input_type.set(point_setups_input_type[int(current_midi_config_index.get())])
-            point_single_line_input_text.set(point_setups_single_line_input[int(current_midi_config_index.get())])
-            note_selection_type.set(point_setups_note_selection_type[int(current_midi_config_index.get())])
+            set_widgets_from_data()
+            input_type.set(path_point_midi_obj[int(current_midi_config_index.get())]['input type'])
+            point_single_line_input_text.set(path_point_midi_obj[int(current_midi_config_index.get())]['input'])
+            note_selection_type.set(path_point_midi_obj[int(current_midi_config_index.get())]['note selection type'])
     except FileNotFoundError:
         pass
+
+def set_widgets_from_data():
+    set_path_point_instance_widgets_from_data()
+    set_path_point_buttons_based_on_selected_path_point_config_letter()
+    set_ui_location_vars_from_data()
+    set_speed_widgets_from_data()
 
 def start_camera():
     settings.show_color_calibration = False
@@ -119,38 +129,54 @@ def start_camera():
 def save_config_dialog():
     config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
     current_file_name_label.config(text=str(config_to_save.name.split('/')[-1]))
-    text_in_config_to_save = path_config['ball 1'].get() + ',' + path_config['ball 2'].get() + ',' + path_config['ball 3'].get() + '\n'
-    text_in_config_to_save += ','.join(map(str, selected_config_midi_channels)) + '\n' 
+    text_in_config_to_save = ''
+    text_in_config_to_save += 'begin path point instance obj\n'
+    for i in range(number_of_path_point_instances):
+        text_in_config_to_save += str(path_point_instance_obj[i]['active']) + ','
+        text_in_config_to_save += path_point_instance_obj[i]['ball number'] + ','
+        text_in_config_to_save += path_point_instance_obj[i]['path config'] + ','
+        text_in_config_to_save += path_point_instance_obj[i]['midi channel'] + '\n'
+    text_in_config_to_save += 'begin path point path obj\n'
     row_list = []
-    for ball_config in ball_configs: 
+    for path_config in path_configs: 
         for path_type in path_types:
             for path_phase in path_phases:
-                row = [ball_config, path_type, path_phase, path_point_object[ball_config][path_type][path_phase]]
+                row = [path_config, path_type, path_phase, path_point_path_obj[path_config][path_type][path_phase]]
                 text_in_config_to_save += ','.join(map(str, row)) + '\n'
-    text_in_config_to_save += 'begin point setup\n'
-    text_in_config_to_save += ','.join(point_setups_note_selection_type) + '\n'
-    text_in_config_to_save += ','.join(point_setups_input_type) + '\n'
-    text_in_config_to_save += ','.join(point_setups_single_line_input) + '\n'
-
-    text_in_config_to_save += 'begin cc location object\n'
+    text_in_config_to_save += 'begin path point midi obj\n'
+    for i in range(7):
+        text_in_config_to_save += path_point_midi_obj[i]['note selection type'] + ','
+        text_in_config_to_save += path_point_midi_obj[i]['input type'] + ','
+        text_in_config_to_save += path_point_midi_obj[i]['input'] + '\n'
+    text_in_config_to_save += 'begin cc location obj\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(cc_location_obj[str(i)]['balls to average']) + '\n'
-        text_in_config_to_save += str(cc_location_obj[str(i)]['window size']) + '\n'
+        text_in_config_to_save += str(cc_location_obj[str(i)]['active']) +','
+        text_in_config_to_save += ';'.join(cc_location_obj[str(i)]['balls to average']) + ','
+        text_in_config_to_save += str(cc_location_obj[str(i)]['window size']) + ','
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(cc_location_obj[str(i)]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(cc_location_obj[str(i)]['location border sides'][location_border_side]) + ','
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                text_in_config_to_save += str(cc_location_obj[str(i)][location_direction][location_midi_input_type]) + '\n'
-
-    text_in_config_to_save += 'begin nt location object\n'
+                text_in_config_to_save += str(cc_location_obj[str(i)][location_direction][location_midi_input_type]) + ','
+        text_in_config_to_save += '\n'
+    text_in_config_to_save += 'begin nt location obj\n'
     for i in range (4):
-        text_in_config_to_save += ','.join(nt_location_obj[str(i)]['balls to average']) + '\n'
-        text_in_config_to_save += str(nt_location_obj[str(i)]['window size']) + '\n'
+        text_in_config_to_save += str(nt_location_obj[str(i)]['active']) +','
+        text_in_config_to_save += ';'.join(nt_location_obj[str(i)]['balls to average']) +','
+        text_in_config_to_save += str(nt_location_obj[str(i)]['window size']) +','
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(nt_location_obj[str(i)]['location border sides'][location_border_side]) + '\n'
+            text_in_config_to_save += str(nt_location_obj[str(i)]['location border sides'][location_border_side]) +','
         for location_midi_input_type in location_midi_input_types:
-            text_in_config_to_save += str(nt_location_obj[str(i)][location_midi_input_type]) + '\n'
-
+            text_in_config_to_save += str(nt_location_obj[str(i)][location_midi_input_type]) + ','
+        text_in_config_to_save += '\n'
+    text_in_config_to_save += 'begin speed obj\n'
+    for i in range (4):
+        text_in_config_to_save += str(speed_obj[str(i)]['active']) +','
+        text_in_config_to_save += ';'.join(speed_obj[str(i)]['balls to average']) +','
+        text_in_config_to_save += str(speed_obj[str(i)]['window size']) +','
+        for speed_midi_input_type in speed_midi_input_types:
+            text_in_config_to_save += str(speed_obj[str(i)][speed_midi_input_type]) + ','
+        text_in_config_to_save += '\n'
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()        
 
@@ -167,26 +193,30 @@ def set_speed_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    ui_speed_obj['0']['instance label'].place(x=extra+10,y=150) 
-    ui_speed_obj['1']['instance label'].place(x=extra+10,y=215) 
-    ui_speed_obj['2']['instance label'].place(x=extra+10,y=280) 
-    ui_speed_obj['3']['instance label'].place(x=extra+10,y=345) 
-    ui_speed_obj['0']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=185)
-    ui_speed_obj['0']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=185)
-    ui_speed_obj['0']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=185)
-    ui_speed_obj['1']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=250)
-    ui_speed_obj['1']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=250)
-    ui_speed_obj['1']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=250)
-    ui_speed_obj['2']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=315)
-    ui_speed_obj['2']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=315)
-    ui_speed_obj['2']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=315)
-    ui_speed_obj['3']['checkbutton']['ball 1']['widget'].place(x=extra+10,y=380)
-    ui_speed_obj['3']['checkbutton']['ball 2']['widget'].place(x=extra+80,y=380)
-    ui_speed_obj['3']['checkbutton']['ball 3']['widget'].place(x=extra+150,y=380)
-    ui_speed_obj['0']['num frames']['widget'].place(x=extra+270,y=170)
-    ui_speed_obj['1']['num frames']['widget'].place(x=extra+270,y=235)
-    ui_speed_obj['2']['num frames']['widget'].place(x=extra+270,y=300)
-    ui_speed_obj['3']['num frames']['widget'].place(x=extra+270,y=365)
+    ui_speed_obj['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
+    ui_speed_obj['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
+    ui_speed_obj['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
+    ui_speed_obj['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_speed_obj['0']['instance label'].place(x=extra+60,y=150) 
+    ui_speed_obj['1']['instance label'].place(x=extra+60,y=215) 
+    ui_speed_obj['2']['instance label'].place(x=extra+60,y=280) 
+    ui_speed_obj['3']['instance label'].place(x=extra+60,y=345) 
+    ui_speed_obj['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
+    ui_speed_obj['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
+    ui_speed_obj['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
+    ui_speed_obj['1']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=250)
+    ui_speed_obj['1']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=250)
+    ui_speed_obj['1']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=250)
+    ui_speed_obj['2']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=315)
+    ui_speed_obj['2']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=315)
+    ui_speed_obj['2']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=315)
+    ui_speed_obj['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
+    ui_speed_obj['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
+    ui_speed_obj['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
+    ui_speed_obj['0']['window size']['widget'].place(x=extra+270,y=170)
+    ui_speed_obj['1']['window size']['widget'].place(x=extra+270,y=235)
+    ui_speed_obj['2']['window size']['widget'].place(x=extra+270,y=300)
+    ui_speed_obj['3']['window size']['widget'].place(x=extra+270,y=365)
     ui_speed_obj['header label']['channel'].place(x=extra+370,y=130)
     ui_speed_obj['header label']['number'].place(x=extra+440,y=130) 
     ui_speed_obj['header label']['window'].place(x=extra+250,y=130)
@@ -215,8 +245,47 @@ def set_path_points_widgets_visibility(show_or_hide):
 def set_path_points_instances_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
-        extra = 1000     
-
+        extra = 1000
+    ui_path_point_obj[0]['active']['widget'].place(x=extra+10,y=150) 
+    ui_path_point_obj[1]['active']['widget'].place(x=extra+10,y=215)
+    ui_path_point_obj[2]['active']['widget'].place(x=extra+10,y=280) 
+    ui_path_point_obj[3]['active']['widget'].place(x=extra+10,y=345)
+    ui_path_point_obj[4]['active']['widget'].place(x=extra+10,y=410) 
+    ui_path_point_obj[5]['active']['widget'].place(x=extra+10,y=475)
+    ui_path_point_obj[6]['active']['widget'].place(x=extra+10,y=540) 
+    ui_path_point_obj[7]['active']['widget'].place(x=extra+10,y=605)
+    ui_path_point_obj[0]['instance label'].place(x=extra+60,y=150)
+    ui_path_point_obj[1]['instance label'].place(x=extra+60,y=215)
+    ui_path_point_obj[2]['instance label'].place(x=extra+60,y=280)
+    ui_path_point_obj[3]['instance label'].place(x=extra+60,y=345)
+    ui_path_point_obj[4]['instance label'].place(x=extra+60,y=410)
+    ui_path_point_obj[5]['instance label'].place(x=extra+60,y=475)
+    ui_path_point_obj[6]['instance label'].place(x=extra+60,y=540)
+    ui_path_point_obj[7]['instance label'].place(x=extra+60,y=605)
+    ui_path_point_obj[0]['ball number']['widget'].place(x=extra+300,y=150)
+    ui_path_point_obj[1]['ball number']['widget'].place(x=extra+300,y=215)
+    ui_path_point_obj[2]['ball number']['widget'].place(x=extra+300,y=280)
+    ui_path_point_obj[3]['ball number']['widget'].place(x=extra+300,y=345)
+    ui_path_point_obj[4]['ball number']['widget'].place(x=extra+300,y=410)
+    ui_path_point_obj[5]['ball number']['widget'].place(x=extra+300,y=475)
+    ui_path_point_obj[6]['ball number']['widget'].place(x=extra+300,y=540)
+    ui_path_point_obj[7]['ball number']['widget'].place(x=extra+300,y=605)
+    ui_path_point_obj[0]['path config']['widget'].place(x=extra+400,y=150)
+    ui_path_point_obj[1]['path config']['widget'].place(x=extra+400,y=215)
+    ui_path_point_obj[2]['path config']['widget'].place(x=extra+400,y=280)
+    ui_path_point_obj[3]['path config']['widget'].place(x=extra+400,y=345)
+    ui_path_point_obj[4]['path config']['widget'].place(x=extra+400,y=410)
+    ui_path_point_obj[5]['path config']['widget'].place(x=extra+400,y=475)
+    ui_path_point_obj[6]['path config']['widget'].place(x=extra+400,y=540)
+    ui_path_point_obj[7]['path config']['widget'].place(x=extra+400,y=605)
+    ui_path_point_obj[0]['midi channel']['widget'].place(x=extra+500,y=150)
+    ui_path_point_obj[1]['midi channel']['widget'].place(x=extra+500,y=215)
+    ui_path_point_obj[2]['midi channel']['widget'].place(x=extra+500,y=280)
+    ui_path_point_obj[3]['midi channel']['widget'].place(x=extra+500,y=345)
+    ui_path_point_obj[4]['midi channel']['widget'].place(x=extra+500,y=410)
+    ui_path_point_obj[5]['midi channel']['widget'].place(x=extra+500,y=475)
+    ui_path_point_obj[6]['midi channel']['widget'].place(x=extra+500,y=540)
+    ui_path_point_obj[7]['midi channel']['widget'].place(x=extra+500,y=605)
 def set_path_points_configs_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
@@ -260,7 +329,7 @@ def set_path_points_configs_widgets_visibility(show_or_hide):
     path_point_button['right cross']['throw'].place(x=extra+595,y=380)
     current_midi_config_label.place(x=extra+10,y=435)
     ball_and_point_separator.place(x=extra+0, y=425, relwidth=1)
-    if show_or_hide == 'show':
+    if show_or_hide == 'show' and current_midi_config_index.get() != '0':
         set_path_points_config_inputs_visibility('show')
     else:
         set_path_points_config_inputs_visibility('hide')
@@ -269,10 +338,14 @@ def set_ui_location_fade_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    ui_location_obj['cc']['0']['instance label'].place(x=extra+50,y=150) 
-    ui_location_obj['cc']['1']['instance label'].place(x=extra+50,y=215) 
-    ui_location_obj['cc']['2']['instance label'].place(x=extra+50,y=280) 
-    ui_location_obj['cc']['3']['instance label'].place(x=extra+50,y=345) 
+    ui_location_obj['cc']['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
+    ui_location_obj['cc']['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
+    ui_location_obj['cc']['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
+    ui_location_obj['cc']['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_location_obj['cc']['0']['instance label'].place(x=extra+60,y=150) 
+    ui_location_obj['cc']['1']['instance label'].place(x=extra+60,y=215) 
+    ui_location_obj['cc']['2']['instance label'].place(x=extra+60,y=280) 
+    ui_location_obj['cc']['3']['instance label'].place(x=extra+60,y=345) 
     ui_location_obj['cc']['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
     ui_location_obj['cc']['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
     ui_location_obj['cc']['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
@@ -285,10 +358,10 @@ def set_ui_location_fade_objs_visibility(show_or_hide):
     ui_location_obj['cc']['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
     ui_location_obj['cc']['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
     ui_location_obj['cc']['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
-    ui_location_obj['cc']['0']['num frames']['widget'].place(x=extra+300,y=170)
-    ui_location_obj['cc']['1']['num frames']['widget'].place(x=extra+300,y=235)
-    ui_location_obj['cc']['2']['num frames']['widget'].place(x=extra+300,y=300)
-    ui_location_obj['cc']['3']['num frames']['widget'].place(x=extra+300,y=365)
+    ui_location_obj['cc']['0']['window size']['widget'].place(x=extra+300,y=170)
+    ui_location_obj['cc']['1']['window size']['widget'].place(x=extra+300,y=235)
+    ui_location_obj['cc']['2']['window size']['widget'].place(x=extra+300,y=300)
+    ui_location_obj['cc']['3']['window size']['widget'].place(x=extra+300,y=365)
     ui_location_obj['cc']['header label']['horizontal']['main'].place(x=extra+380,y=100)
     ui_location_obj['cc']['header label']['horizontal']['channel'].place(x=extra+370,y=130)
     ui_location_obj['cc']['header label']['horizontal']['number'].place(x=extra+440,y=130) 
@@ -338,10 +411,14 @@ def set_ui_location_spot_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    ui_location_obj['nt']['0']['instance label'].place(x=extra+50,y=150) 
-    ui_location_obj['nt']['1']['instance label'].place(x=extra+50,y=215) 
-    ui_location_obj['nt']['2']['instance label'].place(x=extra+50,y=280) 
-    ui_location_obj['nt']['3']['instance label'].place(x=extra+50,y=345)  
+    ui_location_obj['nt']['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
+    ui_location_obj['nt']['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
+    ui_location_obj['nt']['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
+    ui_location_obj['nt']['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_location_obj['nt']['0']['instance label'].place(x=extra+60,y=150) 
+    ui_location_obj['nt']['1']['instance label'].place(x=extra+60,y=215) 
+    ui_location_obj['nt']['2']['instance label'].place(x=extra+60,y=280) 
+    ui_location_obj['nt']['3']['instance label'].place(x=extra+60,y=345)  
     ui_location_obj['nt']['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
     ui_location_obj['nt']['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
     ui_location_obj['nt']['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
@@ -354,10 +431,10 @@ def set_ui_location_spot_objs_visibility(show_or_hide):
     ui_location_obj['nt']['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
     ui_location_obj['nt']['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
     ui_location_obj['nt']['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
-    ui_location_obj['nt']['0']['num frames']['widget'].place(x=extra+300,y=170)
-    ui_location_obj['nt']['1']['num frames']['widget'].place(x=extra+300,y=235)
-    ui_location_obj['nt']['2']['num frames']['widget'].place(x=extra+300,y=300)
-    ui_location_obj['nt']['3']['num frames']['widget'].place(x=extra+300,y=365)
+    ui_location_obj['nt']['0']['window size']['widget'].place(x=extra+300,y=170)
+    ui_location_obj['nt']['1']['window size']['widget'].place(x=extra+300,y=235)
+    ui_location_obj['nt']['2']['window size']['widget'].place(x=extra+300,y=300)
+    ui_location_obj['nt']['3']['window size']['widget'].place(x=extra+300,y=365)
     ui_location_obj['nt']['header label']['channel'].place(x=extra+370,y=130)
     ui_location_obj['nt']['header label']['number'].place(x=extra+440,y=130)
     ui_location_obj['nt']['header label']['window'].place(x=extra+280,y=130)
@@ -534,7 +611,28 @@ def path_point_instances_or_configs_changed(*args):
         set_path_points_configs_widgets_visibility('hide')
     if path_point_instances_or_configs.get() == 'configs':
         set_path_points_instances_widgets_visibility('hide') 
-        set_path_points_configs_widgets_visibility('show') 
+        set_path_points_configs_widgets_visibility('show')
+
+def path_point_active_checkbutton_changed(checked,inst_num):
+    path_point_instance_obj[inst_num]['active'] = checked
+    print('inst_num')
+    print(inst_num)
+    print(path_point_instance_obj[inst_num]['active']) 
+
+def path_point_ball_number_changed(ball_number,inst_num):
+    path_point_instance_obj[inst_num]['ball number'] = ball_number
+    print(inst_num)
+    print(path_point_instance_obj[inst_num]['ball number']) 
+
+def path_point_path_config_changed(path_config,inst_num):
+    path_point_instance_obj[inst_num]['path config'] = path_config
+    print(inst_num)
+    print(path_point_instance_obj[inst_num]['path config']) 
+
+def path_point_midi_channel_changed(channel,inst_num):
+    path_point_instance_obj[inst_num]['midi channel'] = channel
+    print(inst_num)
+    print(path_point_instance_obj[inst_num]['midi channel']) 
 
 def note_selection_type_changed(*args):
     if note_selection_type.get() == 'current positional' and current_midi_config_index.get() != '0':
@@ -547,68 +645,80 @@ def note_selection_type_changed(*args):
         arpeggio_input_type.place(x=1280,y=540)
         if input_type.get() == 'arpeggio':
             input_type.set('chord')
-    point_setups_note_selection_type[int(current_midi_config_index.get())] = note_selection_type.get()
+    path_point_midi_obj[int(current_midi_config_index.get())]['note selection type'] = note_selection_type.get()
 
 def input_type_changed(*args):
-    point_setups_input_type[int(current_midi_config_index.get())] = input_type.get()
+    path_point_midi_obj[int(current_midi_config_index.get())]['input type'] = input_type.get()
 
 def point_single_line_input_changed(*args):
-    point_setups_single_line_input[int(current_midi_config_index.get())] = point_single_line_input_text.get()
+    path_point_midi_obj[int(current_midi_config_index.get())]['input'] = point_single_line_input_text.get()
 
-def path_point_button_clicked(ball_config,path_type,path_phase):
-    global current_midi_config_index,path_point_object 
-    path_point_object[ball_config][path_type][path_phase] += 1
-    if path_point_object[ball_config][path_type][path_phase] > number_of_used_path_point_configurations + 1:
-        path_point_object[ball_config][path_type][path_phase] = 0
-    set_path_point_buttons_based_on_selected_ball()
-    current_midi_config_index.set(path_point_object[ball_config][path_type][path_phase]) 
+def path_point_button_clicked(path_config,path_type,path_phase):
+    global current_midi_config_index,path_point_path_obj 
+    path_point_path_obj[path_config][path_type][path_phase] += 1
+    if path_point_path_obj[path_config][path_type][path_phase] > number_of_used_path_point_configurations + 1:
+        path_point_path_obj[path_config][path_type][path_phase] = 0
+    set_path_point_buttons_based_on_selected_path_point_config_letter()
+    current_midi_config_index.set(path_point_path_obj[path_config][path_type][path_phase]) 
 
 def selected_all_midi_configs_optionmenu_index_changed(path_phase):
     index_for_all_path_phase_midi_configs = int(all_midi_configs_optionmenu_index[path_phase].get())
     for path_type in path_types:
         midi_config_number_of_current_path_config_number[path_type][path_phase].set(index_for_all_path_phase_midi_configs)
-        path_point_object[selected_path_point_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
+        path_point_path_obj[selected_path_point_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
     current_midi_config_index.set(index_for_all_path_phase_midi_configs)
+
+def set_speed_widgets_from_data():
+    for inst_num in speed_inst_nums:
+        ui_speed_obj[inst_num]['checkbutton']['active']['var'].set(speed_obj[inst_num]['active'])
+        for ball_number in ball_numbers:            
+            ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in speed_obj[inst_num]['balls to average'])
+        ui_speed_obj[inst_num]['window size']['var'].set(speed_obj[inst_num]['window size'])
+        for speed_midi_input_type in speed_midi_input_types:
+            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].set(speed_obj[str(inst_num)][speed_midi_input_type])
+
+def set_path_point_instance_widgets_from_data():
+    for i in range (8):
+        ui_path_point_obj[i]['active']['var'].set(path_point_instance_obj[i]['active'])
+        ui_path_point_obj[i]['ball number']['var'].set(path_point_instance_obj[i]['ball number'])
+        ui_path_point_obj[i]['path config']['var'].set(path_point_instance_obj[i]['path config'])
+        ui_path_point_obj[i]['midi channel']['var'].set(path_point_instance_obj[i]['midi channel'])
 
 def set_ui_location_vars_from_data():
     for inst_num in location_inst_nums:
-        for ball_number in ball_numbers:
+        ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'].set(cc_location_obj[inst_num]['active'])
+        for ball_number in ball_numbers:            
             ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in cc_location_obj[str(inst_num)]['balls to average'])
-        ui_location_obj['cc'][inst_num]['num frames']['var'].set(cc_location_obj[str(inst_num)]['window size'])
+        ui_location_obj['cc'][inst_num]['window size']['var'].set(cc_location_obj[str(inst_num)]['window size'])
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
                 ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(cc_location_obj[str(inst_num)][location_direction][location_midi_input_type])
         for location_border_side in location_border_sides:
             ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].set(cc_location_obj[str(inst_num)]['location border sides'][location_border_side])
     for inst_num in location_inst_nums:
+        ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'].set(cc_location_obj[inst_num]['active'])
         for ball_number in ball_numbers:    
             ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in nt_location_obj[str(inst_num)]['balls to average'])
-        ui_location_obj['nt'][inst_num]['num frames']['var'].set(nt_location_obj[str(inst_num)]['window size'])
+        ui_location_obj['nt'][inst_num]['window size']['var'].set(nt_location_obj[str(inst_num)]['window size'])
         for location_midi_input_type in location_midi_input_types:
             ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].set(nt_location_obj[str(inst_num)][location_midi_input_type])
         for location_border_side in location_border_sides:
             ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].set(nt_location_obj[str(inst_num)]['location border sides'][location_border_side])
 
-def set_path_point_buttons_based_on_selected_ball():
+def set_path_point_buttons_based_on_selected_path_point_config_letter():
     for path_type in path_types:
         for path_phase in path_phases:
-            midi_config_number_of_current_path_config_number[path_type][path_phase].set(path_point_object[selected_path_point_config_letter.get()][path_type][path_phase])
+            midi_config_number_of_current_path_config_number[path_type][path_phase].set(path_point_path_obj[selected_path_point_config_letter.get()][path_type][path_phase])
 
 def selected_path_point_config_letter_changed(*args):
     global current_path_point_config_index
     if selected_path_point_config_letter.get() == 'X':
         current_path_point_config_index = 0
-
-
     if selected_path_point_config_letter.get() == 'Y':
         current_path_point_config_index = 1
-
-
     if selected_path_point_config_letter.get() == 'Z':
         current_path_point_config_index = 2
-
-
-    set_path_point_buttons_based_on_selected_ball()
+    set_path_point_buttons_based_on_selected_path_point_config_letter()
     selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
 
 
@@ -617,9 +727,9 @@ def current_midi_config_index_changed(*args):
         set_path_points_config_inputs_visibility('hide')
     else:
         set_path_points_config_inputs_visibility('show')
-    input_type.set(point_setups_input_type[int(current_midi_config_index.get())])
-    point_single_line_input_text.set(point_setups_single_line_input[int(current_midi_config_index.get())])
-    note_selection_type.set(point_setups_note_selection_type[int(current_midi_config_index.get())])
+    input_type.set(path_point_midi_obj[int(current_midi_config_index.get())]['input type'])
+    point_single_line_input_text.set(path_point_midi_obj[int(current_midi_config_index.get())]['input'])
+    note_selection_type.set(path_point_midi_obj[int(current_midi_config_index.get())]['note selection type'])
 
 def selected_config_midi_channel_changed(*args):
     selected_config_midi_channels[current_path_point_config_index] = int(selected_config_midi_channel.get())
@@ -631,35 +741,47 @@ def selected_config_midi_channel_changed(*args):
 
 #########################     BEGIN LOCATION SECTION     ##########################
 
-def location_cc_checkbutton_changed(checked,inst_num,ball_number):
+def location_active_checkbutton_changed(location_type,checked,inst_num):
+    print('location_type')
+    print(location_type)
     print('checked')
     print(checked)
-    print('ball_number')
-    print(ball_number)
     print('inst_num')
     print(inst_num)
-    if checked:
-        if not ball_number in cc_location_obj[inst_num]['balls to average']:
-            cc_location_obj[inst_num]['balls to average'].append(ball_number)
-    else:
-        if ball_number in cc_location_obj[inst_num]['balls to average']:
-            cc_location_obj[inst_num]['balls to average'].remove(ball_number)
-    print(cc_location_obj[inst_num]['balls to average'])
+    if location_type == 'cc':
+        cc_location_obj[inst_num]['active'] = checked
+        print(cc_location_obj[inst_num]['active'])
+    elif location_type == 'nt':
+        nt_location_obj[inst_num]['active'] = checked
+        print(nt_location_obj[inst_num]['active'])
 
-def location_nt_checkbutton_changed(checked,inst_num,ball_number):
+def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball_number):
+    print('location_type')
+    print(location_type)
     print('checked')
     print(checked)
     print('ball_number')
     print(ball_number)
     print('inst_num')
     print(inst_num)
-    if checked:
-        if not ball_number in nt_location_obj[inst_num]['balls to average']:
-            nt_location_obj[inst_num]['balls to average'].append(ball_number)
-    else:
-        if ball_number in nt_location_obj[inst_num]['balls to average']:
-            nt_location_obj[inst_num]['balls to average'].remove(ball_number)
-    print(nt_location_obj[inst_num]['balls to average'])
+    if location_type == 'cc':
+        if checked:
+            if not ball_number in cc_location_obj[inst_num]['balls to average']:
+                cc_location_obj[inst_num]['balls to average'].append(ball_number)
+                if '' in cc_location_obj[inst_num]['balls to average']: cc_location_obj[inst_num]['balls to average'].remove('')
+        else:
+            if ball_number in cc_location_obj[inst_num]['balls to average']:
+                cc_location_obj[inst_num]['balls to average'].remove(ball_number)                
+        print(cc_location_obj[inst_num]['balls to average'])
+    elif location_type == 'nt':
+        if checked:
+            if not ball_number in nt_location_obj[inst_num]['balls to average']:
+                nt_location_obj[inst_num]['balls to average'].append(ball_number)
+                if '' in nt_location_obj[inst_num]['balls to average']: nt_location_obj[inst_num]['balls to average'].remove('')
+        else:
+            if ball_number in nt_location_obj[inst_num]['balls to average']:
+                nt_location_obj[inst_num]['balls to average'].remove(ball_number)
+        print(nt_location_obj[inst_num]['balls to average'])
 
 def location_number_of_frames_changed(location_type,entry_text,inst_num):
     print('location_type '+location_type)
@@ -697,6 +819,45 @@ def location_border_changed(location_type,entry_text,inst_num,location_border_si
 #########################     END LOCATION SECTION     ##########################
 
 
+#########################     BEGIN SPEED SECTION     ##########################
+def speed_active_checkbutton_changed(checked,inst_num):
+    print('checked')
+    print(checked)
+    print('inst_num')
+    print(inst_num)
+    speed_obj[inst_num]['active'] = checked
+    print(speed_obj[inst_num]['active'])
+
+def speed_ball_number_checkbutton_changed(checked,inst_num,ball_number):
+    print('checked')
+    print(checked)
+    print('ball_number')
+    print(ball_number)
+    print('inst_num')
+    print(inst_num)
+    if checked:
+        if not ball_number in speed_obj[inst_num]['balls to average']:
+            speed_obj[inst_num]['balls to average'].append(ball_number)
+    else:
+        if ball_number in speed_obj[inst_num]['balls to average']:
+            speed_obj[inst_num]['balls to average'].remove(ball_number)
+    if '' in speed_obj[inst_num]['balls to average']: speed_obj[inst_num]['balls to average'].remove('')
+    print(speed_obj[inst_num]['balls to average'])
+
+def speed_windows_size_changed(entry_text,inst_num):
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    speed_obj[inst_num]['window size'] = str(entry_text)    
+
+def speed_channel_or_number_changed(entry_text,inst_num,speed_midi_input_type):
+    print('speed_midi_input_type '+speed_midi_input_type)
+    print('entry_text '+entry_text)
+    print('inst_num '+str(inst_num))
+    speed_obj[inst_num][speed_midi_input_type] = str(entry_text)
+#########################     END SPEED SECTION     ##########################
+
+
+
 if use_user_interface:
     root = Tk() 
     root.title('Miug')
@@ -712,12 +873,69 @@ if use_user_interface:
     path_point_instances_or_configs.set('instances')
     path_point_instances_or_configs.trace('w', path_point_instances_or_configs_changed)
 
+    ui_path_point_obj = {}
+    ui_path_point_obj['header label'] = {}
+    ui_path_point_obj['header label']['window'] = ttk.Label(
+        root, text='Window',font=('Courier', 10))
+    for location_border_side in location_border_sides:
+        ui_path_point_obj['header label'][location_border_side] = ttk.Label(
+        root, text=location_border_side,font=('Courier', 10))
+    for location_direction in location_directions:
+        ui_path_point_obj['header label'][location_direction] = {}        
+        ui_path_point_obj['header label'][location_direction]['main'] = ttk.Label(
+            root, text=location_direction,font=('Courier', 10))
+        ui_path_point_obj['header label'][location_direction]['channel'] = ttk.Label(
+            root, text='Channel',font=('Courier', 8))
+        ui_path_point_obj['header label'][location_direction]['number'] = ttk.Label(
+            root, text='Number',font=('Courier', 8))
+
+    path_point_ball_numbers_choices = ['1','2','3']
+    for inst_num in range(number_of_path_point_instances):
+        ui_path_point_obj[inst_num] = {}
+        ui_path_point_obj[inst_num]['instance label'] = ttk.Label(
+            root, text='Instance '+str(inst_num),font=('Courier', 16)) 
+        ui_path_point_obj[inst_num]['active'] = {}
+        ui_path_point_obj[inst_num]['active']['var'] = IntVar()
+        this_ui_path_point_obj = ui_path_point_obj[inst_num]['active']['var'].get()
+        ui_path_point_obj[inst_num]['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_path_point_obj[inst_num]['active']['var'], \
+            command=lambda this_ui_path_point_obj= \
+            ui_path_point_obj[inst_num]['active']['var'], \
+            inst_num=inst_num: path_point_active_checkbutton_changed(
+                this_ui_path_point_obj.get(),inst_num))
+        ui_path_point_obj[inst_num]['ball number'] = {}
+        ui_path_point_obj[inst_num]['ball number']['var'] = StringVar(root)
+        ui_path_point_obj[inst_num]['ball number']['var'].set('1')
+        ui_path_point_obj[inst_num]['ball number']['widget'] = OptionMenu(
+            root, ui_path_point_obj[inst_num]['ball number']['var'], *path_point_ball_numbers_choices)
+        this_variable = ui_path_point_obj[inst_num]['ball number']['var']
+        ui_path_point_obj[inst_num]['ball number']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            path_point_ball_number_changed(this_variable.get(),inst_num))
+        ui_path_point_obj[inst_num]['path config'] = {}
+        ui_path_point_obj[inst_num]['path config']['var'] = StringVar(root)
+        ui_path_point_obj[inst_num]['path config']['var'].set('X')
+        ui_path_point_obj[inst_num]['path config']['widget'] = OptionMenu(
+            root, ui_path_point_obj[inst_num]['path config']['var'], *path_configs)
+        this_variable = ui_path_point_obj[inst_num]['path config']['var']
+        ui_path_point_obj[inst_num]['path config']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            path_point_path_config_changed(this_variable.get(),inst_num))
+        ui_path_point_obj[inst_num]['midi channel'] = {}
+        ui_path_point_obj[inst_num]['midi channel']['var'] = StringVar(root)
+        ui_path_point_obj[inst_num]['midi channel']['var'].set('0')
+        ui_path_point_obj[inst_num]['midi channel']['widget'] = OptionMenu(
+            root, ui_path_point_obj[inst_num]['midi channel']['var'], *midi_channel_choices)
+        this_variable = ui_path_point_obj[inst_num]['midi channel']['var']
+        ui_path_point_obj[inst_num]['midi channel']['var'].trace(
+            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+            path_point_midi_channel_changed(this_variable.get(),inst_num))
+
     selected_path_point_config_letter = StringVar(root)    
     selected_path_point_config_letter.set('X')
     current_path_point_config_index = 0
-
-    path_point_config_letter_choices = ['X','Y','Z']
-    path_point_config_letters_optionmenu = OptionMenu(root, selected_path_point_config_letter, *path_point_config_letter_choices)
+    
+    path_point_config_letters_optionmenu = OptionMenu(root, selected_path_point_config_letter, *path_configs)
     path_point_config_letters_optionmenu.place(x=300,y=150)
     path_point_config_letters_optionmenu_label = Label(root, text='config letter')
     path_point_config_letters_optionmenu_label.place(x=400,y=150)
@@ -771,7 +989,7 @@ if use_user_interface:
     point_single_line_input.place(x=400,y=450)
     point_single_line_input_text.trace('w', point_single_line_input_changed)
 
-    midi_channel_choices = range(0,16)
+    
     selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
     selected_config_midi_channel_optionmenu.place(x=780,y=150)
     selected_config_midi_channel_optionmenu_label = Label(root, text='midi channel')
@@ -851,14 +1069,22 @@ if use_user_interface:
 
     for inst_num in location_inst_nums:
         ui_location_obj['cc'][inst_num] = {}
-        ui_location_obj['cc'][inst_num]['instance label'] = {}
         ui_location_obj['cc'][inst_num]['checkbutton'] = {}
-        ui_location_obj['cc'][inst_num]['num frames'] = {}      
+        ui_location_obj['cc'][inst_num]['window size'] = {}      
         ui_location_obj['cc'][inst_num]['midi'] = {}
         ui_location_obj['cc'][inst_num]['border'] = {}         
         ui_location_obj['cc'][inst_num]['instance label'] = ttk.Label(
             root, text='Instance '+inst_num,font=('Courier', 16)) 
         ui_location_obj['cc'][inst_num]['checkbutton'] = {}
+        ui_location_obj['cc'][inst_num]['checkbutton']['active'] = {}
+        ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'] = IntVar()
+        this_ui_location_obj = ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'].get()
+        ui_location_obj['cc'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'], \
+            command=lambda this_ui_location_obj= \
+            ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'], \
+            inst_num=inst_num: location_active_checkbutton_changed(
+                'cc',this_ui_location_obj.get(),inst_num))        
         for ball_number in ball_numbers:
             ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
@@ -868,17 +1094,17 @@ if use_user_interface:
                 ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 command=lambda this_ui_location_obj= \
                 ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: location_cc_checkbutton_changed(
+                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('cc',
                     this_ui_location_obj.get(),inst_num,ball_number))
-        ui_location_obj['cc'][inst_num]['num frames'] = {}            
-        ui_location_obj['cc'][inst_num]['num frames']['var'] = StringVar(root)
-        ui_location_obj['cc'][inst_num]['num frames']['var'].set(10)
-        this_variable = ui_location_obj['cc'][inst_num]['num frames']['var']
-        ui_location_obj['cc'][inst_num]['num frames']['var'].trace(
+        ui_location_obj['cc'][inst_num]['window size'] = {}            
+        ui_location_obj['cc'][inst_num]['window size']['var'] = StringVar(root)
+        ui_location_obj['cc'][inst_num]['window size']['var'].set(10)
+        this_variable = ui_location_obj['cc'][inst_num]['window size']['var']
+        ui_location_obj['cc'][inst_num]['window size']['var'].trace(
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
             location_number_of_frames_changed('cc',this_variable.get(),inst_num))
-        ui_location_obj['cc'][inst_num]['num frames']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['num frames']['var'])
+        ui_location_obj['cc'][inst_num]['window size']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['window size']['var'])
         ui_location_obj['cc'][inst_num]['midi'] = {}
         for location_direction in location_directions:
             ui_location_obj['cc'][inst_num]['midi'][location_direction] = {}
@@ -919,14 +1145,22 @@ if use_user_interface:
     for inst_num in location_inst_nums:
         ui_location_obj['nt'][inst_num] = {}
         ui_location_obj['nt'][inst_num]['header label'] = {}
-        ui_location_obj['nt'][inst_num]['instance label'] = {}
         ui_location_obj['nt'][inst_num]['checkbutton'] = {}
-        ui_location_obj['nt'][inst_num]['num frames'] = {}
+        ui_location_obj['nt'][inst_num]['window size'] = {}
         ui_location_obj['nt'][inst_num]['midi'] = {}
         ui_location_obj['nt'][inst_num]['midi']['var'] = {}
         ui_location_obj['nt'][inst_num]['border'] = {}
         ui_location_obj['nt'][inst_num]['instance label'] = ttk.Label(root, text='Instance '+inst_num,font=('Courier', 16)) 
         ui_location_obj['nt'][inst_num]['checkbutton'] = {}
+        ui_location_obj['nt'][inst_num]['checkbutton']['active'] = {}
+        ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'] = IntVar()
+        this_ui_location_obj = ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'].get()
+        ui_location_obj['nt'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'], \
+            command=lambda this_ui_location_obj= \
+            ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'], \
+            inst_num=inst_num: location_active_checkbutton_changed(
+                'nt',this_ui_location_obj.get(),inst_num))      
         for ball_number in ball_numbers:
             ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
@@ -936,17 +1170,17 @@ if use_user_interface:
                 ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 command=lambda this_ui_location_obj= \
                 ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: location_nt_checkbutton_changed(
+                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('nt',
                     this_ui_location_obj.get(),inst_num,ball_number))
-        ui_location_obj['nt'][inst_num]['num frames'] = {}              
-        ui_location_obj['nt'][inst_num]['num frames']['var'] = StringVar(root)
-        ui_location_obj['nt'][inst_num]['num frames']['var'].set(10)
-        this_variable = ui_location_obj['nt'][inst_num]['num frames']['var']
-        ui_location_obj['nt'][inst_num]['num frames']['var'].trace(
+        ui_location_obj['nt'][inst_num]['window size'] = {}              
+        ui_location_obj['nt'][inst_num]['window size']['var'] = StringVar(root)
+        ui_location_obj['nt'][inst_num]['window size']['var'].set(10)
+        this_variable = ui_location_obj['nt'][inst_num]['window size']['var']
+        ui_location_obj['nt'][inst_num]['window size']['var'].trace(
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
             location_number_of_frames_changed('nt',this_variable.get(),inst_num))
-        ui_location_obj['nt'][inst_num]['num frames']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['num frames']['var'])        
+        ui_location_obj['nt'][inst_num]['window size']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['window size']['var'])        
         ui_location_obj['nt'][inst_num]['midi'] = {}
         for location_midi_input_type in location_midi_input_types:
             ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type] = {}
@@ -985,11 +1219,20 @@ if use_user_interface:
         ui_speed_obj[inst_num] = {}
         ui_speed_obj[inst_num]['instance label'] = {}
         ui_speed_obj[inst_num]['checkbutton'] = {}
-        ui_speed_obj[inst_num]['num frames'] = {}      
+        ui_speed_obj[inst_num]['window size'] = {}      
         ui_speed_obj[inst_num]['midi'] = {}       
         ui_speed_obj[inst_num]['instance label'] = ttk.Label(
             root, text='speed '+inst_num,font=('Courier', 16)) 
         ui_speed_obj[inst_num]['checkbutton'] = {}
+        ui_speed_obj[inst_num]['checkbutton']['active'] = {}
+        ui_speed_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
+        this_ui_speed_obj = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get()
+        ui_speed_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_speed_obj[inst_num]['checkbutton']['active']['var'], \
+            command=lambda this_ui_speed_obj= \
+            ui_speed_obj[inst_num]['checkbutton']['active']['var'], \
+            inst_num=inst_num: speed_active_checkbutton_changed(
+                this_ui_speed_obj.get(),inst_num))  
         for ball_number in ball_numbers:
             ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
@@ -999,17 +1242,16 @@ if use_user_interface:
                 ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 command=lambda this_ui_speed_obj= \
                 ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: speed_cc_checkbutton_changed(
-                    this_ui_speed_obj.get(),inst_num,ball_number))
-        ui_speed_obj[inst_num]['num frames'] = {}            
-        ui_speed_obj[inst_num]['num frames']['var'] = StringVar(root)
-        ui_speed_obj[inst_num]['num frames']['var'].set(10)
-        this_variable = ui_speed_obj[inst_num]['num frames']['var']
-        ui_speed_obj[inst_num]['num frames']['var'].trace(
+                inst_num=inst_num,ball_number=ball_number: speed_ball_number_checkbutton_changed(
+                    this_ui_speed_obj.get(),inst_num,ball_number))            
+        ui_speed_obj[inst_num]['window size']['var'] = StringVar(root)
+        ui_speed_obj[inst_num]['window size']['var'].set(10)
+        this_variable = ui_speed_obj[inst_num]['window size']['var']
+        ui_speed_obj[inst_num]['window size']['var'].trace(
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            speed_number_of_frames_changed('cc',this_variable.get(),inst_num))
-        ui_speed_obj[inst_num]['num frames']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_speed_obj[inst_num]['num frames']['var'])
+            speed_windows_size_changed(this_variable.get(),inst_num))
+        ui_speed_obj[inst_num]['window size']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_speed_obj[inst_num]['window size']['var'])
         ui_speed_obj[inst_num]['midi'] = {}
         for speed_midi_input_type in speed_midi_input_types:
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type] = {}
@@ -1017,8 +1259,8 @@ if use_user_interface:
             this_variable = ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var']
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].trace(
                 'w', lambda *args, this_variable=this_variable, inst_num=inst_num, \
-                speed_midi_input_type=speed_midi_input_type: speed_cc_channel_or_number_changed(
-                this_variable.get(),inst_num,speed_direction,speed_midi_input_type))
+                speed_midi_input_type=speed_midi_input_type: speed_channel_or_number_changed(
+                this_variable.get(),inst_num,speed_midi_input_type))
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['widget'] = \
             ttk.Entry(root, width = 4,textvariable= \
                 ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'])

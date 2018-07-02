@@ -1,48 +1,43 @@
 selected_configs_of_balls = ['X','X','X']
 
-left_column_peak_path_point_configuration_index = [0, 0, 0]
-left_column_catch_path_point_configuration_index = [0, 0, 0]
-left_column_throw_path_point_configuration_index = [0, 0, 0]
-
-left_cross_peak_path_point_configuration_index = [0, 0, 0]
-left_cross_catch_path_point_configuration_index = [0, 0, 0]
-left_cross_throw_path_point_configuration_index = [0, 0, 0]
-
-mid_column_peak_path_point_configuration_index = [0, 0, 0]
-mid_column_catch_path_point_configuration_index = [0, 0, 0]
-mid_column_throw_path_point_configuration_index = [0, 0, 0]
-
-mid_cross_peak_path_point_configuration_index = [0, 0, 0]
-mid_cross_catch_path_point_configuration_index = [0, 0, 0]
-mid_cross_throw_path_point_configuration_index = [0, 0, 0]
-
-right_column_peak_path_point_configuration_index = [0, 0, 0]
-right_column_catch_path_point_configuration_index = [0, 0, 0]
-right_column_throw_path_point_configuration_index = [0, 0, 0]
-
-right_cross_peak_path_point_configuration_index = [0, 0, 0]
-right_cross_catch_path_point_configuration_index = [0, 0, 0]
-right_cross_throw_path_point_configuration_index = [0, 0, 0]
-
-
 selected_config_midi_channels = [0,0,0]
 
-point_setups_note_selection_type = ['current positional','current positional','current positional','current positional','current positional','current positional','current positional']
-point_setups_input_type = ['midi','midi','midi','midi','midi','midi','midi']
-point_setups_single_line_input = ['','','','','','','']
-
-ball_configs = ['X','Y','Z']
+midi_channel_choices = range(0,16)
+number_of_path_point_instances = 8
+path_configs = ['X','Y','Z']
 relative_positions = ['left','mid','right']
 path_types = ['left column','left cross','mid column','mid cross','right column','right cross']
 path_phases = ['peak','catch','throw']
 
-path_point_object = {}
-for ball_config in ball_configs:
-	path_point_object[ball_config] = {}
+path_point_instance_obj = {}
+for i in range (number_of_path_point_instances):
+	path_point_instance_obj[i] = {}
+	path_point_instance_obj[i]['active'] = 0
+	path_point_instance_obj[i]['ball number'] = ''
+	path_point_instance_obj[i]['path config'] = ''
+	path_point_instance_obj[i]['midi channel'] = ''
+for i in range (3):
+	path_point_instance_obj[i]['active'] = 0
+	path_point_instance_obj[i]['ball number'] = str(i)
+	path_point_instance_obj[i]['path config'] = 'X'
+	path_point_instance_obj[i]['midi channel'] = '0'
+
+path_point_path_obj = {}
+for path_config in path_configs:
+	path_point_path_obj[path_config] = {}
 	for path_type in path_types:
-		path_point_object[ball_config][path_type] = {}
+		path_point_path_obj[path_config][path_type] = {}
 		for path_phase in path_phases:
-			path_point_object[ball_config][path_type][path_phase] = 0
+			path_point_path_obj[path_config][path_type][path_phase] = 0
+
+midi_configs = range(7)
+
+path_point_midi_obj = {}
+for midi_config in midi_configs:
+	path_point_midi_obj[midi_config] = {}
+	path_point_midi_obj[midi_config]['note selection type'] = 'current positional'
+	path_point_midi_obj[midi_config]['input type'] = 'midi'
+	path_point_midi_obj[midi_config]['input'] = ''
 
 location_inst_nums = ['0','1','2','3']
 number_of_balls = 3
@@ -56,6 +51,7 @@ location_border_sides = ['left','right','top','bottom']
 cc_location_obj = {}
 for inst_num in location_inst_nums:
 	cc_location_obj[inst_num] = {}
+	cc_location_obj[inst_num]['active'] = 0
 	cc_location_obj[inst_num]['balls to average'] = []
 	cc_location_obj[inst_num]['window size'] = 10
 	cc_location_obj[inst_num]['location border sides'] = {}
@@ -69,6 +65,7 @@ for inst_num in location_inst_nums:
 nt_location_obj = {}
 for inst_num in location_inst_nums:
 	nt_location_obj[inst_num] = {}
+	nt_location_obj[inst_num]['active'] = 0
 	nt_location_obj[inst_num]['balls to average'] = []
 	nt_location_obj[inst_num]['window size'] = 10
 	nt_location_obj[inst_num]['location border sides'] = {}
@@ -84,10 +81,10 @@ for i in range (1,number_of_balls+1):
 	ball_numbers.append(str(i))
 print(ball_numbers)
 speed_midi_input_types = ['channel','number']
-speed_border_sides = ['left','right','top','bottom']
 speed_obj = {}
 for inst_num in speed_inst_nums:
 	speed_obj[inst_num] = {}
+	speed_obj[inst_num]['active'] = 0
 	speed_obj[inst_num]['balls to average'] = []
 	speed_obj[inst_num]['window size'] = 10
 	for speed_midi_input_type in speed_midi_input_types:
