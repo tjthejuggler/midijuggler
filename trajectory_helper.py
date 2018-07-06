@@ -128,7 +128,7 @@ def determine_path_phase(ball_index, frame_count,average_fps):
         else:
             settings.path_phase[ball_index] = 'none'
     tab=' '*20
-    #print(tab*ball_index + str(path_phase[ball_index]))
+    print(tab*ball_index + str(path_phase[ball_index]))
 
 def determine_path_type(ball_index,position):
     settings.path_type[ball_index] = position

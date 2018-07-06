@@ -67,40 +67,55 @@ def load_config_file(use_default_config):
             path_point_midi_obj[i]['note selection type'] = lines[first_line+i].split(',')[0]
             path_point_midi_obj[i]['input type'] = lines[first_line+i].split(',')[1]
             path_point_midi_obj[i]['input'] = lines[first_line+i].split(',')[2].rstrip('\n')
-        first_line = lines.index('begin cc location obj\n') + 1
-        for i in range (4):
-            cc_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
-            cc_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
-            cc_location_obj[str(i)]['balls to average'] = cc_location_obj[str(i)]['balls to average'].split(';')
-            cc_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
-            cc_location_obj[str(i)]['location border sides']['left'] = lines[first_line+i].split(',')[3]
-            cc_location_obj[str(i)]['location border sides']['right'] = lines[first_line+i].split(',')[4]
-            cc_location_obj[str(i)]['location border sides']['top'] = lines[first_line+i].split(',')[5]
-            cc_location_obj[str(i)]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
-            cc_location_obj[str(i)]['horizontal']['channel'] = lines[first_line+i].split(',')[7]
-            cc_location_obj[str(i)]['horizontal']['number'] = lines[first_line+i].split(',')[8]
-            cc_location_obj[str(i)]['vertical']['channel'] = lines[first_line+i].split(',')[9]
-            cc_location_obj[str(i)]['vertical']['number'] = lines[first_line+i].split(',')[10].rstrip('\n')
-        first_line = lines.index('begin nt location obj\n') + 1
-        for i in range (4):
-            nt_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
-            nt_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
-            nt_location_obj[str(i)]['balls to average'] = nt_location_obj[str(i)]['balls to average'].split(';')
-            nt_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
-            nt_location_obj[str(i)]['location border sides']['left'] = lines[first_line+i].split(',')[3]
-            nt_location_obj[str(i)]['location border sides']['right'] = lines[first_line+i].split(',')[4]
-            nt_location_obj[str(i)]['location border sides']['top'] = lines[first_line+i].split(',')[5]
-            nt_location_obj[str(i)]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
-            nt_location_obj[str(i)]['channel'] = lines[first_line+i].split(',')[7]
-            nt_location_obj[str(i)]['number'] = lines[first_line+i].split(',')[8].rstrip('\n')
+        first_line = lines.index('begin fade location obj\n') + 1
+        for i in range (8):
+            fade_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            fade_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
+            fade_location_obj[str(i)]['balls to average'] = fade_location_obj[str(i)]['balls to average'].split(';')
+            fade_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
+            fade_location_obj[str(i)]['location border sides']['left'] = lines[first_line+i].split(',')[3]
+            fade_location_obj[str(i)]['location border sides']['right'] = lines[first_line+i].split(',')[4]
+            fade_location_obj[str(i)]['location border sides']['top'] = lines[first_line+i].split(',')[5]
+            fade_location_obj[str(i)]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
+            fade_location_obj[str(i)]['horizontal']['channel'] = lines[first_line+i].split(',')[7]
+            fade_location_obj[str(i)]['horizontal']['number'] = lines[first_line+i].split(',')[8]
+            fade_location_obj[str(i)]['vertical']['channel'] = lines[first_line+i].split(',')[9]
+            fade_location_obj[str(i)]['vertical']['number'] = lines[first_line+i].split(',')[10].rstrip('\n')
+        first_line = lines.index('begin spot location obj\n') + 1
+        for i in range (8):
+            spot_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            spot_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
+            spot_location_obj[str(i)]['balls to average'] = spot_location_obj[str(i)]['balls to average'].split(';')
+            spot_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
+            spot_location_obj[str(i)]['location border sides']['left'] = lines[first_line+i].split(',')[3]
+            spot_location_obj[str(i)]['location border sides']['right'] = lines[first_line+i].split(',')[4]
+            spot_location_obj[str(i)]['location border sides']['top'] = lines[first_line+i].split(',')[5]
+            spot_location_obj[str(i)]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
+            spot_location_obj[str(i)]['channel'] = lines[first_line+i].split(',')[7]
+            spot_location_obj[str(i)]['number'] = lines[first_line+i].split(',')[8].rstrip('\n')
         first_line = lines.index('begin speed obj\n') + 1
-        for i in range (4):
+        for i in range (8):
             speed_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
             speed_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
             speed_obj[str(i)]['balls to average'] = speed_obj[str(i)]['balls to average'].split(';')
             speed_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
             speed_obj[str(i)]['channel'] = lines[first_line+i].split(',')[3]
             speed_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
+        first_line = lines.index('begin apart obj\n') + 1
+        for i in range (8):
+            apart_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            apart_obj[str(i)]['ball numbers'] = lines[first_line+i].split(',')[1]
+            apart_obj[str(i)]['ball numbers'] = apart_obj[str(i)]['ball numbers'].split(';')
+            apart_obj[str(i)]['distance'] = lines[first_line+i].split(',')[2]
+            apart_obj[str(i)]['channel'] = lines[first_line+i].split(',')[3]
+            apart_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
+        first_line = lines.index('begin movement obj\n') + 1
+        for i in range (8):
+            movement_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            movement_obj[str(i)]['move or stop'] = lines[first_line+i].split(',')[1]
+            movement_obj[str(i)]['sensitivity'] = lines[first_line+i].split(',')[2]
+            movement_obj[str(i)]['channel'] = lines[first_line+i].split(',')[3]
+            movement_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
         if not use_default_config:
             read_text_file.close()
             selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
@@ -117,12 +132,14 @@ def set_widgets_from_data():
     set_path_point_buttons_based_on_selected_path_point_config_letter()
     set_ui_location_vars_from_data()
     set_speed_widgets_from_data()
+    set_apart_widgets_from_data()
+    set_movement_widgets_from_data()
 
 def start_camera():
     settings.show_color_calibration = False
     settings.show_main_camera = True
     settings.show_location_define = False
-    print(cc_location_obj['0']['horizontal'])
+    print(fade_location_obj['0']['horizontal'])
     run_camera()
 #with new save setup
 #   first row should be column names
@@ -150,35 +167,52 @@ def save_config_file():
         text_in_config_to_save += path_point_midi_obj[i]['note selection type'] + ','
         text_in_config_to_save += path_point_midi_obj[i]['input type'] + ','
         text_in_config_to_save += path_point_midi_obj[i]['input'] + '\n'
-    text_in_config_to_save += 'begin cc location obj\n'
-    for i in range (4):
-        text_in_config_to_save += str(cc_location_obj[str(i)]['active']) +','
-        text_in_config_to_save += ';'.join(cc_location_obj[str(i)]['balls to average']) + ','
-        text_in_config_to_save += str(cc_location_obj[str(i)]['window size']) + ','
+    text_in_config_to_save += 'begin fade location obj\n'
+    for i in range (8):
+        text_in_config_to_save += str(fade_location_obj[str(i)]['active']) +','
+        text_in_config_to_save += ';'.join(fade_location_obj[str(i)]['balls to average']) + ','
+        text_in_config_to_save += str(fade_location_obj[str(i)]['window size']) + ','
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(cc_location_obj[str(i)]['location border sides'][location_border_side]) + ','
+            text_in_config_to_save += str(fade_location_obj[str(i)]['location border sides'][location_border_side]) + ','
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                text_in_config_to_save += str(cc_location_obj[str(i)][location_direction][location_midi_input_type]) + ','
+                text_in_config_to_save += str(fade_location_obj[str(i)][location_direction][location_midi_input_type]) + ','
         text_in_config_to_save += '\n'
-    text_in_config_to_save += 'begin nt location obj\n'
-    for i in range (4):
-        text_in_config_to_save += str(nt_location_obj[str(i)]['active']) +','
-        text_in_config_to_save += ';'.join(nt_location_obj[str(i)]['balls to average']) +','
-        text_in_config_to_save += str(nt_location_obj[str(i)]['window size']) +','
+    text_in_config_to_save += 'begin spot location obj\n'
+    for i in range (8):
+        text_in_config_to_save += str(spot_location_obj[str(i)]['active']) +','
+        text_in_config_to_save += ';'.join(spot_location_obj[str(i)]['balls to average']) +','
+        text_in_config_to_save += str(spot_location_obj[str(i)]['window size']) +','
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(nt_location_obj[str(i)]['location border sides'][location_border_side]) +','
+            text_in_config_to_save += str(spot_location_obj[str(i)]['location border sides'][location_border_side]) +','
         for location_midi_input_type in location_midi_input_types:
-            text_in_config_to_save += str(nt_location_obj[str(i)][location_midi_input_type]) + ','
+            text_in_config_to_save += str(spot_location_obj[str(i)][location_midi_input_type]) + ','
         text_in_config_to_save += '\n'
     text_in_config_to_save += 'begin speed obj\n'
-    for i in range (4):
+    for i in range (8):
         text_in_config_to_save += str(speed_obj[str(i)]['active']) +','
         text_in_config_to_save += ';'.join(speed_obj[str(i)]['balls to average']) +','
         text_in_config_to_save += str(speed_obj[str(i)]['window size']) +','
         for speed_midi_input_type in speed_midi_input_types:
             text_in_config_to_save += str(speed_obj[str(i)][speed_midi_input_type]) + ','
         text_in_config_to_save += '\n'
+    text_in_config_to_save += 'begin apart obj\n'
+    for i in range (8):
+        text_in_config_to_save += str(apart_obj[str(i)]['active']) +','
+        text_in_config_to_save += ';'.join(apart_obj[str(i)]['ball numbers']) +','
+        text_in_config_to_save += str(apart_obj[str(i)]['distance']) +','
+        for apart_midi_input_type in apart_midi_input_types:
+            text_in_config_to_save += str(apart_obj[str(i)][apart_midi_input_type]) + ','
+        text_in_config_to_save += '\n'
+    text_in_config_to_save += 'begin movement obj\n'
+    for i in range (8):
+        text_in_config_to_save += str(movement_obj[str(i)]['active']) +','
+        text_in_config_to_save += str(movement_obj[str(i)]['move or stop']) +','
+        text_in_config_to_save += str(movement_obj[str(i)]['sensitivity']) +','
+        for movement_midi_input_type in movement_midi_input_types:
+            text_in_config_to_save += str(movement_obj[str(i)][movement_midi_input_type]) + ','
+        text_in_config_to_save += '\n'
+
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()
 
@@ -204,14 +238,25 @@ def set_speed_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
+    ui_speed_obj['header label']['channel'].place(x=extra+370,y=130)
+    ui_speed_obj['header label']['number'].place(x=extra+440,y=130) 
+    ui_speed_obj['header label']['window'].place(x=extra+250,y=130)
     ui_speed_obj['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
     ui_speed_obj['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
     ui_speed_obj['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
     ui_speed_obj['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_speed_obj['4']['checkbutton']['active']['widget'].place(x=extra+10,y=410) 
+    ui_speed_obj['5']['checkbutton']['active']['widget'].place(x=extra+10,y=475) 
+    ui_speed_obj['6']['checkbutton']['active']['widget'].place(x=extra+10,y=540) 
+    ui_speed_obj['7']['checkbutton']['active']['widget'].place(x=extra+10,y=605)
     ui_speed_obj['0']['instance label'].place(x=extra+60,y=150) 
     ui_speed_obj['1']['instance label'].place(x=extra+60,y=215) 
     ui_speed_obj['2']['instance label'].place(x=extra+60,y=280) 
     ui_speed_obj['3']['instance label'].place(x=extra+60,y=345) 
+    ui_speed_obj['4']['instance label'].place(x=extra+60,y=410)
+    ui_speed_obj['5']['instance label'].place(x=extra+60,y=475)
+    ui_speed_obj['6']['instance label'].place(x=extra+60,y=540)
+    ui_speed_obj['7']['instance label'].place(x=extra+60,y=605)    
     ui_speed_obj['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
     ui_speed_obj['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
     ui_speed_obj['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
@@ -224,13 +269,26 @@ def set_speed_widgets_visibility(show_or_hide):
     ui_speed_obj['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
     ui_speed_obj['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
     ui_speed_obj['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
+    ui_speed_obj['4']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=445)
+    ui_speed_obj['4']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=445)
+    ui_speed_obj['4']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=445)
+    ui_speed_obj['5']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=510)
+    ui_speed_obj['5']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=510)
+    ui_speed_obj['5']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=510)
+    ui_speed_obj['6']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=575)
+    ui_speed_obj['6']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=575)
+    ui_speed_obj['6']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=575)
+    ui_speed_obj['7']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=640)
+    ui_speed_obj['7']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=640)
+    ui_speed_obj['7']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=640)
     ui_speed_obj['0']['window size']['widget'].place(x=extra+270,y=170)
     ui_speed_obj['1']['window size']['widget'].place(x=extra+270,y=235)
     ui_speed_obj['2']['window size']['widget'].place(x=extra+270,y=300)
     ui_speed_obj['3']['window size']['widget'].place(x=extra+270,y=365)
-    ui_speed_obj['header label']['channel'].place(x=extra+370,y=130)
-    ui_speed_obj['header label']['number'].place(x=extra+440,y=130) 
-    ui_speed_obj['header label']['window'].place(x=extra+250,y=130)
+    ui_speed_obj['4']['window size']['widget'].place(x=extra+270,y=430)
+    ui_speed_obj['5']['window size']['widget'].place(x=extra+270,y=495)
+    ui_speed_obj['6']['window size']['widget'].place(x=extra+270,y=560)
+    ui_speed_obj['7']['window size']['widget'].place(x=extra+270,y=625)
     ui_speed_obj['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
     ui_speed_obj['0']['midi']['number']['widget'].place(x=extra+440,y=170)
     ui_speed_obj['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
@@ -239,7 +297,14 @@ def set_speed_widgets_visibility(show_or_hide):
     ui_speed_obj['2']['midi']['number']['widget'].place(x=extra+440,y=300)
     ui_speed_obj['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
     ui_speed_obj['3']['midi']['number']['widget'].place(x=extra+440,y=365)
-
+    ui_speed_obj['4']['midi']['channel']['widget'].place(x=extra+370,y=430)
+    ui_speed_obj['4']['midi']['number']['widget'].place(x=extra+440,y=430)
+    ui_speed_obj['5']['midi']['channel']['widget'].place(x=extra+370,y=495)
+    ui_speed_obj['5']['midi']['number']['widget'].place(x=extra+440,y=495)
+    ui_speed_obj['6']['midi']['channel']['widget'].place(x=extra+370,y=560)
+    ui_speed_obj['6']['midi']['number']['widget'].place(x=extra+440,y=560)
+    ui_speed_obj['7']['midi']['channel']['widget'].place(x=extra+370,y=625)
+    ui_speed_obj['7']['midi']['number']['widget'].place(x=extra+440,y=625)
 def set_path_points_widgets_visibility(show_or_hide):
     extra = 0
 
@@ -257,6 +322,9 @@ def set_path_points_instances_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
+    ui_path_point_obj['header label']['ball number'].place(x=extra+250,y=130)
+    ui_path_point_obj['header label']['path config'].place(x=extra+380,y=130)
+    ui_path_point_obj['header label']['midi channel'].place(x=extra+510,y=130)
     ui_path_point_obj[0]['active']['widget'].place(x=extra+10,y=150) 
     ui_path_point_obj[1]['active']['widget'].place(x=extra+10,y=215)
     ui_path_point_obj[2]['active']['widget'].place(x=extra+10,y=280) 
@@ -273,14 +341,14 @@ def set_path_points_instances_widgets_visibility(show_or_hide):
     ui_path_point_obj[5]['instance label'].place(x=extra+60,y=475)
     ui_path_point_obj[6]['instance label'].place(x=extra+60,y=540)
     ui_path_point_obj[7]['instance label'].place(x=extra+60,y=605)
-    ui_path_point_obj[0]['ball number']['widget'].place(x=extra+300,y=150)
-    ui_path_point_obj[1]['ball number']['widget'].place(x=extra+300,y=215)
-    ui_path_point_obj[2]['ball number']['widget'].place(x=extra+300,y=280)
-    ui_path_point_obj[3]['ball number']['widget'].place(x=extra+300,y=345)
-    ui_path_point_obj[4]['ball number']['widget'].place(x=extra+300,y=410)
-    ui_path_point_obj[5]['ball number']['widget'].place(x=extra+300,y=475)
-    ui_path_point_obj[6]['ball number']['widget'].place(x=extra+300,y=540)
-    ui_path_point_obj[7]['ball number']['widget'].place(x=extra+300,y=605)
+    ui_path_point_obj[0]['ball number']['widget'].place(x=extra+270,y=150)
+    ui_path_point_obj[1]['ball number']['widget'].place(x=extra+270,y=215)
+    ui_path_point_obj[2]['ball number']['widget'].place(x=extra+270,y=280)
+    ui_path_point_obj[3]['ball number']['widget'].place(x=extra+270,y=345)
+    ui_path_point_obj[4]['ball number']['widget'].place(x=extra+270,y=410)
+    ui_path_point_obj[5]['ball number']['widget'].place(x=extra+270,y=475)
+    ui_path_point_obj[6]['ball number']['widget'].place(x=extra+270,y=540)
+    ui_path_point_obj[7]['ball number']['widget'].place(x=extra+270,y=605)
     ui_path_point_obj[0]['path config']['widget'].place(x=extra+400,y=150)
     ui_path_point_obj[1]['path config']['widget'].place(x=extra+400,y=215)
     ui_path_point_obj[2]['path config']['widget'].place(x=extra+400,y=280)
@@ -289,14 +357,14 @@ def set_path_points_instances_widgets_visibility(show_or_hide):
     ui_path_point_obj[5]['path config']['widget'].place(x=extra+400,y=475)
     ui_path_point_obj[6]['path config']['widget'].place(x=extra+400,y=540)
     ui_path_point_obj[7]['path config']['widget'].place(x=extra+400,y=605)
-    ui_path_point_obj[0]['midi channel']['widget'].place(x=extra+500,y=150)
-    ui_path_point_obj[1]['midi channel']['widget'].place(x=extra+500,y=215)
-    ui_path_point_obj[2]['midi channel']['widget'].place(x=extra+500,y=280)
-    ui_path_point_obj[3]['midi channel']['widget'].place(x=extra+500,y=345)
-    ui_path_point_obj[4]['midi channel']['widget'].place(x=extra+500,y=410)
-    ui_path_point_obj[5]['midi channel']['widget'].place(x=extra+500,y=475)
-    ui_path_point_obj[6]['midi channel']['widget'].place(x=extra+500,y=540)
-    ui_path_point_obj[7]['midi channel']['widget'].place(x=extra+500,y=605)
+    ui_path_point_obj[0]['midi channel']['widget'].place(x=extra+540,y=150)
+    ui_path_point_obj[1]['midi channel']['widget'].place(x=extra+540,y=215)
+    ui_path_point_obj[2]['midi channel']['widget'].place(x=extra+540,y=280)
+    ui_path_point_obj[3]['midi channel']['widget'].place(x=extra+540,y=345)
+    ui_path_point_obj[4]['midi channel']['widget'].place(x=extra+540,y=410)
+    ui_path_point_obj[5]['midi channel']['widget'].place(x=extra+540,y=475)
+    ui_path_point_obj[6]['midi channel']['widget'].place(x=extra+540,y=540)
+    ui_path_point_obj[7]['midi channel']['widget'].place(x=extra+540,y=605)
 def set_path_points_configs_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
@@ -349,147 +417,261 @@ def set_ui_location_fade_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    ui_location_obj['cc']['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
-    ui_location_obj['cc']['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
-    ui_location_obj['cc']['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
-    ui_location_obj['cc']['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
-    ui_location_obj['cc']['0']['instance label'].place(x=extra+60,y=150) 
-    ui_location_obj['cc']['1']['instance label'].place(x=extra+60,y=215) 
-    ui_location_obj['cc']['2']['instance label'].place(x=extra+60,y=280) 
-    ui_location_obj['cc']['3']['instance label'].place(x=extra+60,y=345) 
-    ui_location_obj['cc']['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
-    ui_location_obj['cc']['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
-    ui_location_obj['cc']['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
-    ui_location_obj['cc']['1']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=250)
-    ui_location_obj['cc']['1']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=250)
-    ui_location_obj['cc']['1']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=250)
-    ui_location_obj['cc']['2']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=315)
-    ui_location_obj['cc']['2']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=315)
-    ui_location_obj['cc']['2']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=315)
-    ui_location_obj['cc']['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
-    ui_location_obj['cc']['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
-    ui_location_obj['cc']['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
-    ui_location_obj['cc']['0']['window size']['widget'].place(x=extra+300,y=170)
-    ui_location_obj['cc']['1']['window size']['widget'].place(x=extra+300,y=235)
-    ui_location_obj['cc']['2']['window size']['widget'].place(x=extra+300,y=300)
-    ui_location_obj['cc']['3']['window size']['widget'].place(x=extra+300,y=365)
-    ui_location_obj['cc']['header label']['horizontal']['main'].place(x=extra+380,y=100)
-    ui_location_obj['cc']['header label']['horizontal']['channel'].place(x=extra+370,y=130)
-    ui_location_obj['cc']['header label']['horizontal']['number'].place(x=extra+440,y=130) 
-    ui_location_obj['cc']['header label']['vertical']['main'].place(x=extra+530,y=100)  
-    ui_location_obj['cc']['header label']['vertical']['channel'].place(x=extra+520,y=130)
-    ui_location_obj['cc']['header label']['vertical']['number'].place(x=extra+590,y=130)
-    ui_location_obj['cc']['header label']['window'].place(x=extra+280,y=130)
-    ui_location_obj['cc']['header label']['left'].place(x=extra+665,y=130)
-    ui_location_obj['cc']['header label']['right'].place(x=extra+720,y=130)
-    ui_location_obj['cc']['header label']['top'].place(x=extra+790,y=130)
-    ui_location_obj['cc']['header label']['bottom'].place(x=extra+830,y=130)
-    ui_location_obj['cc']['0']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=170)
-    ui_location_obj['cc']['0']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=170)
-    ui_location_obj['cc']['0']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=170)
-    ui_location_obj['cc']['0']['midi']['vertical']['number']['widget'].place(x=extra+590,y=170)
-    ui_location_obj['cc']['1']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=235)
-    ui_location_obj['cc']['1']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=235)
-    ui_location_obj['cc']['1']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=235)
-    ui_location_obj['cc']['1']['midi']['vertical']['number']['widget'].place(x=extra+590,y=235)
-    ui_location_obj['cc']['2']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=300)
-    ui_location_obj['cc']['2']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=300)
-    ui_location_obj['cc']['2']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=300)
-    ui_location_obj['cc']['2']['midi']['vertical']['number']['widget'].place(x=extra+590,y=300)
-    ui_location_obj['cc']['3']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=365)
-    ui_location_obj['cc']['3']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=365)
-    ui_location_obj['cc']['3']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=365)
-    ui_location_obj['cc']['3']['midi']['vertical']['number']['widget'].place(x=extra+590,y=365)  
-    ui_location_obj['cc']['0']['border']['left']['widget'].place(x=extra+670,y=170)
-    ui_location_obj['cc']['0']['border']['right']['widget'].place(x=extra+730,y=170)
-    ui_location_obj['cc']['0']['border']['top']['widget'].place(x=extra+790,y=170)
-    ui_location_obj['cc']['0']['border']['bottom']['widget'].place(x=extra+850,y=170)
-    ui_location_obj['cc']['1']['border']['left']['widget'].place(x=extra+670,y=235)
-    ui_location_obj['cc']['1']['border']['right']['widget'].place(x=extra+730,y=235)
-    ui_location_obj['cc']['1']['border']['top']['widget'].place(x=extra+790,y=235)
-    ui_location_obj['cc']['1']['border']['bottom']['widget'].place(x=extra+850,y=235)
-    ui_location_obj['cc']['2']['border']['left']['widget'].place(x=extra+670,y=300)
-    ui_location_obj['cc']['2']['border']['right']['widget'].place(x=extra+730,y=300)
-    ui_location_obj['cc']['2']['border']['top']['widget'].place(x=extra+790,y=300)
-    ui_location_obj['cc']['2']['border']['bottom']['widget'].place(x=extra+850,y=300)
-    ui_location_obj['cc']['3']['border']['left']['widget'].place(x=extra+670,y=365)
-    ui_location_obj['cc']['3']['border']['right']['widget'].place(x=extra+730,y=365)
-    ui_location_obj['cc']['3']['border']['top']['widget'].place(x=extra+790,y=365)
-    ui_location_obj['cc']['3']['border']['bottom']['widget'].place(x=extra+850,y=365)    
-
+    ui_location_obj['fade']['header label']['horizontal']['main'].place(x=extra+380,y=100)
+    ui_location_obj['fade']['header label']['horizontal']['channel'].place(x=extra+370,y=130)
+    ui_location_obj['fade']['header label']['horizontal']['number'].place(x=extra+440,y=130) 
+    ui_location_obj['fade']['header label']['vertical']['main'].place(x=extra+530,y=100)  
+    ui_location_obj['fade']['header label']['vertical']['channel'].place(x=extra+520,y=130)
+    ui_location_obj['fade']['header label']['vertical']['number'].place(x=extra+590,y=130)
+    ui_location_obj['fade']['header label']['window'].place(x=extra+280,y=130)
+    ui_location_obj['fade']['header label']['left'].place(x=extra+665,y=130)
+    ui_location_obj['fade']['header label']['right'].place(x=extra+720,y=130)
+    ui_location_obj['fade']['header label']['top'].place(x=extra+790,y=130)
+    ui_location_obj['fade']['header label']['bottom'].place(x=extra+830,y=130)
+    ui_location_obj['fade']['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
+    ui_location_obj['fade']['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
+    ui_location_obj['fade']['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
+    ui_location_obj['fade']['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345)
+    ui_location_obj['fade']['4']['checkbutton']['active']['widget'].place(x=extra+10,y=410) 
+    ui_location_obj['fade']['5']['checkbutton']['active']['widget'].place(x=extra+10,y=475) 
+    ui_location_obj['fade']['6']['checkbutton']['active']['widget'].place(x=extra+10,y=540) 
+    ui_location_obj['fade']['7']['checkbutton']['active']['widget'].place(x=extra+10,y=605)
+    ui_location_obj['fade']['0']['instance label'].place(x=extra+60,y=150) 
+    ui_location_obj['fade']['1']['instance label'].place(x=extra+60,y=215) 
+    ui_location_obj['fade']['2']['instance label'].place(x=extra+60,y=280) 
+    ui_location_obj['fade']['3']['instance label'].place(x=extra+60,y=345)
+    ui_location_obj['fade']['4']['instance label'].place(x=extra+60,y=410)
+    ui_location_obj['fade']['5']['instance label'].place(x=extra+60,y=475)
+    ui_location_obj['fade']['6']['instance label'].place(x=extra+60,y=540)
+    ui_location_obj['fade']['7']['instance label'].place(x=extra+60,y=605)
+    ui_location_obj['fade']['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
+    ui_location_obj['fade']['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
+    ui_location_obj['fade']['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
+    ui_location_obj['fade']['1']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=250)
+    ui_location_obj['fade']['1']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=250)
+    ui_location_obj['fade']['1']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=250)
+    ui_location_obj['fade']['2']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=315)
+    ui_location_obj['fade']['2']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=315)
+    ui_location_obj['fade']['2']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=315)
+    ui_location_obj['fade']['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
+    ui_location_obj['fade']['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
+    ui_location_obj['fade']['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
+    ui_location_obj['fade']['4']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=445)
+    ui_location_obj['fade']['4']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=445)
+    ui_location_obj['fade']['4']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=445)
+    ui_location_obj['fade']['5']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=510)
+    ui_location_obj['fade']['5']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=510)
+    ui_location_obj['fade']['5']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=510)
+    ui_location_obj['fade']['6']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=575)
+    ui_location_obj['fade']['6']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=575)
+    ui_location_obj['fade']['6']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=575)
+    ui_location_obj['fade']['7']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=640)
+    ui_location_obj['fade']['7']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=640)
+    ui_location_obj['fade']['7']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=640)
+    ui_location_obj['fade']['0']['window size']['widget'].place(x=extra+300,y=170)
+    ui_location_obj['fade']['1']['window size']['widget'].place(x=extra+300,y=235)
+    ui_location_obj['fade']['2']['window size']['widget'].place(x=extra+300,y=300)
+    ui_location_obj['fade']['3']['window size']['widget'].place(x=extra+300,y=365)
+    ui_location_obj['fade']['4']['window size']['widget'].place(x=extra+300,y=430)
+    ui_location_obj['fade']['5']['window size']['widget'].place(x=extra+300,y=495)
+    ui_location_obj['fade']['6']['window size']['widget'].place(x=extra+300,y=560)
+    ui_location_obj['fade']['7']['window size']['widget'].place(x=extra+300,y=625)
+    ui_location_obj['fade']['0']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=170)
+    ui_location_obj['fade']['0']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=170)
+    ui_location_obj['fade']['0']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=170)
+    ui_location_obj['fade']['0']['midi']['vertical']['number']['widget'].place(x=extra+590,y=170)
+    ui_location_obj['fade']['1']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=235)
+    ui_location_obj['fade']['1']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=235)
+    ui_location_obj['fade']['1']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=235)
+    ui_location_obj['fade']['1']['midi']['vertical']['number']['widget'].place(x=extra+590,y=235)
+    ui_location_obj['fade']['2']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=300)
+    ui_location_obj['fade']['2']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=300)
+    ui_location_obj['fade']['2']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=300)
+    ui_location_obj['fade']['2']['midi']['vertical']['number']['widget'].place(x=extra+590,y=300)
+    ui_location_obj['fade']['3']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=365)
+    ui_location_obj['fade']['3']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=365)
+    ui_location_obj['fade']['3']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=365)
+    ui_location_obj['fade']['3']['midi']['vertical']['number']['widget'].place(x=extra+590,y=365)
+    ui_location_obj['fade']['4']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=430)
+    ui_location_obj['fade']['4']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=430)
+    ui_location_obj['fade']['4']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=430)
+    ui_location_obj['fade']['4']['midi']['vertical']['number']['widget'].place(x=extra+590,y=430)
+    ui_location_obj['fade']['5']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=495)
+    ui_location_obj['fade']['5']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=495)
+    ui_location_obj['fade']['5']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=495)
+    ui_location_obj['fade']['5']['midi']['vertical']['number']['widget'].place(x=extra+590,y=495)
+    ui_location_obj['fade']['6']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=560)
+    ui_location_obj['fade']['6']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=560)
+    ui_location_obj['fade']['6']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=560)
+    ui_location_obj['fade']['6']['midi']['vertical']['number']['widget'].place(x=extra+590,y=560)
+    ui_location_obj['fade']['7']['midi']['horizontal']['channel']['widget'].place(x=extra+370,y=625)
+    ui_location_obj['fade']['7']['midi']['horizontal']['number']['widget'].place(x=extra+440,y=625)
+    ui_location_obj['fade']['7']['midi']['vertical']['channel']['widget'].place(x=extra+520,y=625)
+    ui_location_obj['fade']['7']['midi']['vertical']['number']['widget'].place(x=extra+590,y=625)
+    ui_location_obj['fade']['0']['border']['left']['widget'].place(x=extra+670,y=170)
+    ui_location_obj['fade']['0']['border']['right']['widget'].place(x=extra+730,y=170)
+    ui_location_obj['fade']['0']['border']['top']['widget'].place(x=extra+790,y=170)
+    ui_location_obj['fade']['0']['border']['bottom']['widget'].place(x=extra+850,y=170)
+    ui_location_obj['fade']['1']['border']['left']['widget'].place(x=extra+670,y=235)
+    ui_location_obj['fade']['1']['border']['right']['widget'].place(x=extra+730,y=235)
+    ui_location_obj['fade']['1']['border']['top']['widget'].place(x=extra+790,y=235)
+    ui_location_obj['fade']['1']['border']['bottom']['widget'].place(x=extra+850,y=235)
+    ui_location_obj['fade']['2']['border']['left']['widget'].place(x=extra+670,y=300)
+    ui_location_obj['fade']['2']['border']['right']['widget'].place(x=extra+730,y=300)
+    ui_location_obj['fade']['2']['border']['top']['widget'].place(x=extra+790,y=300)
+    ui_location_obj['fade']['2']['border']['bottom']['widget'].place(x=extra+850,y=300)
+    ui_location_obj['fade']['3']['border']['left']['widget'].place(x=extra+670,y=365)
+    ui_location_obj['fade']['3']['border']['right']['widget'].place(x=extra+730,y=365)
+    ui_location_obj['fade']['3']['border']['top']['widget'].place(x=extra+790,y=365)
+    ui_location_obj['fade']['3']['border']['bottom']['widget'].place(x=extra+850,y=365)    
+    ui_location_obj['fade']['4']['border']['left']['widget'].place(x=extra+670,y=430)
+    ui_location_obj['fade']['4']['border']['right']['widget'].place(x=extra+730,y=430)
+    ui_location_obj['fade']['4']['border']['top']['widget'].place(x=extra+790,y=430)
+    ui_location_obj['fade']['4']['border']['bottom']['widget'].place(x=extra+850,y=430)
+    ui_location_obj['fade']['5']['border']['left']['widget'].place(x=extra+670,y=495)
+    ui_location_obj['fade']['5']['border']['right']['widget'].place(x=extra+730,y=495)
+    ui_location_obj['fade']['5']['border']['top']['widget'].place(x=extra+790,y=495)
+    ui_location_obj['fade']['5']['border']['bottom']['widget'].place(x=extra+850,y=495)
+    ui_location_obj['fade']['6']['border']['left']['widget'].place(x=extra+670,y=560)
+    ui_location_obj['fade']['6']['border']['right']['widget'].place(x=extra+730,y=560)
+    ui_location_obj['fade']['6']['border']['top']['widget'].place(x=extra+790,y=560)
+    ui_location_obj['fade']['6']['border']['bottom']['widget'].place(x=extra+850,y=560)
+    ui_location_obj['fade']['7']['border']['left']['widget'].place(x=extra+670,y=625)
+    ui_location_obj['fade']['7']['border']['right']['widget'].place(x=extra+730,y=625)
+    ui_location_obj['fade']['7']['border']['top']['widget'].place(x=extra+790,y=625)
+    ui_location_obj['fade']['7']['border']['bottom']['widget'].place(x=extra+850,y=625)
 
 def set_ui_location_spot_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    ui_location_obj['nt']['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
-    ui_location_obj['nt']['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
-    ui_location_obj['nt']['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
-    ui_location_obj['nt']['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
-    ui_location_obj['nt']['0']['instance label'].place(x=extra+60,y=150) 
-    ui_location_obj['nt']['1']['instance label'].place(x=extra+60,y=215) 
-    ui_location_obj['nt']['2']['instance label'].place(x=extra+60,y=280) 
-    ui_location_obj['nt']['3']['instance label'].place(x=extra+60,y=345)  
-    ui_location_obj['nt']['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
-    ui_location_obj['nt']['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
-    ui_location_obj['nt']['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
-    ui_location_obj['nt']['1']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=250)
-    ui_location_obj['nt']['1']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=250)
-    ui_location_obj['nt']['1']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=250)
-    ui_location_obj['nt']['2']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=315)
-    ui_location_obj['nt']['2']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=315)
-    ui_location_obj['nt']['2']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=315)
-    ui_location_obj['nt']['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
-    ui_location_obj['nt']['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
-    ui_location_obj['nt']['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
-    ui_location_obj['nt']['0']['window size']['widget'].place(x=extra+300,y=170)
-    ui_location_obj['nt']['1']['window size']['widget'].place(x=extra+300,y=235)
-    ui_location_obj['nt']['2']['window size']['widget'].place(x=extra+300,y=300)
-    ui_location_obj['nt']['3']['window size']['widget'].place(x=extra+300,y=365)
-    ui_location_obj['nt']['header label']['channel'].place(x=extra+370,y=130)
-    ui_location_obj['nt']['header label']['number'].place(x=extra+440,y=130)
-    ui_location_obj['nt']['header label']['window'].place(x=extra+280,y=130)
-    ui_location_obj['nt']['header label']['left'].place(x=extra+665,y=130)
-    ui_location_obj['nt']['header label']['right'].place(x=extra+720,y=130)
-    ui_location_obj['nt']['header label']['top'].place(x=extra+790,y=130)
-    ui_location_obj['nt']['header label']['bottom'].place(x=extra+830,y=130)
-    ui_location_obj['nt']['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
-    ui_location_obj['nt']['0']['midi']['number']['widget'].place(x=extra+440,y=170)
-    ui_location_obj['nt']['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
-    ui_location_obj['nt']['1']['midi']['number']['widget'].place(x=extra+440,y=235)
-    ui_location_obj['nt']['2']['midi']['channel']['widget'].place(x=extra+370,y=300)
-    ui_location_obj['nt']['2']['midi']['number']['widget'].place(x=extra+440,y=300)
-    ui_location_obj['nt']['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
-    ui_location_obj['nt']['3']['midi']['number']['widget'].place(x=extra+440,y=365)
-    ui_location_obj['nt']['0']['border']['left']['widget'].place(x=extra+670,y=170)
-    ui_location_obj['nt']['0']['border']['right']['widget'].place(x=extra+730,y=170)
-    ui_location_obj['nt']['0']['border']['top']['widget'].place(x=extra+790,y=170)
-    ui_location_obj['nt']['0']['border']['bottom']['widget'].place(x=extra+850,y=170)
-    ui_location_obj['nt']['1']['border']['left']['widget'].place(x=extra+670,y=235)
-    ui_location_obj['nt']['1']['border']['right']['widget'].place(x=extra+730,y=235)
-    ui_location_obj['nt']['1']['border']['top']['widget'].place(x=extra+790,y=235)
-    ui_location_obj['nt']['1']['border']['bottom']['widget'].place(x=extra+850,y=235)
-    ui_location_obj['nt']['2']['border']['left']['widget'].place(x=extra+670,y=300)
-    ui_location_obj['nt']['2']['border']['right']['widget'].place(x=extra+730,y=300)
-    ui_location_obj['nt']['2']['border']['top']['widget'].place(x=extra+790,y=300)
-    ui_location_obj['nt']['2']['border']['bottom']['widget'].place(x=extra+850,y=300)
-    ui_location_obj['nt']['3']['border']['left']['widget'].place(x=extra+670,y=365)
-    ui_location_obj['nt']['3']['border']['right']['widget'].place(x=extra+730,y=365)
-    ui_location_obj['nt']['3']['border']['top']['widget'].place(x=extra+790,y=365)
-    ui_location_obj['nt']['3']['border']['bottom']['widget'].place(x=extra+850,y=365)
+    ui_location_obj['spot']['header label']['channel'].place(x=extra+370,y=130)
+    ui_location_obj['spot']['header label']['note'].place(x=extra+440,y=130)
+    ui_location_obj['spot']['header label']['window'].place(x=extra+280,y=130)
+    ui_location_obj['spot']['header label']['left'].place(x=extra+665,y=130)
+    ui_location_obj['spot']['header label']['right'].place(x=extra+720,y=130)
+    ui_location_obj['spot']['header label']['top'].place(x=extra+790,y=130)
+    ui_location_obj['spot']['header label']['bottom'].place(x=extra+830,y=130)
+    ui_location_obj['spot']['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
+    ui_location_obj['spot']['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
+    ui_location_obj['spot']['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
+    ui_location_obj['spot']['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_location_obj['spot']['4']['checkbutton']['active']['widget'].place(x=extra+10,y=410) 
+    ui_location_obj['spot']['5']['checkbutton']['active']['widget'].place(x=extra+10,y=475) 
+    ui_location_obj['spot']['6']['checkbutton']['active']['widget'].place(x=extra+10,y=540) 
+    ui_location_obj['spot']['7']['checkbutton']['active']['widget'].place(x=extra+10,y=605)
+    ui_location_obj['spot']['0']['instance label'].place(x=extra+60,y=150) 
+    ui_location_obj['spot']['1']['instance label'].place(x=extra+60,y=215) 
+    ui_location_obj['spot']['2']['instance label'].place(x=extra+60,y=280) 
+    ui_location_obj['spot']['3']['instance label'].place(x=extra+60,y=345)
+    ui_location_obj['spot']['4']['instance label'].place(x=extra+60,y=410)
+    ui_location_obj['spot']['5']['instance label'].place(x=extra+60,y=475)
+    ui_location_obj['spot']['6']['instance label'].place(x=extra+60,y=540)
+    ui_location_obj['spot']['7']['instance label'].place(x=extra+60,y=605)
+    ui_location_obj['spot']['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
+    ui_location_obj['spot']['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
+    ui_location_obj['spot']['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
+    ui_location_obj['spot']['1']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=250)
+    ui_location_obj['spot']['1']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=250)
+    ui_location_obj['spot']['1']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=250)
+    ui_location_obj['spot']['2']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=315)
+    ui_location_obj['spot']['2']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=315)
+    ui_location_obj['spot']['2']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=315)
+    ui_location_obj['spot']['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
+    ui_location_obj['spot']['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
+    ui_location_obj['spot']['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
+    ui_location_obj['spot']['4']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=445)
+    ui_location_obj['spot']['4']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=445)
+    ui_location_obj['spot']['4']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=445)
+    ui_location_obj['spot']['5']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=510)
+    ui_location_obj['spot']['5']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=510)
+    ui_location_obj['spot']['5']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=510)
+    ui_location_obj['spot']['6']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=575)
+    ui_location_obj['spot']['6']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=575)
+    ui_location_obj['spot']['6']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=575)
+    ui_location_obj['spot']['7']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=640)
+    ui_location_obj['spot']['7']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=640)
+    ui_location_obj['spot']['7']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=640)
+    ui_location_obj['spot']['0']['window size']['widget'].place(x=extra+300,y=170)
+    ui_location_obj['spot']['1']['window size']['widget'].place(x=extra+300,y=235)
+    ui_location_obj['spot']['2']['window size']['widget'].place(x=extra+300,y=300)
+    ui_location_obj['spot']['3']['window size']['widget'].place(x=extra+300,y=365)
+    ui_location_obj['spot']['4']['window size']['widget'].place(x=extra+300,y=430)
+    ui_location_obj['spot']['5']['window size']['widget'].place(x=extra+300,y=495)
+    ui_location_obj['spot']['6']['window size']['widget'].place(x=extra+300,y=560)
+    ui_location_obj['spot']['7']['window size']['widget'].place(x=extra+300,y=625)
+    ui_location_obj['spot']['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
+    ui_location_obj['spot']['0']['midi']['number']['widget'].place(x=extra+440,y=170)
+    ui_location_obj['spot']['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
+    ui_location_obj['spot']['1']['midi']['number']['widget'].place(x=extra+440,y=235)
+    ui_location_obj['spot']['2']['midi']['channel']['widget'].place(x=extra+370,y=300)
+    ui_location_obj['spot']['2']['midi']['number']['widget'].place(x=extra+440,y=300)
+    ui_location_obj['spot']['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
+    ui_location_obj['spot']['3']['midi']['number']['widget'].place(x=extra+440,y=365)
+    ui_location_obj['spot']['4']['midi']['channel']['widget'].place(x=extra+370,y=430)
+    ui_location_obj['spot']['4']['midi']['number']['widget'].place(x=extra+440,y=430)
+    ui_location_obj['spot']['5']['midi']['channel']['widget'].place(x=extra+370,y=495)
+    ui_location_obj['spot']['5']['midi']['number']['widget'].place(x=extra+440,y=495)
+    ui_location_obj['spot']['6']['midi']['channel']['widget'].place(x=extra+370,y=560)
+    ui_location_obj['spot']['6']['midi']['number']['widget'].place(x=extra+440,y=560)
+    ui_location_obj['spot']['7']['midi']['channel']['widget'].place(x=extra+370,y=625)
+    ui_location_obj['spot']['7']['midi']['number']['widget'].place(x=extra+440,y=625)
+    ui_location_obj['spot']['0']['border']['left']['widget'].place(x=extra+670,y=170)
+    ui_location_obj['spot']['0']['border']['right']['widget'].place(x=extra+730,y=170)
+    ui_location_obj['spot']['0']['border']['top']['widget'].place(x=extra+790,y=170)
+    ui_location_obj['spot']['0']['border']['bottom']['widget'].place(x=extra+850,y=170)
+    ui_location_obj['spot']['1']['border']['left']['widget'].place(x=extra+670,y=235)
+    ui_location_obj['spot']['1']['border']['right']['widget'].place(x=extra+730,y=235)
+    ui_location_obj['spot']['1']['border']['top']['widget'].place(x=extra+790,y=235)
+    ui_location_obj['spot']['1']['border']['bottom']['widget'].place(x=extra+850,y=235)
+    ui_location_obj['spot']['2']['border']['left']['widget'].place(x=extra+670,y=300)
+    ui_location_obj['spot']['2']['border']['right']['widget'].place(x=extra+730,y=300)
+    ui_location_obj['spot']['2']['border']['top']['widget'].place(x=extra+790,y=300)
+    ui_location_obj['spot']['2']['border']['bottom']['widget'].place(x=extra+850,y=300)
+    ui_location_obj['spot']['3']['border']['left']['widget'].place(x=extra+670,y=365)
+    ui_location_obj['spot']['3']['border']['right']['widget'].place(x=extra+730,y=365)
+    ui_location_obj['spot']['3']['border']['top']['widget'].place(x=extra+790,y=365)
+    ui_location_obj['spot']['3']['border']['bottom']['widget'].place(x=extra+850,y=365)
+    ui_location_obj['fade']['4']['border']['left']['widget'].place(x=extra+670,y=430)
+    ui_location_obj['spot']['4']['border']['right']['widget'].place(x=extra+730,y=430)
+    ui_location_obj['spot']['4']['border']['top']['widget'].place(x=extra+790,y=430)
+    ui_location_obj['spot']['4']['border']['bottom']['widget'].place(x=extra+850,y=430)
+    ui_location_obj['spot']['5']['border']['left']['widget'].place(x=extra+670,y=495)
+    ui_location_obj['spot']['5']['border']['right']['widget'].place(x=extra+730,y=495)
+    ui_location_obj['spot']['5']['border']['top']['widget'].place(x=extra+790,y=495)
+    ui_location_obj['spot']['5']['border']['bottom']['widget'].place(x=extra+850,y=495)
+    ui_location_obj['spot']['6']['border']['left']['widget'].place(x=extra+670,y=560)
+    ui_location_obj['spot']['6']['border']['right']['widget'].place(x=extra+730,y=560)
+    ui_location_obj['spot']['6']['border']['top']['widget'].place(x=extra+790,y=560)
+    ui_location_obj['spot']['6']['border']['bottom']['widget'].place(x=extra+850,y=560)
+    ui_location_obj['spot']['7']['border']['left']['widget'].place(x=extra+670,y=625)
+    ui_location_obj['spot']['7']['border']['right']['widget'].place(x=extra+730,y=625)
+    ui_location_obj['spot']['7']['border']['top']['widget'].place(x=extra+790,y=625)
+    ui_location_obj['spot']['7']['border']['bottom']['widget'].place(x=extra+850,y=625)
 
 def set_apart_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
+    ui_apart_obj['header label']['channel'].place(x=extra+370,y=130)
+    ui_apart_obj['header label']['number'].place(x=extra+440,y=130) 
+    ui_apart_obj['header label']['distance'].place(x=extra+250,y=130)
     ui_apart_obj['0']['checkbutton']['active']['widget'].place(x=extra+10,y=150) 
     ui_apart_obj['1']['checkbutton']['active']['widget'].place(x=extra+10,y=215) 
     ui_apart_obj['2']['checkbutton']['active']['widget'].place(x=extra+10,y=280) 
-    ui_apart_obj['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345) 
+    ui_apart_obj['3']['checkbutton']['active']['widget'].place(x=extra+10,y=345)
+    ui_apart_obj['4']['checkbutton']['active']['widget'].place(x=extra+10,y=410) 
+    ui_apart_obj['5']['checkbutton']['active']['widget'].place(x=extra+10,y=475) 
+    ui_apart_obj['6']['checkbutton']['active']['widget'].place(x=extra+10,y=540) 
+    ui_apart_obj['7']['checkbutton']['active']['widget'].place(x=extra+10,y=605)
     ui_apart_obj['0']['instance label'].place(x=extra+60,y=150) 
     ui_apart_obj['1']['instance label'].place(x=extra+60,y=215) 
     ui_apart_obj['2']['instance label'].place(x=extra+60,y=280) 
-    ui_apart_obj['3']['instance label'].place(x=extra+60,y=345) 
+    ui_apart_obj['3']['instance label'].place(x=extra+60,y=345)
+    ui_apart_obj['4']['instance label'].place(x=extra+60,y=410)
+    ui_apart_obj['5']['instance label'].place(x=extra+60,y=475)
+    ui_apart_obj['6']['instance label'].place(x=extra+60,y=540)
+    ui_apart_obj['7']['instance label'].place(x=extra+60,y=605) 
     ui_apart_obj['0']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185)
     ui_apart_obj['0']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185)
     ui_apart_obj['0']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185)
@@ -502,13 +684,26 @@ def set_apart_widgets_visibility(show_or_hide):
     ui_apart_obj['3']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=380)
     ui_apart_obj['3']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=380)
     ui_apart_obj['3']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=380)
+    ui_apart_obj['4']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=445)
+    ui_apart_obj['4']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=445)
+    ui_apart_obj['4']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=445)
+    ui_apart_obj['5']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=510)
+    ui_apart_obj['5']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=510)
+    ui_apart_obj['5']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=510)
+    ui_apart_obj['6']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=575)
+    ui_apart_obj['6']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=575)
+    ui_apart_obj['6']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=575)
+    ui_apart_obj['7']['checkbutton']['ball 1']['widget'].place(x=extra+50,y=640)
+    ui_apart_obj['7']['checkbutton']['ball 2']['widget'].place(x=extra+120,y=640)
+    ui_apart_obj['7']['checkbutton']['ball 3']['widget'].place(x=extra+190,y=640)
     ui_apart_obj['0']['distance']['widget'].place(x=extra+270,y=170)
     ui_apart_obj['1']['distance']['widget'].place(x=extra+270,y=235)
     ui_apart_obj['2']['distance']['widget'].place(x=extra+270,y=300)
     ui_apart_obj['3']['distance']['widget'].place(x=extra+270,y=365)
-    ui_apart_obj['header label']['channel'].place(x=extra+370,y=130)
-    ui_apart_obj['header label']['number'].place(x=extra+440,y=130) 
-    ui_apart_obj['header label']['distance'].place(x=extra+250,y=130)
+    ui_apart_obj['4']['distance']['widget'].place(x=extra+270,y=430)
+    ui_apart_obj['5']['distance']['widget'].place(x=extra+270,y=495)
+    ui_apart_obj['6']['distance']['widget'].place(x=extra+270,y=560)
+    ui_apart_obj['7']['distance']['widget'].place(x=extra+270,y=625)
     ui_apart_obj['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
     ui_apart_obj['0']['midi']['number']['widget'].place(x=extra+440,y=170)
     ui_apart_obj['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
@@ -517,9 +712,14 @@ def set_apart_widgets_visibility(show_or_hide):
     ui_apart_obj['2']['midi']['number']['widget'].place(x=extra+440,y=300)
     ui_apart_obj['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
     ui_apart_obj['3']['midi']['number']['widget'].place(x=extra+440,y=365)
-
-def set_gather_widgets_visibility(show_or_hide):
-    print('gather')
+    ui_apart_obj['4']['midi']['channel']['widget'].place(x=extra+370,y=430)
+    ui_apart_obj['4']['midi']['number']['widget'].place(x=extra+440,y=430)
+    ui_apart_obj['5']['midi']['channel']['widget'].place(x=extra+370,y=495)
+    ui_apart_obj['5']['midi']['number']['widget'].place(x=extra+440,y=495)
+    ui_apart_obj['6']['midi']['channel']['widget'].place(x=extra+370,y=560)
+    ui_apart_obj['6']['midi']['number']['widget'].place(x=extra+440,y=560)
+    ui_apart_obj['7']['midi']['channel']['widget'].place(x=extra+370,y=625)
+    ui_apart_obj['7']['midi']['number']['widget'].place(x=extra+440,y=625)
 
 def set_collision_widgets_visibility(show_or_hide):
     print('collision')
@@ -528,14 +728,25 @@ def set_movement_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
+    ui_movement_obj['header label']['channel'].place(x=extra+370,y=130)
+    ui_movement_obj['header label']['number'].place(x=extra+440,y=130) 
+    ui_movement_obj['header label']['sensitivity'].place(x=extra+250,y=130)
     ui_movement_obj['0']['active']['widget'].place(x=extra+10,y=150) 
     ui_movement_obj['1']['active']['widget'].place(x=extra+10,y=215) 
     ui_movement_obj['2']['active']['widget'].place(x=extra+10,y=280) 
-    ui_movement_obj['3']['active']['widget'].place(x=extra+10,y=345) 
+    ui_movement_obj['3']['active']['widget'].place(x=extra+10,y=345)
+    ui_movement_obj['4']['active']['widget'].place(x=extra+10,y=410) 
+    ui_movement_obj['5']['active']['widget'].place(x=extra+10,y=475) 
+    ui_movement_obj['6']['active']['widget'].place(x=extra+10,y=540) 
+    ui_movement_obj['7']['active']['widget'].place(x=extra+10,y=605)
     ui_movement_obj['0']['instance label'].place(x=extra+60,y=150) 
     ui_movement_obj['1']['instance label'].place(x=extra+60,y=215) 
     ui_movement_obj['2']['instance label'].place(x=extra+60,y=280) 
-    ui_movement_obj['3']['instance label'].place(x=extra+60,y=345) 
+    ui_movement_obj['3']['instance label'].place(x=extra+60,y=345)
+    ui_movement_obj['4']['instance label'].place(x=extra+60,y=410)
+    ui_movement_obj['5']['instance label'].place(x=extra+60,y=475)
+    ui_movement_obj['6']['instance label'].place(x=extra+60,y=540)
+    ui_movement_obj['7']['instance label'].place(x=extra+60,y=605) 
     ui_movement_obj['0']['radiobutton']['move'].place(x=extra+50,y=185)
     ui_movement_obj['0']['radiobutton']['stop'].place(x=extra+120,y=185)
     ui_movement_obj['1']['radiobutton']['move'].place(x=extra+50,y=250)
@@ -544,13 +755,22 @@ def set_movement_widgets_visibility(show_or_hide):
     ui_movement_obj['2']['radiobutton']['stop'].place(x=extra+120,y=315)
     ui_movement_obj['3']['radiobutton']['move'].place(x=extra+50,y=380)
     ui_movement_obj['3']['radiobutton']['stop'].place(x=extra+120,y=380)
+    ui_movement_obj['4']['radiobutton']['move'].place(x=extra+50,y=445)
+    ui_movement_obj['4']['radiobutton']['stop'].place(x=extra+120,y=445)
+    ui_movement_obj['5']['radiobutton']['move'].place(x=extra+50,y=510)
+    ui_movement_obj['5']['radiobutton']['stop'].place(x=extra+120,y=510)
+    ui_movement_obj['6']['radiobutton']['move'].place(x=extra+50,y=575)
+    ui_movement_obj['6']['radiobutton']['stop'].place(x=extra+120,y=575)
+    ui_movement_obj['7']['radiobutton']['move'].place(x=extra+50,y=640)
+    ui_movement_obj['7']['radiobutton']['stop'].place(x=extra+120,y=640)
     ui_movement_obj['0']['sensitivity']['widget'].place(x=extra+270,y=170)
     ui_movement_obj['1']['sensitivity']['widget'].place(x=extra+270,y=235)
     ui_movement_obj['2']['sensitivity']['widget'].place(x=extra+270,y=300)
     ui_movement_obj['3']['sensitivity']['widget'].place(x=extra+270,y=365)
-    ui_movement_obj['header label']['channel'].place(x=extra+370,y=130)
-    ui_movement_obj['header label']['number'].place(x=extra+440,y=130) 
-    ui_movement_obj['header label']['sensitivity'].place(x=extra+250,y=130)
+    ui_movement_obj['4']['sensitivity']['widget'].place(x=extra+270,y=430)
+    ui_movement_obj['5']['sensitivity']['widget'].place(x=extra+270,y=495)
+    ui_movement_obj['6']['sensitivity']['widget'].place(x=extra+270,y=560)
+    ui_movement_obj['7']['sensitivity']['widget'].place(x=extra+270,y=625)
     ui_movement_obj['0']['midi']['channel']['widget'].place(x=extra+370,y=170)
     ui_movement_obj['0']['midi']['number']['widget'].place(x=extra+440,y=170)
     ui_movement_obj['1']['midi']['channel']['widget'].place(x=extra+370,y=235)
@@ -559,6 +779,14 @@ def set_movement_widgets_visibility(show_or_hide):
     ui_movement_obj['2']['midi']['number']['widget'].place(x=extra+440,y=300)
     ui_movement_obj['3']['midi']['channel']['widget'].place(x=extra+370,y=365)
     ui_movement_obj['3']['midi']['number']['widget'].place(x=extra+440,y=365)
+    ui_movement_obj['4']['midi']['channel']['widget'].place(x=extra+370,y=430)
+    ui_movement_obj['4']['midi']['number']['widget'].place(x=extra+440,y=430)
+    ui_movement_obj['5']['midi']['channel']['widget'].place(x=extra+370,y=495)
+    ui_movement_obj['5']['midi']['number']['widget'].place(x=extra+440,y=495)
+    ui_movement_obj['6']['midi']['channel']['widget'].place(x=extra+370,y=560)
+    ui_movement_obj['6']['midi']['number']['widget'].place(x=extra+440,y=560)
+    ui_movement_obj['7']['midi']['channel']['widget'].place(x=extra+370,y=625)
+    ui_movement_obj['7']['midi']['number']['widget'].place(x=extra+440,y=625)
 
 def set_path_points_config_inputs_visibility(show_or_hide):
     extra = 0
@@ -580,7 +808,6 @@ def selected_event_type_changed(*args):
     set_ui_location_spot_objs_visibility('hide')
     set_speed_widgets_visibility('hide')
     set_apart_widgets_visibility('hide')
-    set_gather_widgets_visibility('hide')
     set_collision_widgets_visibility('hide')
     set_movement_widgets_visibility('hide')
     if selected_event_type.get() == 'path points':
@@ -593,8 +820,6 @@ def selected_event_type_changed(*args):
         set_speed_widgets_visibility('show')
     if selected_event_type.get() == 'apart':
         set_apart_widgets_visibility('show')
-    if selected_event_type.get() == 'gather':
-        set_gather_widgets_visibility('show')
     if selected_event_type.get() == 'collision':
         set_collision_widgets_visibility('show')
     if selected_event_type.get() == 'movement':
@@ -758,6 +983,23 @@ def set_speed_widgets_from_data():
         for speed_midi_input_type in speed_midi_input_types:
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].set(speed_obj[str(inst_num)][speed_midi_input_type])
 
+def set_apart_widgets_from_data():
+    for inst_num in apart_inst_nums:
+        ui_apart_obj[inst_num]['checkbutton']['active']['var'].set(apart_obj[inst_num]['active'])
+        for ball_number in ball_numbers:            
+            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in apart_obj[inst_num]['ball numbers'])
+        ui_apart_obj[inst_num]['distance']['var'].set(apart_obj[inst_num]['distance'])
+        for apart_midi_input_type in apart_midi_input_types:
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].set(apart_obj[str(inst_num)][apart_midi_input_type])
+
+def set_movement_widgets_from_data():
+    for inst_num in movement_inst_nums:
+        ui_movement_obj[inst_num]['active']['var'].set(movement_obj[inst_num]['active'])
+        ui_movement_obj[inst_num]['radiobutton']['var'].set(movement_obj[inst_num]['move or stop'])
+        ui_movement_obj[inst_num]['sensitivity']['var'].set(movement_obj[inst_num]['sensitivity'])
+        for movement_midi_input_type in movement_midi_input_types:
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].set(movement_obj[str(inst_num)][movement_midi_input_type])
+
 def set_path_point_instance_widgets_from_data():
     for i in range (8):
         ui_path_point_obj[i]['active']['var'].set(path_point_instance_obj[i]['active'])
@@ -767,24 +1009,24 @@ def set_path_point_instance_widgets_from_data():
 
 def set_ui_location_vars_from_data():
     for inst_num in location_inst_nums:
-        ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'].set(cc_location_obj[inst_num]['active'])
+        ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].set(fade_location_obj[inst_num]['active'])
         for ball_number in ball_numbers:            
-            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in cc_location_obj[str(inst_num)]['balls to average'])
-        ui_location_obj['cc'][inst_num]['window size']['var'].set(cc_location_obj[str(inst_num)]['window size'])
+            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in fade_location_obj[str(inst_num)]['balls to average'])
+        ui_location_obj['fade'][inst_num]['window size']['var'].set(fade_location_obj[str(inst_num)]['window size'])
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(cc_location_obj[str(inst_num)][location_direction][location_midi_input_type])
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(fade_location_obj[str(inst_num)][location_direction][location_midi_input_type])
         for location_border_side in location_border_sides:
-            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].set(cc_location_obj[str(inst_num)]['location border sides'][location_border_side])
+            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].set(fade_location_obj[str(inst_num)]['location border sides'][location_border_side])
     for inst_num in location_inst_nums:
-        ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'].set(cc_location_obj[inst_num]['active'])
+        ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].set(spot_location_obj[inst_num]['active'])
         for ball_number in ball_numbers:    
-            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in nt_location_obj[str(inst_num)]['balls to average'])
-        ui_location_obj['nt'][inst_num]['window size']['var'].set(nt_location_obj[str(inst_num)]['window size'])
+            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in spot_location_obj[str(inst_num)]['balls to average'])
+        ui_location_obj['spot'][inst_num]['window size']['var'].set(spot_location_obj[str(inst_num)]['window size'])
         for location_midi_input_type in location_midi_input_types:
-            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].set(nt_location_obj[str(inst_num)][location_midi_input_type])
+            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].set(spot_location_obj[str(inst_num)][location_midi_input_type])
         for location_border_side in location_border_sides:
-            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].set(nt_location_obj[str(inst_num)]['location border sides'][location_border_side])
+            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].set(spot_location_obj[str(inst_num)]['location border sides'][location_border_side])
 
 def set_path_point_buttons_based_on_selected_path_point_config_letter():
     for path_type in path_types:
@@ -829,12 +1071,12 @@ def location_active_checkbutton_changed(location_type,checked,inst_num):
     print(checked)
     print('inst_num')
     print(inst_num)
-    if location_type == 'cc':
-        cc_location_obj[inst_num]['active'] = checked
-        print(cc_location_obj[inst_num]['active'])
-    elif location_type == 'nt':
-        nt_location_obj[inst_num]['active'] = checked
-        print(nt_location_obj[inst_num]['active'])
+    if location_type == 'fade':
+        fade_location_obj[inst_num]['active'] = checked
+        print(fade_location_obj[inst_num]['active'])
+    elif location_type == 'spot':
+        spot_location_obj[inst_num]['active'] = checked
+        print(spot_location_obj[inst_num]['active'])
 
 def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball_number):
     print('location_type')
@@ -845,58 +1087,58 @@ def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball
     print(ball_number)
     print('inst_num')
     print(inst_num)
-    if location_type == 'cc':
+    if location_type == 'fade':
         if checked:
-            if not ball_number in cc_location_obj[inst_num]['balls to average']:
-                cc_location_obj[inst_num]['balls to average'].append(ball_number)
-                if '' in cc_location_obj[inst_num]['balls to average']: cc_location_obj[inst_num]['balls to average'].remove('')
+            if not ball_number in fade_location_obj[inst_num]['balls to average']:
+                fade_location_obj[inst_num]['balls to average'].append(ball_number)
+                if '' in fade_location_obj[inst_num]['balls to average']: fade_location_obj[inst_num]['balls to average'].remove('')
         else:
-            if ball_number in cc_location_obj[inst_num]['balls to average']:
-                cc_location_obj[inst_num]['balls to average'].remove(ball_number)                
-        print(cc_location_obj[inst_num]['balls to average'])
-    elif location_type == 'nt':
+            if ball_number in fade_location_obj[inst_num]['balls to average']:
+                fade_location_obj[inst_num]['balls to average'].remove(ball_number)                
+        print(fade_location_obj[inst_num]['balls to average'])
+    elif location_type == 'spot':
         if checked:
-            if not ball_number in nt_location_obj[inst_num]['balls to average']:
-                nt_location_obj[inst_num]['balls to average'].append(ball_number)
-                if '' in nt_location_obj[inst_num]['balls to average']: nt_location_obj[inst_num]['balls to average'].remove('')
+            if not ball_number in spot_location_obj[inst_num]['balls to average']:
+                spot_location_obj[inst_num]['balls to average'].append(ball_number)
+                if '' in spot_location_obj[inst_num]['balls to average']: spot_location_obj[inst_num]['balls to average'].remove('')
         else:
-            if ball_number in nt_location_obj[inst_num]['balls to average']:
-                nt_location_obj[inst_num]['balls to average'].remove(ball_number)
-        print(nt_location_obj[inst_num]['balls to average'])
+            if ball_number in spot_location_obj[inst_num]['balls to average']:
+                spot_location_obj[inst_num]['balls to average'].remove(ball_number)
+        print(spot_location_obj[inst_num]['balls to average'])
 
 def location_number_of_frames_changed(location_type,entry_text,inst_num):
     print('location_type '+location_type)
     print('entry_text '+entry_text)
     print('inst_num '+str(inst_num))
-    if location_type == 'cc':
-        cc_location_obj[inst_num]['window size'] = entry_text
-    if location_type == 'nt':
-        nt_location_obj[inst_num]['window size'] = entry_text
+    if location_type == 'fade':
+        fade_location_obj[inst_num]['window size'] = entry_text
+    if location_type == 'spot':
+        spot_location_obj[inst_num]['window size'] = entry_text
 
-def location_cc_channel_or_number_changed(entry_text,inst_num,location_direction,location_midi_input_type):
+def location_fade_channel_or_number_changed(entry_text,inst_num,location_direction,location_midi_input_type):
     print(inst_num)
     print(entry_text)
     print(location_direction)
-    cc_location_obj[inst_num][location_direction][location_midi_input_type] = str(entry_text)
-    print(cc_location_obj['0'][location_direction]['channel'])
+    fade_location_obj[inst_num][location_direction][location_midi_input_type] = str(entry_text)
+    print(fade_location_obj['0'][location_direction]['channel'])
 
-def location_nt_channel_or_number_changed(entry_text,inst_num,location_midi_input_type):
+def location_spot_channel_or_number_changed(entry_text,inst_num,location_midi_input_type):
     print(inst_num)
     print(entry_text)
-    nt_location_obj[inst_num][location_midi_input_type] = str(entry_text)
+    spot_location_obj[inst_num][location_midi_input_type] = str(entry_text)
 
 def location_border_changed(location_type,entry_text,inst_num,location_border_side):
     print('location_type '+location_type)
     print('entry_text '+entry_text)
     print('inst_num '+str(inst_num))
     print('location_border_side '+location_border_side)
-    if location_type == 'cc':
-        cc_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
+    if location_type == 'fade':
+        fade_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
         print('lol')
-        print(cc_location_obj[str(inst_num)]['location border sides'][location_border_side])
-    if location_type == 'nt':
-        nt_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
-    print( cc_location_obj[str(inst_num)]['location border sides'])
+        print(fade_location_obj[str(inst_num)]['location border sides'][location_border_side])
+    if location_type == 'spot':
+        spot_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
+    print( fade_location_obj[str(inst_num)]['location border sides'])
 #########################     END LOCATION SECTION     ##########################
 
 
@@ -954,13 +1196,13 @@ def apart_ball_number_checkbutton_changed(checked,inst_num,ball_number):
     print('inst_num')
     print(inst_num)
     if checked:
-        if not ball_number in apart_obj[inst_num]['balls to average']:
-            apart_obj[inst_num]['balls to average'].append(ball_number)
+        if not ball_number in apart_obj[inst_num]['ball numbers']:
+            apart_obj[inst_num]['ball numbers'].append(ball_number)
     else:
-        if ball_number in apart_obj[inst_num]['balls to average']:
-            apart_obj[inst_num]['balls to average'].remove(ball_number)
-    if '' in apart_obj[inst_num]['balls to average']: apart_obj[inst_num]['balls to average'].remove('')
-    print(apart_obj[inst_num]['balls to average'])
+        if ball_number in apart_obj[inst_num]['ball numbers']:
+            apart_obj[inst_num]['ball numbers'].remove(ball_number)
+    if '' in apart_obj[inst_num]['ball numbers']: apart_obj[inst_num]['ball numbers'].remove('')
+    print(apart_obj[inst_num]['ball numbers'])
 
 def apart_distance_changed(entry_text,inst_num):
     print('entry_text '+entry_text)
@@ -1024,25 +1266,18 @@ if use_user_interface:
 
     ui_path_point_obj = {}
     ui_path_point_obj['header label'] = {}
-    ui_path_point_obj['header label']['window'] = ttk.Label(
-        root, text='Window',font=('Courier', 10))
-    for location_border_side in location_border_sides:
-        ui_path_point_obj['header label'][location_border_side] = ttk.Label(
-        root, text=location_border_side,font=('Courier', 10))
-    for location_direction in location_directions:
-        ui_path_point_obj['header label'][location_direction] = {}        
-        ui_path_point_obj['header label'][location_direction]['main'] = ttk.Label(
-            root, text=location_direction,font=('Courier', 10))
-        ui_path_point_obj['header label'][location_direction]['channel'] = ttk.Label(
-            root, text='Channel',font=('Courier', 8))
-        ui_path_point_obj['header label'][location_direction]['number'] = ttk.Label(
-            root, text='Number',font=('Courier', 8))
+    ui_path_point_obj['header label']['ball number'] = ttk.Label(
+        root, text='Ball number',font=('Courier', 10))
+    ui_path_point_obj['header label']['path config'] = ttk.Label(
+        root, text='Path config',font=('Courier', 10))
+    ui_path_point_obj['header label']['midi channel'] = ttk.Label(
+        root, text='Midi channel',font=('Courier', 10))
 
     path_point_ball_numbers_choices = ['1','2','3']
     for inst_num in range(number_of_path_point_instances):
         ui_path_point_obj[inst_num] = {}
         ui_path_point_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='Instance '+str(inst_num),font=('Courier', 16)) 
+            root, text='instance '+str(inst_num),font=('Courier', 16)) 
         ui_path_point_obj[inst_num]['active'] = {}
         ui_path_point_obj[inst_num]['active']['var'] = IntVar()
         this_ui_path_point_obj = ui_path_point_obj[inst_num]['active']['var'].get()
@@ -1197,162 +1432,167 @@ if use_user_interface:
     selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 ###########################  END PATH POINTS SECTION  #################################
 
-###########################  BEGIN LOCATION SECTION  ######################
+###########################  BEGIN LOCATION FADE SECTION  ######################
 
     ui_location_obj = {}
-    ui_location_obj['cc'] = {}
-    ui_location_obj['cc']['header label'] = {}
-    ui_location_obj['cc']['header label']['window'] = ttk.Label(
+    ui_location_obj['fade'] = {}
+    ui_location_obj['fade']['header label'] = {}
+    ui_location_obj['fade']['header label']['window'] = ttk.Label(
         root, text='Window',font=('Courier', 10))
     for location_border_side in location_border_sides:
-        ui_location_obj['cc']['header label'][location_border_side] = ttk.Label(
+        ui_location_obj['fade']['header label'][location_border_side] = ttk.Label(
         root, text=location_border_side,font=('Courier', 10))
     for location_direction in location_directions:
-        ui_location_obj['cc']['header label'][location_direction] = {}        
-        ui_location_obj['cc']['header label'][location_direction]['main'] = ttk.Label(
+        ui_location_obj['fade']['header label'][location_direction] = {}        
+        ui_location_obj['fade']['header label'][location_direction]['main'] = ttk.Label(
             root, text=location_direction,font=('Courier', 10))
-        ui_location_obj['cc']['header label'][location_direction]['channel'] = ttk.Label(
+        ui_location_obj['fade']['header label'][location_direction]['channel'] = ttk.Label(
             root, text='Channel',font=('Courier', 8))
-        ui_location_obj['cc']['header label'][location_direction]['number'] = ttk.Label(
+        ui_location_obj['fade']['header label'][location_direction]['number'] = ttk.Label(
             root, text='Number',font=('Courier', 8))
 
     for inst_num in location_inst_nums:
-        ui_location_obj['cc'][inst_num] = {}
-        ui_location_obj['cc'][inst_num]['checkbutton'] = {}
-        ui_location_obj['cc'][inst_num]['window size'] = {}      
-        ui_location_obj['cc'][inst_num]['midi'] = {}
-        ui_location_obj['cc'][inst_num]['border'] = {}         
-        ui_location_obj['cc'][inst_num]['instance label'] = ttk.Label(
-            root, text='Instance '+inst_num,font=('Courier', 16)) 
-        ui_location_obj['cc'][inst_num]['checkbutton'] = {}
-        ui_location_obj['cc'][inst_num]['checkbutton']['active'] = {}
-        ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'] = IntVar()
-        this_ui_location_obj = ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'].get()
-        ui_location_obj['cc'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'], \
+        ui_location_obj['fade'][inst_num] = {}
+        ui_location_obj['fade'][inst_num]['checkbutton'] = {}
+        ui_location_obj['fade'][inst_num]['window size'] = {}      
+        ui_location_obj['fade'][inst_num]['midi'] = {}
+        ui_location_obj['fade'][inst_num]['border'] = {}         
+        ui_location_obj['fade'][inst_num]['instance label'] = ttk.Label(
+            root, text='instance '+inst_num,font=('Courier', 16)) 
+        ui_location_obj['fade'][inst_num]['checkbutton'] = {}
+        ui_location_obj['fade'][inst_num]['checkbutton']['active'] = {}
+        ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'] = IntVar()
+        this_ui_location_obj = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get()
+        ui_location_obj['fade'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'], \
             command=lambda this_ui_location_obj= \
-            ui_location_obj['cc'][inst_num]['checkbutton']['active']['var'], \
+            ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'], \
             inst_num=inst_num: location_active_checkbutton_changed(
-                'cc',this_ui_location_obj.get(),inst_num))        
+                'fade',this_ui_location_obj.get(),inst_num))        
         for ball_number in ball_numbers:
-            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number] = {}
-            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_location_obj = ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'].get()
-            ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number] = {}
+            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+            this_ui_location_obj = ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].get()
+            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
                 root, text='Ball '+ball_number, variable= \
-                ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 command=lambda this_ui_location_obj= \
-                ui_location_obj['cc'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('cc',
+                ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('fade',
                     this_ui_location_obj.get(),inst_num,ball_number))
-        ui_location_obj['cc'][inst_num]['window size'] = {}            
-        ui_location_obj['cc'][inst_num]['window size']['var'] = StringVar(root)
-        ui_location_obj['cc'][inst_num]['window size']['var'].set(10)
-        this_variable = ui_location_obj['cc'][inst_num]['window size']['var']
-        ui_location_obj['cc'][inst_num]['window size']['var'].trace(
+        ui_location_obj['fade'][inst_num]['window size'] = {}            
+        ui_location_obj['fade'][inst_num]['window size']['var'] = StringVar(root)
+        ui_location_obj['fade'][inst_num]['window size']['var'].set(10)
+        this_variable = ui_location_obj['fade'][inst_num]['window size']['var']
+        ui_location_obj['fade'][inst_num]['window size']['var'].trace(
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            location_number_of_frames_changed('cc',this_variable.get(),inst_num))
-        ui_location_obj['cc'][inst_num]['window size']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['window size']['var'])
-        ui_location_obj['cc'][inst_num]['midi'] = {}
+            location_number_of_frames_changed('fade',this_variable.get(),inst_num))
+        ui_location_obj['fade'][inst_num]['window size']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['window size']['var'])
+        ui_location_obj['fade'][inst_num]['midi'] = {}
         for location_direction in location_directions:
-            ui_location_obj['cc'][inst_num]['midi'][location_direction] = {}
+            ui_location_obj['fade'][inst_num]['midi'][location_direction] = {}
             for location_midi_input_type in location_midi_input_types:
-                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type] = {}
-                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'] = StringVar(root)
-                this_variable = ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var']
-                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].trace(
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type] = {}
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'] = StringVar(root)
+                this_variable = ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var']
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].trace(
                     'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
-                    location_midi_input_type=location_midi_input_type: location_cc_channel_or_number_changed(
+                    location_midi_input_type=location_midi_input_type: location_fade_channel_or_number_changed(
                     this_variable.get(),inst_num,location_direction,location_midi_input_type))
-                ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
                 ttk.Entry(root, width = 4,textvariable= \
-                    ui_location_obj['cc'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
-        ui_location_obj['cc'][inst_num]['border'] = {}
+                    ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
+        ui_location_obj['fade'][inst_num]['border'] = {}
         for location_border_side in location_border_sides:
-            ui_location_obj['cc'][inst_num]['border'][location_border_side] = {}
-            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
-            this_variable = ui_location_obj['cc'][inst_num]['border'][location_border_side]['var']
-            ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'].trace(
+            ui_location_obj['fade'][inst_num]['border'][location_border_side] = {}
+            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
+            this_variable = ui_location_obj['fade'][inst_num]['border'][location_border_side]['var']
+            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].trace(
                 'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
-                location_border_changed('cc',this_variable.get(),inst_num,location_border_side))
-            ui_location_obj['cc'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['cc'][inst_num]['border'][location_border_side]['var'])    
-    ui_location_obj['nt'] = {}
+                location_border_changed('fade',this_variable.get(),inst_num,location_border_side))
+            ui_location_obj['fade'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
+                root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'])    
+    
+###########################  END LOCATION FADE SECTION  ######################
 
-    ui_location_obj['nt']['header label'] = {}
-    ui_location_obj['nt']['header label']['window'] = ttk.Label(
+###########################  BEGIN LOCATION SPOT SECTION  ######################
+
+    ui_location_obj['spot'] = {}
+
+    ui_location_obj['spot']['header label'] = {}
+    ui_location_obj['spot']['header label']['window'] = ttk.Label(
         root, text='Window',font=('Courier', 10))
     for location_border_side in location_border_sides:
-        ui_location_obj['nt']['header label'][location_border_side] = ttk.Label(
+        ui_location_obj['spot']['header label'][location_border_side] = ttk.Label(
             root, text=location_border_side,font=('Courier', 10))
-    ui_location_obj['nt']['header label']['channel'] = ttk.Label(
+    ui_location_obj['spot']['header label']['channel'] = ttk.Label(
         root, text='Channel',font=('Courier', 8))
-    ui_location_obj['nt']['header label']['number'] = ttk.Label(
-        root, text='Number',font=('Courier', 8))
+    ui_location_obj['spot']['header label']['note'] = ttk.Label(
+        root, text='Note',font=('Courier', 8))
 
     for inst_num in location_inst_nums:
-        ui_location_obj['nt'][inst_num] = {}
-        ui_location_obj['nt'][inst_num]['header label'] = {}
-        ui_location_obj['nt'][inst_num]['checkbutton'] = {}
-        ui_location_obj['nt'][inst_num]['window size'] = {}
-        ui_location_obj['nt'][inst_num]['midi'] = {}
-        ui_location_obj['nt'][inst_num]['midi']['var'] = {}
-        ui_location_obj['nt'][inst_num]['border'] = {}
-        ui_location_obj['nt'][inst_num]['instance label'] = ttk.Label(root, text='Instance '+inst_num,font=('Courier', 16)) 
-        ui_location_obj['nt'][inst_num]['checkbutton'] = {}
-        ui_location_obj['nt'][inst_num]['checkbutton']['active'] = {}
-        ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'] = IntVar()
-        this_ui_location_obj = ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'].get()
-        ui_location_obj['nt'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'], \
+        ui_location_obj['spot'][inst_num] = {}
+        ui_location_obj['spot'][inst_num]['header label'] = {}
+        ui_location_obj['spot'][inst_num]['checkbutton'] = {}
+        ui_location_obj['spot'][inst_num]['window size'] = {}
+        ui_location_obj['spot'][inst_num]['midi'] = {}
+        ui_location_obj['spot'][inst_num]['midi']['var'] = {}
+        ui_location_obj['spot'][inst_num]['border'] = {}
+        ui_location_obj['spot'][inst_num]['instance label'] = ttk.Label(root, text='instance '+inst_num,font=('Courier', 16)) 
+        ui_location_obj['spot'][inst_num]['checkbutton'] = {}
+        ui_location_obj['spot'][inst_num]['checkbutton']['active'] = {}
+        ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'] = IntVar()
+        this_ui_location_obj = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get()
+        ui_location_obj['spot'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+            root, text='On', variable= ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'], \
             command=lambda this_ui_location_obj= \
-            ui_location_obj['nt'][inst_num]['checkbutton']['active']['var'], \
+            ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'], \
             inst_num=inst_num: location_active_checkbutton_changed(
-                'nt',this_ui_location_obj.get(),inst_num))      
+                'spot',this_ui_location_obj.get(),inst_num))      
         for ball_number in ball_numbers:
-            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number] = {}
-            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_location_obj = ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var']
-            ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number] = {}
+            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+            this_ui_location_obj = ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var']
+            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
                 root, text='Ball '+ball_number, variable= \
-                ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
                 command=lambda this_ui_location_obj= \
-                ui_location_obj['nt'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('nt',
+                ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
+                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('spot',
                     this_ui_location_obj.get(),inst_num,ball_number))
-        ui_location_obj['nt'][inst_num]['window size'] = {}              
-        ui_location_obj['nt'][inst_num]['window size']['var'] = StringVar(root)
-        ui_location_obj['nt'][inst_num]['window size']['var'].set(10)
-        this_variable = ui_location_obj['nt'][inst_num]['window size']['var']
-        ui_location_obj['nt'][inst_num]['window size']['var'].trace(
+        ui_location_obj['spot'][inst_num]['window size'] = {}              
+        ui_location_obj['spot'][inst_num]['window size']['var'] = StringVar(root)
+        ui_location_obj['spot'][inst_num]['window size']['var'].set(10)
+        this_variable = ui_location_obj['spot'][inst_num]['window size']['var']
+        ui_location_obj['spot'][inst_num]['window size']['var'].trace(
             'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            location_number_of_frames_changed('nt',this_variable.get(),inst_num))
-        ui_location_obj['nt'][inst_num]['window size']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['window size']['var'])        
-        ui_location_obj['nt'][inst_num]['midi'] = {}
+            location_number_of_frames_changed('spot',this_variable.get(),inst_num))
+        ui_location_obj['spot'][inst_num]['window size']['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['window size']['var'])        
+        ui_location_obj['spot'][inst_num]['midi'] = {}
         for location_midi_input_type in location_midi_input_types:
-            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type] = {}
-            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
-            this_variable = ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var']
-            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'].trace(
+            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type] = {}
+            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
+            this_variable = ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var']
+            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].trace(
                 'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
                 location_midi_input_type = location_midi_input_type: \
-                location_nt_channel_or_number_changed(this_variable.get(),inst_num,location_midi_input_type))
-            ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['midi'][location_midi_input_type]['var'])
-        ui_location_obj['nt'][inst_num]['border'] = {}
+                location_spot_channel_or_number_changed(this_variable.get(),inst_num,location_midi_input_type))
+            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
+                root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
+        ui_location_obj['spot'][inst_num]['border'] = {}
         for location_border_side in location_border_sides:
-            ui_location_obj['nt'][inst_num]['border'][location_border_side] = {}
-            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
-            this_variable = ui_location_obj['nt'][inst_num]['border'][location_border_side]['var']
-            ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'].trace(
+            ui_location_obj['spot'][inst_num]['border'][location_border_side] = {}
+            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
+            this_variable = ui_location_obj['spot'][inst_num]['border'][location_border_side]['var']
+            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].trace(
                 'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
-                location_border_changed('nt',this_variable.get(),inst_num,location_border_side))
-            ui_location_obj['nt'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['nt'][inst_num]['border'][location_border_side]['var'])
+                location_border_changed('spot',this_variable.get(),inst_num,location_border_side))
+            ui_location_obj['spot'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
+                root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'])
 
-###########################  END LOCATION SECTION  ######################
+###########################  END LOCATION SPOT SECTION  ######################
 
 ###########################  BEGIN SPEED SECTION  ######################
     ui_speed_obj = {}
@@ -1371,7 +1611,7 @@ if use_user_interface:
         ui_speed_obj[inst_num]['window size'] = {}      
         ui_speed_obj[inst_num]['midi'] = {}       
         ui_speed_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='speed '+inst_num,font=('Courier', 16)) 
+            root, text='instance '+inst_num,font=('Courier', 16)) 
         ui_speed_obj[inst_num]['checkbutton'] = {}
         ui_speed_obj[inst_num]['checkbutton']['active'] = {}
         ui_speed_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
@@ -1433,7 +1673,7 @@ if use_user_interface:
         ui_apart_obj[inst_num]['distance'] = {} 
         ui_apart_obj[inst_num]['midi'] = {}       
         ui_apart_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='apart '+inst_num,font=('Courier', 16)) 
+            root, text='instance '+inst_num,font=('Courier', 16)) 
         ui_apart_obj[inst_num]['checkbutton']['active'] = {}
         ui_apart_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
         this_ui_apart_obj = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
@@ -1494,7 +1734,7 @@ if use_user_interface:
         ui_movement_obj[inst_num]['sensitivity'] = {} 
         ui_movement_obj[inst_num]['midi'] = {}       
         ui_movement_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='movement '+inst_num,font=('Courier', 16)) 
+            root, text='instance '+inst_num,font=('Courier', 16)) 
         ui_movement_obj[inst_num]['active']['var'] = IntVar()
         this_ui_movement_obj = ui_movement_obj[inst_num]['active']['var'].get()
         ui_movement_obj[inst_num]['active']['widget'] = Checkbutton(
@@ -1560,11 +1800,9 @@ if use_user_interface:
     load_file_name_type_optionmenu = OptionMenu(root, load_file_name, *load_file_name_choices)
     load_file_name_type_optionmenu.place(x=100,y=50)  
 
-
-
     selected_event_type = StringVar(root)
 
-    selected_event_type_choices = ['path points','location fade','location spot','speed','apart','gather','collision','movement']
+    selected_event_type_choices = ['path points','location fade','location spot','speed','apart','collision','movement']
     selected_event_type.set('path points')
     selected_event_type_optionmenu = OptionMenu(root, selected_event_type, *selected_event_type_choices)
     Label(root, text='Events:').place(x=550,y=10)

@@ -6,6 +6,7 @@ from settings import *
 import settings
 from pychord import Chord
 import math
+from math import sqrt
 import numpy as np #for webcam
 import random
 import platform
@@ -18,7 +19,7 @@ midi_associations = {}
 use_adjust_song_magnitude = False
 use_override_notes,override_notes = False,[]
 soundscape_image = cv2.imread('soundscape.png',1)
-can_send_nt_location_midi_note = [True,True,True,True]
+can_send_spot_location_midi_note = [True,True,True,True]
 
 
 def position_to_midi_value(current_position, max_position, edge_buffer):
@@ -332,8 +333,8 @@ def create_individual_ball_path_point_audio(ball_index):
         else:
             if ('ball '+str(ball_index)) in midi_associations:
                 if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
-                    #print('path_type[ball_index]')
-                    #print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
+                    print('path_type[ball_index]')
+                    print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
                     channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
                     modulators = get_midi_modulation(ball_index,path_phase,path_type)
                     send_midi_messages(channel, notes, magnitude, modulators)                      
@@ -342,50 +343,133 @@ def create_individual_ball_path_point_audio(ball_index):
         modulation = get_wav_modulation(ball_index)
         send_wav_messages(note, magnitude, modulation)
 
-def is_valid_cc_location_input(inst_num,location_direction):
+def is_valid_fade_location_input(inst_num,location_direction):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
-    print('val1')
-    '''print(inst_num)
-    print(cc_location_obj[str(inst_num)])
-    print(cc_location_obj[str(inst_num)]['balls to average'])'''
-    if cc_location_obj[str(inst_num)]['active'] == 1:
-        if any(i in list_of_ball_numbers for i in cc_location_obj[str(inst_num)]['balls to average']):
+    '''print('val1')
+    print(inst_num)
+    print(fade_location_obj[str(inst_num)])
+    print(fade_location_obj[str(inst_num)]['balls to average'])'''
+    if fade_location_obj[str(inst_num)]['active'] == 1:
+        if any(i in list_of_ball_numbers for i in fade_location_obj[str(inst_num)]['balls to average']):
             print('val2')
-            if int(cc_location_obj[str(inst_num)]['window size']) > 0:
+            if int(fade_location_obj[str(inst_num)]['window size']) > 0:
                 print('val3')
-                if str(cc_location_obj[str(inst_num)][location_direction]['channel']).isdigit():
+                if str(fade_location_obj[str(inst_num)][location_direction]['channel']).isdigit():
                     print('val4')
-                    if str(cc_location_obj[str(inst_num)][location_direction]['number']).isdigit():
+                    if str(fade_location_obj[str(inst_num)][location_direction]['number']).isdigit():
                         is_valid = True
     return is_valid
 
-def is_valid_nt_location_input(inst_num):
+def is_valid_spot_location_input(inst_num):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
-    if nt_location_obj[str(inst_num)]['active'] == 1:
+    if spot_location_obj[str(inst_num)]['active'] == 1:
         print('nt active')
-        if any(i in list_of_ball_numbers for i in nt_location_obj[str(inst_num)]['balls to average']):
-            if int(nt_location_obj[str(inst_num)]['window size']) > 0:
-                if nt_location_obj[str(inst_num)]['channel'].isdigit():
-                    if nt_location_obj[str(inst_num)]['number'].isdigit():
+        if any(i in list_of_ball_numbers for i in spot_location_obj[str(inst_num)]['balls to average']):
+            if int(spot_location_obj[str(inst_num)]['window size']) > 0:
+                if spot_location_obj[str(inst_num)]['channel'].isdigit():
+                    if spot_location_obj[str(inst_num)]['number'].isdigit():
                         is_valid = True
     return is_valid
 
 def create_multiple_ball_audio():
-    execute_cc_location()
-    execute_nt_location()
+    execute_fade_location()
+    execute_spot_location()
+    execute_apart()
+    execute_movement()
 
-def execute_nt_location():
+def execute_apart():
+    for inst_num in apart_inst_nums:
+        if apart_obj[inst_num]['active'] == 1:
+            visibile_ball_x = []
+            for ball_number in range(3):
+                if all_cx[ball_number][-1] != 'X':
+                    visibile_ball_x.append(all_cx[ball_number][-1])
+            if len(visibile_ball_x) > 0:
+                if max(visibile_ball_x)-min(visibile_ball_x)>int(apart_obj[inst_num]['distance']):
+                    if apart_obj[inst_num]['currently apart'] == False:
+                        apart_obj[inst_num]['currently apart'] = True
+                        channel = apart_obj[inst_num]['channel']
+                        number = apart_obj[inst_num]['number']
+                        send_midi_note(int(channel),int(number),60)
+                else:
+                    apart_obj[inst_num]['currently apart'] = False
+
+def average_velocity_of_single_ball(ball_number, window_length):
+    ball_number = int(ball_number)
+    #print(all_vx)
+    axes = [[x for x in all_vx[ball_number] if x is not 'X'], [x for x in all_vy[ball_number] if x is not 'X']]
+    #print('axes :')
+    #print(axes)
+    average_velocities = [-1,-1]
+    average_duration = min(len(axes[0]), int(window_length))
+    #print('average_duration'+str(average_duration))
+    axis_num = 0
+    for axis in axes:
+        if average_duration>0:
+            average_velocities[axis_num] = np.average(axis[-average_duration+1:])            
+        axis_num += 1
+    '''print("average_velocitie_of_single_ball")
+    print(axes)
+    print(average_velocities)'''
+    velocity = sqrt(average_velocities[0] * average_velocities[0] + average_velocities[1] * average_velocities[1])
+    return velocity
+
+def check_for_movement():
+    ave_velocities = []
+    for ball_number in range(3):
+        if all_cx[ball_number][-1] != 'X':
+            #print('all_cx[ball_number][-1] :'+str(all_cx[ball_number][-1]))
+            velocity = average_velocity_of_single_ball(ball_number,80)
+            #print('velocity :'+str(velocity))
+            #print('Cx '+str(Cx))
+            ave_velocities.append(velocity) 
+    print('np.average(ave_velocities) :'+str(np.average(ave_velocities)))
+    return (np.average(ave_velocities) > 3)
+
+currently_moving = True
+def execute_movement():
+    global currently_moving
+    movement_used = False
+    for inst_num in movement_inst_nums:
+        #print(movement_obj)
+        if movement_obj[str(inst_num)]['active'] == '1':
+
+            movement_used = True
+    if movement_used:
+        print('movement_used')
+        if currently_moving:
+            currently_moving = check_for_movement()
+            if not currently_moving:
+                print('STOPPED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                for inst_num in movement_inst_nums:
+                    print(movement_obj[inst_num]['move or stop'])
+                    if movement_obj[inst_num]['move or stop'] == 'stop':
+                        channel = movement_obj[inst_num]['channel']
+                        number = movement_obj[inst_num]['number']
+                        print('channel'+channel)
+                        print('number'+number)
+                        send_midi_note(int(channel),int(number),60)
+        elif not currently_moving:
+            currently_moving = check_for_movement()
+            if currently_moving:
+                print('MOVED@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                for inst_num in movement_inst_nums:
+                    if movement_obj[inst_num]['move or stop'] == 'move':
+                        channel = movement_obj[inst_num]['channel']
+                        number = movement_obj[inst_num]['number']
+                        send_midi_note(int(channel),int(number),60)
+
+def execute_spot_location():
     for i in range (4):
-        if is_valid_nt_location_input(i):
-            ball_numbers_to_average = nt_location_obj[str(i)]['balls to average']
+        if is_valid_spot_location_input(i):
+            ball_numbers_to_average = spot_location_obj[str(i)]['balls to average']
             if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
             #print('ball_numbers_to_average'+str(ball_numbers_to_average))
-            window_size = nt_location_obj[str(i)]['window size']
-            channel = nt_location_obj[str(i)]['channel']
-            number = nt_location_obj[str(i)]['number']
-            list_of_ball_average_positions = [[]]
+            window_size = spot_location_obj[str(i)]['window size']
+            channel = spot_location_obj[str(i)]['channel']
+            number = spot_location_obj[str(i)]['number']
             ave_cx = []
             ave_cy = []
             for ball_number in ball_numbers_to_average:
@@ -397,11 +481,11 @@ def execute_nt_location():
                 if Cx >= 0:
                     ave_cx.append(Cx) 
                     ave_cy.append(Cy)
-                #print( nt_location_obj[str(i)]['location border sides'])
-                left_border = nt_location_obj[str(i)]['location border sides']['left']
-                right_border = nt_location_obj[str(i)]['location border sides']['right']
-                top_border = nt_location_obj[str(i)]['location border sides']['top']
-                bottom_border = nt_location_obj[str(i)]['location border sides']['bottom']
+                #print( spot_location_obj[str(i)]['location border sides'])
+                left_border = spot_location_obj[str(i)]['location border sides']['left']
+                right_border = spot_location_obj[str(i)]['location border sides']['right']
+                top_border = spot_location_obj[str(i)]['location border sides']['top']
+                bottom_border = spot_location_obj[str(i)]['location border sides']['bottom']
                 '''print('np.average(ave_cx)' +str(np.average(ave_cx)))
                 print('np.average(ave_cy)' +str(np.average(ave_cy)))
                 print(left_border)
@@ -410,25 +494,24 @@ def execute_nt_location():
                 print(bottom_border)'''
                 if (np.average(ave_cx) > int(left_border) and np.average(ave_cx) < int(right_border) 
                     and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
-                    if can_send_nt_location_midi_note[i]:
+                    if can_send_spot_location_midi_note[i]:
                         #print('sendM')
                         send_midi_note(int(channel),int(number),60)
-                        can_send_nt_location_midi_note[i] = False
+                        can_send_spot_location_midi_note[i] = False
                 else:
-                    can_send_nt_location_midi_note[i] = True
+                    can_send_spot_location_midi_note[i] = True
 
-def execute_cc_location():
+def execute_fade_location():
     for i in range (4):
         for location_direction in location_directions:
-            if is_valid_cc_location_input(i,location_direction):
-                ball_numbers_to_average = cc_location_obj[str(i)]['balls to average']
+            if is_valid_fade_location_input(i,location_direction):
+                ball_numbers_to_average = fade_location_obj[str(i)]['balls to average']
                 if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
                 #print('ball_numbers_to_average'+str(ball_numbers_to_average))
-                #print(cc_location_obj[str(i)][location_direction]['channel'])
-                window_size = cc_location_obj[str(i)]['window size']
-                channel = cc_location_obj[str(i)][location_direction]['channel']
-                number = cc_location_obj[str(i)][location_direction]['number']
-                list_of_ball_average_positions = [[]]
+                #print(fade_location_obj[str(i)][location_direction]['channel'])
+                window_size = fade_location_obj[str(i)]['window size']
+                channel = fade_location_obj[str(i)][location_direction]['channel']
+                number = fade_location_obj[str(i)][location_direction]['number']
                 ave_cx = []
                 ave_cy = []
                 for ball_number in ball_numbers_to_average:
@@ -440,12 +523,12 @@ def execute_cc_location():
                         ave_cx.append(Cx) 
                         ave_cy.append(Cy)                          
                 if location_direction == 'horizontal':
-                    first_edge = cc_location_obj[str(i)]['location border sides']['left']
-                    second_edge = cc_location_obj[str(i)]['location border sides']['right']
+                    first_edge = fade_location_obj[str(i)]['location border sides']['left']
+                    second_edge = fade_location_obj[str(i)]['location border sides']['right']
                     send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cx),channel,number)
                 if location_direction == 'vertical':
-                    first_edge = cc_location_obj[str(i)]['location border sides']['top']
-                    second_edge = cc_location_obj[str(i)]['location border sides']['bottom']
+                    first_edge = fade_location_obj[str(i)]['location border sides']['top']
+                    second_edge = fade_location_obj[str(i)]['location border sides']['bottom']
                     send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cy),channel,number)
 
         #send_midi_cc_based_on_average_speed_while_held()
@@ -530,14 +613,17 @@ def create_association_object():
     for i in range(number_of_path_point_instances):
         if path_point_instance_obj[i]['active'] == 1:
             ball_number = path_point_instance_obj[i]['ball number']
-            path_config = path_point_instance_obj[i]['path config'] = ''
-            midi_channel = path_point_instance_obj[i]['midi channel'] = ''
+            path_config = path_point_instance_obj[i]['path config']
+            midi_channel = path_point_instance_obj[i]['midi channel']
             #print(selected_config_midi_channels[path_config_index[i]])
             midi_associations['ball '+ball_number] = {}
             for path_phase in path_phases:
                 midi_associations['ball '+ball_number][path_phase] = {}
                 for path_type in path_types:
                     midi_associations['ball '+ball_number][path_phase][path_type] = {}
+                    '''print('path_config '+path_config)
+                    print('path_type '+path_type)
+                    print('path_phase '+path_phase)'''
                     path_point_midi_index = path_point_path_obj[path_config][path_type][path_phase]
                     if path_point_midi_index > 0:
                         if path_point_midi_obj[path_point_midi_index]['input type'] == 'midi':
@@ -548,4 +634,4 @@ def create_association_object():
                         midi_associations['ball '+ball_number][path_phase][path_type]['notes'] = notes_to_use
                         midi_associations['ball '+ball_number][path_phase][path_type]['magnitude'] = midi_magnitude
 
-
+    #print(midi_associations)

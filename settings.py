@@ -39,7 +39,7 @@ for midi_config in midi_configs:
 	path_point_midi_obj[midi_config]['input type'] = 'midi'
 	path_point_midi_obj[midi_config]['input'] = ''
 
-location_inst_nums = ['0','1','2','3']
+location_inst_nums = ['0','1','2','3','4','5','6','7']
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -48,33 +48,33 @@ print(ball_numbers)
 location_directions = ['horizontal','vertical']
 location_midi_input_types = ['channel','number']
 location_border_sides = ['left','right','top','bottom']
-cc_location_obj = {}
+fade_location_obj = {}
 for inst_num in location_inst_nums:
-	cc_location_obj[inst_num] = {}
-	cc_location_obj[inst_num]['active'] = 0
-	cc_location_obj[inst_num]['balls to average'] = []
-	cc_location_obj[inst_num]['window size'] = 10
-	cc_location_obj[inst_num]['location border sides'] = {}
+	fade_location_obj[inst_num] = {}
+	fade_location_obj[inst_num]['active'] = 0
+	fade_location_obj[inst_num]['balls to average'] = []
+	fade_location_obj[inst_num]['window size'] = 10
+	fade_location_obj[inst_num]['location border sides'] = {}
 	for location_border_side in location_border_sides:
-		cc_location_obj[inst_num]['location border sides'][location_border_side] = 0
+		fade_location_obj[inst_num]['location border sides'][location_border_side] = 0
 	for location_direction in location_directions:
-		cc_location_obj[inst_num][location_direction] = {}
+		fade_location_obj[inst_num][location_direction] = {}
 		for location_midi_input_type in location_midi_input_types:
-			cc_location_obj[inst_num][location_direction][location_midi_input_type] = 0
+			fade_location_obj[inst_num][location_direction][location_midi_input_type] = 0
 
-nt_location_obj = {}
+spot_location_obj = {}
 for inst_num in location_inst_nums:
-	nt_location_obj[inst_num] = {}
-	nt_location_obj[inst_num]['active'] = 0
-	nt_location_obj[inst_num]['balls to average'] = []
-	nt_location_obj[inst_num]['window size'] = 10
-	nt_location_obj[inst_num]['location border sides'] = {}
+	spot_location_obj[inst_num] = {}
+	spot_location_obj[inst_num]['active'] = 0
+	spot_location_obj[inst_num]['balls to average'] = []
+	spot_location_obj[inst_num]['window size'] = 10
+	spot_location_obj[inst_num]['location border sides'] = {}
 	for location_border_side in location_border_sides:
-		nt_location_obj[inst_num]['location border sides'][location_border_side] = 0
+		spot_location_obj[inst_num]['location border sides'][location_border_side] = 0
 	for location_midi_input_type in location_midi_input_types:
-		nt_location_obj[inst_num][location_midi_input_type] = 0
+		spot_location_obj[inst_num][location_midi_input_type] = 0
 
-speed_inst_nums = ['0','1','2','3']
+speed_inst_nums = ['0','1','2','3','4','5','6','7']
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -90,8 +90,6 @@ for inst_num in speed_inst_nums:
 	for speed_midi_input_type in speed_midi_input_types:
 		speed_obj[inst_num][speed_midi_input_type] = 0
 
-
-
 #POSSIBLE WAYS TO MEASURE JUGGLING SPEED
 #	peaks/throws/catches per minute
 #		an issue with this is that the cascade and chops with the same number of peaks per second
@@ -106,7 +104,7 @@ for inst_num in speed_inst_nums:
 #			the velocity of all balls
 #				OR MAYBE all we would need to use is the velocity of all balls
 
-apart_inst_nums = ['0','1','2','3']
+apart_inst_nums = ['0','1','2','3','4','5','6','7']
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -117,19 +115,13 @@ apart_obj = {}
 for inst_num in apart_inst_nums:
 	apart_obj[inst_num] = {}
 	apart_obj[inst_num]['active'] = 0
-	apart_obj[inst_num]['balls to average'] = []
-	speed_obj[inst_num]['distance'] = 10
+	apart_obj[inst_num]['ball numbers'] = []
+	apart_obj[inst_num]['distance'] = 10
+	apart_obj[inst_num]['currently apart'] = False
 	for apart_midi_input_type in apart_midi_input_types:
 		apart_obj[inst_num][apart_midi_input_type] = 0
 
-
-#APART
-#	if two balls are beyond a certain horizontal threshold from each other, then apart is triggered
-#		they can be 2 specific balls, or they can be any two balls
-#INPUT NEEDED:
-#	midi channel, number, threshold
-
-movement_inst_nums = ['0','1','2','3']
+movement_inst_nums = ['0','1','2','3','4','5','6','7']
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -144,9 +136,6 @@ for inst_num in movement_inst_nums:
 	movement_obj[inst_num]['sensitivity'] = 10
 	for movement_midi_input_type in movement_midi_input_types:
 		movement_obj[inst_num][movement_midi_input_type] = 0
-
-
-#GATHER
 
 
 #FOR TRIGGERED EVENTS:

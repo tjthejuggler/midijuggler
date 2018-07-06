@@ -94,12 +94,12 @@ def get_contour_center(contour):
 
 def trim_old_histories():
     for index in range(settings.max_balls):
-        if len(all_cx[index]) > 59:
-            settings.all_cx[index]=settings.all_cx[index][-30:]
-            settings.all_cy[index]=settings.all_cy[index][-30:]
-            settings.all_vx[index]=settings.all_vx[index][-30:]
-            settings.all_vy[index]=settings.all_vy[index][-30:]
-            settings.all_ay[index]=settings.all_ay[index][-30:]
+        if len(all_cx[index]) > 100:
+            settings.all_cx[index]=settings.all_cx[index][-80:]
+            settings.all_cy[index]=settings.all_cy[index][-80:]
+            settings.all_vx[index]=settings.all_vx[index][-80:]
+            settings.all_vy[index]=settings.all_vy[index][-80:]
+            settings.all_ay[index]=settings.all_ay[index][-80:]
             #settings.all_time_vx[index]=settings.all_time_vx[index][-30:]
             #settings.all_time_vy[index]=settings.all_time_vy[index][-30:]
 
@@ -166,8 +166,8 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
                     rectangles_with_peaks.append(math.floor(int(all_cx[i][-1])/int(rectangle_width)))
                     rectangles_with_peaks_path_types.append(path_type[i])  
         for i in range(0,notes_in_scale_count):
-            left_corner = i*rectangle_width
-            right_corner = (i+1)*rectangle_width
+            left_corner = settings.frame_width-i*rectangle_width
+            right_corner = settings.frame_width-(i+1)*rectangle_width
             if i in rectangles_with_peaks:
                 if use_path_type_coloring:
                     this_path_type = rectangles_with_peaks_path_types[rectangles_with_peaks.index(i)]
