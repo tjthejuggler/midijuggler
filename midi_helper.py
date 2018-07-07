@@ -418,15 +418,21 @@ def average_velocity_of_single_ball(ball_number, window_length):
 
 def check_for_movement():
     ave_velocities = []
+    at_least_one_ball_is_not_held = False
     for ball_number in range(3):
         if all_cx[ball_number][-1] != 'X':
             #print('all_cx[ball_number][-1] :'+str(all_cx[ball_number][-1]))
-            velocity = average_velocity_of_single_ball(ball_number,80)
+            velocity = average_velocity_of_single_ball(ball_number,2)
             #print('velocity :'+str(velocity))
             #print('Cx '+str(Cx))
-            ave_velocities.append(velocity) 
-    print('np.average(ave_velocities) :'+str(np.average(ave_velocities)))
-    return (np.average(ave_velocities) > 3)
+            ave_velocities.append(velocity)
+        if path_phase[ball_number] != 'held':
+            at_least_one_ball_is_not_held = True
+    print('max(ave_velocities) :'+str(max(ave_velocities)))
+    #print('np.average(ave_velocities) :'+str(np.average(ave_velocities)))
+    #return (np.average(ave_velocities) > 5)
+    
+    return (max(ave_velocities) > 7 or at_least_one_ball_is_not_held)
 
 currently_moving = True
 def execute_movement():
