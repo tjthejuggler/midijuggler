@@ -13,9 +13,11 @@ path_point_instance_obj = {}
 for i in range (number_of_path_point_instances):
 	path_point_instance_obj[i] = {}
 	path_point_instance_obj[i]['active'] = 0
+	path_point_instance_obj[i]['current message index'] = 0
 	path_point_instance_obj[i]['ball number'] = ''
 	path_point_instance_obj[i]['path config'] = ''
 	path_point_instance_obj[i]['midi channel'] = ''
+
 for i in range (3):
 	path_point_instance_obj[i]['active'] = 0
 	path_point_instance_obj[i]['ball number'] = str(i)
@@ -52,6 +54,7 @@ fade_location_obj = {}
 for inst_num in location_inst_nums:
 	fade_location_obj[inst_num] = {}
 	fade_location_obj[inst_num]['active'] = 0
+	fade_location_obj[inst_num]['current message index'] = 0
 	fade_location_obj[inst_num]['balls to average'] = []
 	fade_location_obj[inst_num]['window size'] = 10
 	fade_location_obj[inst_num]['location border sides'] = {}
@@ -66,6 +69,7 @@ spot_location_obj = {}
 for inst_num in location_inst_nums:
 	spot_location_obj[inst_num] = {}
 	spot_location_obj[inst_num]['active'] = 0
+	spot_location_obj[inst_num]['current message index'] = 0
 	spot_location_obj[inst_num]['balls to average'] = []
 	spot_location_obj[inst_num]['window size'] = 10
 	spot_location_obj[inst_num]['location border sides'] = {}
@@ -85,6 +89,7 @@ speed_obj = {}
 for inst_num in speed_inst_nums:
 	speed_obj[inst_num] = {}
 	speed_obj[inst_num]['active'] = 0
+	speed_obj[inst_num]['current message index'] = 0
 	speed_obj[inst_num]['balls to average'] = []
 	speed_obj[inst_num]['window size'] = 10
 	for speed_midi_input_type in speed_midi_input_types:
@@ -115,6 +120,7 @@ apart_obj = {}
 for inst_num in apart_inst_nums:
 	apart_obj[inst_num] = {}
 	apart_obj[inst_num]['active'] = 0
+	apart_obj[inst_num]['current message index'] = 0
 	apart_obj[inst_num]['ball numbers'] = []
 	apart_obj[inst_num]['distance'] = 10
 	apart_obj[inst_num]['currently apart'] = False
@@ -132,6 +138,7 @@ movement_obj = {}
 for inst_num in movement_inst_nums:
 	movement_obj[inst_num] = {}
 	movement_obj[inst_num]['active'] = 0
+	movement_obj[inst_num]['current message index'] = 0
 	movement_obj[inst_num]['move or stop'] = 'move'
 	movement_obj[inst_num]['sensitivity'] = 10
 	for movement_midi_input_type in movement_midi_input_types:

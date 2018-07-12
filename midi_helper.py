@@ -331,10 +331,11 @@ def create_individual_ball_path_point_audio(ball_index):
             soundscape_color = soundscape_image[all_cy[ball_index][-1],all_cx[ball_index][-1]]
             send_midi_note_from_soundscape_color(soundscape_color)
         else:
+            print('ball_index '+str(ball_index))
             if ('ball '+str(ball_index)) in midi_associations:
                 if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
-                    print('path_type[ball_index]')
-                    print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
+                    #print('path_type[ball_index]')
+                    #print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
                     channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
                     modulators = get_midi_modulation(ball_index,path_phase,path_type)
                     send_midi_messages(channel, notes, magnitude, modulators)                      
@@ -369,8 +370,7 @@ def is_valid_spot_location_input(inst_num):
         if any(i in list_of_ball_numbers for i in spot_location_obj[str(inst_num)]['balls to average']):
             if int(spot_location_obj[str(inst_num)]['window size']) > 0:
                 if spot_location_obj[str(inst_num)]['channel'].isdigit():
-                    if spot_location_obj[str(inst_num)]['number'].isdigit():
-                        is_valid = True
+                    is_valid = True
     return is_valid
 
 def create_multiple_ball_audio():
@@ -392,9 +392,66 @@ def execute_apart():
                         apart_obj[inst_num]['currently apart'] = True
                         channel = apart_obj[inst_num]['channel']
                         number = apart_obj[inst_num]['number']
-                        send_midi_note(int(channel),int(number),60)
+                        send_event_messages(apart_obj,inst_num,channel,number,60)
+                        
                 else:
                     apart_obj[inst_num]['currently apart'] = False
+
+def send_event_messages(event_obj,inst_num,channel,number,magnitude):
+    messages = number.split('/') #we only send the messages(either midi or instance toggles) between the commas we are currently at
+    print('messages')
+    print(messages)
+    number_of_messages = len(messages)
+    messages = messages[event_obj[inst_num]['current message index']].split(';') #seperate each of the messages between our commas
+    event_obj[inst_num]['current message index'] += 1
+    if event_obj[inst_num]['current message index'] == number_of_messages:
+        event_obj[inst_num]['current message index'] = 0
+    for message in messages: #go through them one at a time, 
+        print('message')
+        print(message)
+        if any(c.isalpha() for c in message): #if they contain a letter, then we know they are instance toggles
+            toggle_instance_if_valid_message(message)
+        else: #if they do not contain a letter then we know they are midi signals
+            send_midi_note(int(channel),int(message),60)
+
+def toggle_instance_if_valid_message(message):
+    inst_num = str(''.join(c for c in message if c.isdigit()))
+    if 'pp' in message:
+        if path_point_instance_obj[inst_num]['active'] == 0:
+            path_point_instance_obj[inst_num]['active'] = 1
+        elif path_point_instance_obj[inst_num]['active'] == 1:
+            path_point_instance_obj[inst_num]['active'] = 0
+        create_association_object()  
+    elif 'lf' in message:
+        if fade_location_obj[inst_num]['active'] == 0:
+            fade_location_obj[inst_num]['active'] = 1
+        elif fade_location_obj[inst_num]['active'] == 1:
+            fade_location_obj[inst_num]['active'] = 0  
+    elif 'ls' in message:
+        if spot_location_obj[inst_num]['active'] == 0:
+            spot_location_obj[inst_num]['active'] = 1
+        elif spot_location_obj[inst_num]['active'] == 1:
+            spot_location_obj[inst_num]['active'] = 0        
+    elif 'sp' in message:
+        if speed_obj[inst_num]['active'] == 0:
+            speed_obj[inst_num]['active'] = 1
+        elif speed_obj[inst_num]['active'] == 1:
+            speed_obj[inst_num]['active'] = 0
+    elif 'ap' in message:
+        print(apart_obj)
+        if apart_obj[inst_num]['active'] == 0:
+            apart_obj[inst_num]['active'] = 1
+        elif apart_obj[inst_num]['active'] == 1:
+            apart_obj[inst_num]['active'] = 0
+    elif 'mo' in message:
+        if movement_obj[inst_num]['active'] == 0:
+            movement_obj[inst_num]['active'] = 1
+        elif movement_obj[inst_num]['active'] == 1:
+            movement_obj[inst_num]['active'] = 0
+
+#things wanted for performance
+#   -ability to toggle through different event types
+#   -
 
 def average_velocity_of_single_ball(ball_number, window_length):
     ball_number = int(ball_number)
@@ -418,7 +475,7 @@ def average_velocity_of_single_ball(ball_number, window_length):
 
 def check_for_movement():
     ave_velocities = []
-    at_least_one_ball_is_not_held = False
+    at_least_one_ball_is_in_the_air = False
     for ball_number in range(3):
         if all_cx[ball_number][-1] != 'X':
             #print('all_cx[ball_number][-1] :'+str(all_cx[ball_number][-1]))
@@ -426,13 +483,15 @@ def check_for_movement():
             #print('velocity :'+str(velocity))
             #print('Cx '+str(Cx))
             ave_velocities.append(velocity)
-        if path_phase[ball_number] != 'held':
-            at_least_one_ball_is_not_held = True
-    print('max(ave_velocities) :'+str(max(ave_velocities)))
+        if path_phase[ball_number] == 'up' or path_phase[ball_number] == 'peak' or \
+            path_phase[ball_number] == 'down' or path_phase[ball_number] == 'catch' or path_phase[ball_number] == 'throw':
+                at_least_one_ball_is_in_the_air = True
+    #print('max(ave_velocities) :'+str(max(ave_velocities)))
+    #print(at_least_one_ball_is_in_the_air)
     #print('np.average(ave_velocities) :'+str(np.average(ave_velocities)))
     #return (np.average(ave_velocities) > 5)
     
-    return (max(ave_velocities) > 7 or at_least_one_ball_is_not_held)
+    return (max(ave_velocities) > 7 or at_least_one_ball_is_in_the_air)
 
 currently_moving = True
 def execute_movement():
@@ -440,13 +499,14 @@ def execute_movement():
     movement_used = False
     for inst_num in movement_inst_nums:
         #print(movement_obj)
-        if movement_obj[str(inst_num)]['active'] == '1':
-
+        if movement_obj[str(inst_num)]['active'] == 1:
             movement_used = True
     if movement_used:
         print('movement_used')
         if currently_moving:
+            print('currently moving' )
             currently_moving = check_for_movement()
+
             if not currently_moving:
                 print('STOPPED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                 for inst_num in movement_inst_nums:
@@ -456,7 +516,8 @@ def execute_movement():
                         number = movement_obj[inst_num]['number']
                         print('channel'+channel)
                         print('number'+number)
-                        send_midi_note(int(channel),int(number),60)
+                        send_event_messages(apart_obj,inst_num,channel,number,60)
+                        #send_midi_note(int(channel),int(number),60)
         elif not currently_moving:
             currently_moving = check_for_movement()
             if currently_moving:
@@ -465,7 +526,8 @@ def execute_movement():
                     if movement_obj[inst_num]['move or stop'] == 'move':
                         channel = movement_obj[inst_num]['channel']
                         number = movement_obj[inst_num]['number']
-                        send_midi_note(int(channel),int(number),60)
+                        send_event_messages(apart_obj,inst_num,channel,number,60)
+                        #send_midi_note(int(channel),int(number),60)
 
 def execute_spot_location():
     for i in range (4):
@@ -502,7 +564,8 @@ def execute_spot_location():
                     and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
                     if can_send_spot_location_midi_note[i]:
                         #print('sendM')
-                        send_midi_note(int(channel),int(number),60)
+                        send_event_messages(apart_obj,inst_num,channel,number,60)
+                        #send_midi_note(int(channel),int(number),60)
                         can_send_spot_location_midi_note[i] = False
                 else:
                     can_send_spot_location_midi_note[i] = True
@@ -568,10 +631,12 @@ def send_midi_cc_based_on_average_position(location_direction,first_edge,second_
 
     #print(str(channel) +','+ str(number) +','+str(value) )
 
-    send_midi_cc(int(channel),int(number),value)
+    if number == '0':
+        send_midi_cc(int(channel),int(number),128-value)
+    else:
+        send_midi_cc(int(channel),int(number),value)
 
 def create_association_object():
-
     if settings.using_loop:
         if settings.in_melody:
             settings.scale_to_use = get_notes_in_scale('F',[3,4],'Major',1)
@@ -618,7 +683,9 @@ def create_association_object():
 
     for i in range(number_of_path_point_instances):
         if path_point_instance_obj[i]['active'] == 1:
-            ball_number = path_point_instance_obj[i]['ball number']
+            ball_number = int(path_point_instance_obj[i]['ball number'])
+            ball_number = ball_number - 1
+            ball_number = str(ball_number)
             path_config = path_point_instance_obj[i]['path config']
             midi_channel = path_point_instance_obj[i]['midi channel']
             #print(selected_config_midi_channels[path_config_index[i]])
@@ -640,4 +707,4 @@ def create_association_object():
                         midi_associations['ball '+ball_number][path_phase][path_type]['notes'] = notes_to_use
                         midi_associations['ball '+ball_number][path_phase][path_type]['magnitude'] = midi_magnitude
 
-    #print(midi_associations)
+    print(midi_associations)

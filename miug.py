@@ -69,7 +69,7 @@ def load_config_file(use_default_config):
             path_point_midi_obj[i]['input'] = lines[first_line+i].split(',')[2].rstrip('\n')
         first_line = lines.index('begin fade location obj\n') + 1
         for i in range (8):
-            fade_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            fade_location_obj[str(i)]['active'] = int(lines[first_line+i].split(',')[0])
             fade_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
             fade_location_obj[str(i)]['balls to average'] = fade_location_obj[str(i)]['balls to average'].split(';')
             fade_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
@@ -83,7 +83,7 @@ def load_config_file(use_default_config):
             fade_location_obj[str(i)]['vertical']['number'] = lines[first_line+i].split(',')[10].rstrip('\n')
         first_line = lines.index('begin spot location obj\n') + 1
         for i in range (8):
-            spot_location_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            spot_location_obj[str(i)]['active'] = int(lines[first_line+i].split(',')[0])
             spot_location_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
             spot_location_obj[str(i)]['balls to average'] = spot_location_obj[str(i)]['balls to average'].split(';')
             spot_location_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
@@ -95,7 +95,7 @@ def load_config_file(use_default_config):
             spot_location_obj[str(i)]['number'] = lines[first_line+i].split(',')[8].rstrip('\n')
         first_line = lines.index('begin speed obj\n') + 1
         for i in range (8):
-            speed_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            speed_obj[str(i)]['active'] = int(lines[first_line+i].split(',')[0])
             speed_obj[str(i)]['balls to average'] = lines[first_line+i].split(',')[1]
             speed_obj[str(i)]['balls to average'] = speed_obj[str(i)]['balls to average'].split(';')
             speed_obj[str(i)]['window size'] = lines[first_line+i].split(',')[2]
@@ -103,7 +103,7 @@ def load_config_file(use_default_config):
             speed_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
         first_line = lines.index('begin apart obj\n') + 1
         for i in range (8):
-            apart_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            apart_obj[str(i)]['active'] = int(lines[first_line+i].split(',')[0])
             apart_obj[str(i)]['ball numbers'] = lines[first_line+i].split(',')[1]
             apart_obj[str(i)]['ball numbers'] = apart_obj[str(i)]['ball numbers'].split(';')
             apart_obj[str(i)]['distance'] = lines[first_line+i].split(',')[2]
@@ -111,7 +111,7 @@ def load_config_file(use_default_config):
             apart_obj[str(i)]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
         first_line = lines.index('begin movement obj\n') + 1
         for i in range (8):
-            movement_obj[str(i)]['active'] = lines[first_line+i].split(',')[0]
+            movement_obj[str(i)]['active'] = int(lines[first_line+i].split(',')[0])
             movement_obj[str(i)]['move or stop'] = lines[first_line+i].split(',')[1]
             movement_obj[str(i)]['sensitivity'] = lines[first_line+i].split(',')[2]
             movement_obj[str(i)]['channel'] = lines[first_line+i].split(',')[3]
@@ -135,7 +135,17 @@ def set_widgets_from_data():
     set_apart_widgets_from_data()
     set_movement_widgets_from_data()
 
+def set_active_instances_from_widgets():
+    for inst_num in apart_inst_nums:
+        apart_obj[inst_num]['active'] = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
+        path_point_instance_obj[i]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get()
+        fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get() 
+        spot_location_obj[inst_num]['active'] = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get() 
+        speed_obj[inst_num]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get() 
+        movement_obj[inst_num]['active'] = ui_movement_obj[inst_num]['active']['var'].get()
+
 def start_camera():
+    set_active_instances_from_widgets()
     settings.show_color_calibration = False
     settings.show_main_camera = True
     settings.show_location_define = False
@@ -1580,7 +1590,7 @@ if use_user_interface:
                 location_midi_input_type = location_midi_input_type: \
                 location_spot_channel_or_number_changed(this_variable.get(),inst_num,location_midi_input_type))
             ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
+                root, width = 13,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
         ui_location_obj['spot'][inst_num]['border'] = {}
         for location_border_side in location_border_sides:
             ui_location_obj['spot'][inst_num]['border'][location_border_side] = {}
