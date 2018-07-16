@@ -349,27 +349,27 @@ def is_valid_fade_location_input(inst_num,location_direction):
     is_valid = False
     '''print('val1')
     print(inst_num)
-    print(fade_location_obj[str(inst_num)])
-    print(fade_location_obj[str(inst_num)]['balls to average'])'''
-    if fade_location_obj[str(inst_num)]['active'] == 1:
-        if any(i in list_of_ball_numbers for i in fade_location_obj[str(inst_num)]['balls to average']):
+    print(fade_location_obj[inst_num])
+    print(fade_location_obj[inst_num]['balls to average'])'''
+    if fade_location_obj[inst_num]['active'] == 1:
+        if any(i in list_of_ball_numbers for i in fade_location_obj[inst_num]['balls to average']):
             print('val2')
-            if int(fade_location_obj[str(inst_num)]['window size']) > 0:
+            if int(fade_location_obj[inst_num]['window size']) > 0:
                 print('val3')
-                if str(fade_location_obj[str(inst_num)][location_direction]['channel']).isdigit():
+                if str(fade_location_obj[inst_num][location_direction]['channel']).isdigit():
                     print('val4')
-                    if str(fade_location_obj[str(inst_num)][location_direction]['number']).isdigit():
+                    if str(fade_location_obj[inst_num][location_direction]['number']).isdigit():
                         is_valid = True
     return is_valid
 
 def is_valid_spot_location_input(inst_num):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
-    if spot_location_obj[str(inst_num)]['active'] == 1:
+    if spot_location_obj[inst_num]['active'] == 1:
         print('nt active')
-        if any(i in list_of_ball_numbers for i in spot_location_obj[str(inst_num)]['balls to average']):
-            if int(spot_location_obj[str(inst_num)]['window size']) > 0:
-                if spot_location_obj[str(inst_num)]['channel'].isdigit():
+        if any(i in list_of_ball_numbers for i in spot_location_obj[inst_num]['balls to average']):
+            if int(spot_location_obj[inst_num]['window size']) > 0:
+                if spot_location_obj[inst_num]['channel'].isdigit():
                     is_valid = True
     return is_valid
 
@@ -499,7 +499,7 @@ def execute_movement():
     movement_used = False
     for inst_num in movement_inst_nums:
         #print(movement_obj)
-        if movement_obj[str(inst_num)]['active'] == 1:
+        if movement_obj[inst_num]['active'] == 1:
             movement_used = True
     if movement_used:
         print('movement_used')

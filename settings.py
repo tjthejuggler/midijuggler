@@ -9,20 +9,21 @@ relative_positions = ['left','mid','right']
 path_types = ['left column','left cross','mid column','mid cross','right column','right cross']
 path_phases = ['peak','catch','throw']
 
+path_point_inst_nums = range(8)
 path_point_instance_obj = {}
-for i in range (number_of_path_point_instances):
-	path_point_instance_obj[i] = {}
-	path_point_instance_obj[i]['active'] = 0
-	path_point_instance_obj[i]['current message index'] = 0
-	path_point_instance_obj[i]['ball number'] = ''
-	path_point_instance_obj[i]['path config'] = ''
-	path_point_instance_obj[i]['midi channel'] = ''
+for inst_num in path_point_inst_nums:
+	path_point_instance_obj[inst_num] = {}
+	path_point_instance_obj[inst_num]['active'] = 0
+	path_point_instance_obj[inst_num]['current message index'] = 0
+	path_point_instance_obj[inst_num]['ball number'] = ''
+	path_point_instance_obj[inst_num]['path config'] = ''
+	path_point_instance_obj[inst_num]['midi channel'] = ''
 
-for i in range (3):
-	path_point_instance_obj[i]['active'] = 0
-	path_point_instance_obj[i]['ball number'] = str(i)
-	path_point_instance_obj[i]['path config'] = 'X'
-	path_point_instance_obj[i]['midi channel'] = '0'
+for inst_num in range (3):
+	path_point_instance_obj[inst_num]['active'] = 0
+	path_point_instance_obj[inst_num]['ball number'] = str(inst_num)
+	path_point_instance_obj[inst_num]['path config'] = 'X'
+	path_point_instance_obj[inst_num]['midi channel'] = '0'
 
 path_point_path_obj = {}
 for path_config in path_configs:
@@ -41,7 +42,7 @@ for midi_config in midi_configs:
 	path_point_midi_obj[midi_config]['input type'] = 'midi'
 	path_point_midi_obj[midi_config]['input'] = ''
 
-location_inst_nums = ['0','1','2','3','4','5','6','7']
+location_inst_nums = range(8)
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -78,7 +79,7 @@ for inst_num in location_inst_nums:
 	for location_midi_input_type in location_midi_input_types:
 		spot_location_obj[inst_num][location_midi_input_type] = 0
 
-speed_inst_nums = ['0','1','2','3','4','5','6','7']
+speed_inst_nums = range(8)
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -109,7 +110,7 @@ for inst_num in speed_inst_nums:
 #			the velocity of all balls
 #				OR MAYBE all we would need to use is the velocity of all balls
 
-apart_inst_nums = ['0','1','2','3','4','5','6','7']
+apart_inst_nums = range(8)
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
@@ -127,7 +128,7 @@ for inst_num in apart_inst_nums:
 	for apart_midi_input_type in apart_midi_input_types:
 		apart_obj[inst_num][apart_midi_input_type] = 0
 
-movement_inst_nums = ['0','1','2','3','4','5','6','7']
+movement_inst_nums = range(8)
 number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
