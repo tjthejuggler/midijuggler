@@ -96,20 +96,6 @@ for inst_num in speed_inst_nums:
 	for speed_midi_input_type in speed_midi_input_types:
 		speed_obj[inst_num][speed_midi_input_type] = ''
 
-#POSSIBLE WAYS TO MEASURE JUGGLING SPEED
-#	peaks/throws/catches per minute
-#		an issue with this is that the cascade and chops with the same number of peaks per second
-#			is faster(i think)
-#	size of juggling pattern
-#	IF WE MAKE A GENERAL SPEED RATING, then we could also make a button that takes us to a video that 
-#		shows that speed rating. then we could have 2 numbers for the upper and lower bounds, if the jugglers speed
-#		is under or lower than those numbers, than the min/max speeds are sent, if between, then a percentage is sent
-#		this rating could use:
-#			the size of a bounding box of all balls
-#				the movement of that box
-#			the velocity of all balls
-#				OR MAYBE all we would need to use is the velocity of all balls
-
 apart_inst_nums = range(8)
 number_of_balls = 3
 ball_numbers = []
@@ -144,21 +130,6 @@ for inst_num in movement_inst_nums:
 	movement_obj[inst_num]['sensitivity'] = 10
 	for movement_midi_input_type in movement_midi_input_types:
 		movement_obj[inst_num][movement_midi_input_type] = ''
-
-
-#FOR TRIGGERED EVENTS:
-#	if we make each event instance able to be either on or off, then in order to trigger events, we just have to have a way
-#		to indicate the event type, instance and if we want it to be on/off/toggled. 
-#			to do this we should make the ui window larger, put on/off checkmarks before wach instance, and add some option menus
-#				next to the midi inputs, 1 for event type, and 1 for instance number
-
-#	instead of using the optionmenu dropdowns for the pathpoint path configs, we should use instance numbers that allow the
-#		user to assoicate any number of balls with the path configs, that way these instances can be either turned on or
-#		off by other events triggers.
-#			one issue with this, and it may be an issue with other event types, it conflicting path configs, for instance if a
-#			ball is already associated with X in instance 0 where ball1,2,3 are all Xs, then instance 1 is turned on inwhich
-#			ball 1 is associated with Y, then they will conflict. POSSIBLE SOLUTIONS:
-#				if a new instance being turned on contradicts an instance that is currently on, it turns it off
 
 average_contour_area_from_last_frame = 0
 

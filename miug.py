@@ -975,8 +975,6 @@ if use_user_interface:
             midi_config_number_of_current_path_config_number[path_type][path_phase] = StringVar()
             midi_config_number_of_current_path_config_number[path_type][path_phase].set('0')    
  
-
-
     current_midi_config_index = StringVar()
     current_midi_config_index.set('0')
 
@@ -1015,7 +1013,6 @@ if use_user_interface:
     point_single_line_input = ttk.Entry(root, width = 57,textvariable=point_single_line_input_text)
     point_single_line_input.place(x=400,y=450)
     point_single_line_input_text.trace('w', point_single_line_input_changed)
-
     
     selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
     selected_config_midi_channel_optionmenu.place(x=780,y=150)

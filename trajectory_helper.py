@@ -44,38 +44,10 @@ def calculate_kinematics(frame_count):
             settings.all_ay[i].append(0)
 
 def determine_relative_positions():
-    '''#relative_positions = [[] for _ in range(max_balls)]
-    relative_positions = ['left','right','mid']
+    relative_positions = ['mid','mid','mid']
     last_cxs = []
     last_cxs_indices = []
     for i in range(len(settings.all_cx)):
-        if settings.all_cx[i][-1] != 'X':
-            last_cxs.append(settings.all_cx[i][-1])
-    ranked_list_x = ss.rankdata(last_cxs)
-    if len(last_cxs)>0:
-        for i in range(0,len(last_cxs)):
-            if ranked_list_x[i] == min(ranked_list_x):
-                relative_positions[i]= 'left'
-            elif ranked_list_x[i] == max(ranked_list_x):
-                relative_positions[i]= 'right'
-            else:
-                relative_positions[i]= 'mid'
-    return [relative_positions[0],relative_positions[1],relative_positions[2]]
-
-average_contour_area_from_last_frame'''
-
-
-
-#we want to find out if they are lower than all other non-X settings.all_cx[i][-1] - average_contour_area_from_last_frame
-#   if so then the relative position is left
-#we want to do the same for if they are higher than all other non-Xs + average_contour_area_from_last_frame
-#   this means that they should be set to right
-
-
-    relative_positions = ['mid','mid','mid']#first we set all relative positions to mid, that is the default
-    last_cxs = []
-    last_cxs_indices = []
-    for i in range(len(settings.all_cx)):#then we want to go through every non-X settings.all_cx[i][-1]
         if settings.all_cx[i][-1] != 'X':
             last_cxs.append(settings.all_cx[i][-1])
             last_cxs_indices.append(i)
@@ -89,11 +61,6 @@ average_contour_area_from_last_frame'''
             index_of_max = last_cxs.index(max(last_cxs))
             relative_positions[last_cxs_indices[index_of_max]] = 'right'            
     return [relative_positions[0],relative_positions[1],relative_positions[2]]
-
-
-
-
-
 
 fall_acceleration_from_calibration = -5
 
@@ -124,8 +91,11 @@ def chop_checker(ball_index,average_fps):
 def determine_path_phase(ball_index, frame_count,average_fps):
     global peak_count
     if len(settings.all_ay[ball_index]) > 0 and settings.all_vy[ball_index][-1]!='X':
-        if path_phase[ball_index] == 'throw' and settings.all_vy[ball_index][-1] > 0:
-            settings.path_phase[ball_index] = 'up'
+        if path_phase[ball_index] == 'throw':
+            if settings.all_vy[ball_index][-1] > 0:
+                settings.path_phase[ball_index] = 'up'
+            else:
+                settings.path_phase[ball_index] = 'held'
         if path_phase[ball_index] == 'catch':                
             settings.path_phase[ball_index] = 'held'
         if all(isinstance(item, int) for item in settings.all_ay[ball_index][-3:]):
@@ -133,7 +103,7 @@ def determine_path_phase(ball_index, frame_count,average_fps):
             fall_acceleration_threshold = -fall_acceleration_from_calibration*0.8
             if abs((fall_acceleration_from_calibration)-recent_average_acceleration) < fall_acceleration_threshold:
                 #print('                        NOT IN HAND'+str(ball_index))
-                if settings.in_hand[ball_index] == True:
+                if settings.in_hand[ball_index] == True and settings.path_phase[ball_index] != 'throw' and settings.path_phase[ball_index] != 'up':
                     settings.path_phase[ball_index] = 'throw'
                 else:                
                     if settings.all_vy[ball_index][-1] > 0:
@@ -159,6 +129,8 @@ def determine_path_phase(ball_index, frame_count,average_fps):
                 settings.in_hand[ball_index] = True    
         else:
             settings.path_phase[ball_index] = 'none'
+    else:
+        settings.path_phase[ball_index] = 'held'
     tab=' '*20
     print(tab*ball_index + str(path_phase[ball_index]))
 
