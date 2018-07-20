@@ -66,7 +66,7 @@ def load_config_file(use_default_config):
         for i in range (6):
             path_point_midi_obj[i]['note selection type'] = lines[first_line+i].split(',')[0]
             path_point_midi_obj[i]['input type'] = lines[first_line+i].split(',')[1]
-            path_point_midi_obj[i]['input'] = lines[first_line+i].split(',')[2].rstrip('\n')
+            path_point_midi_obj[i]['input'] = lines[first_line+i].split(',',2)[-1].rstrip('\n')
         first_line = lines.index('begin fade location obj\n') + 1
         for i in range (8):
             fade_location_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
@@ -126,6 +126,9 @@ def load_config_file(use_default_config):
             save_file_name.set(load_file_name.get().split('.')[0])
     except FileNotFoundError:
         pass
+    print(path_point_instance_obj)
+
+
 
 def set_widgets_from_data():
     set_path_point_instance_widgets_from_data()
@@ -138,7 +141,7 @@ def set_widgets_from_data():
 def set_active_instances_from_widgets():
     for inst_num in apart_inst_nums:
         apart_obj[inst_num]['active'] = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
-        path_point_instance_obj[i]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get()
+        path_point_instance_obj[inst_num]['active'] = ui_path_point_obj[inst_num]['active']['var'].get()
         fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get() 
         spot_location_obj[inst_num]['active'] = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get() 
         speed_obj[inst_num]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get() 
@@ -621,7 +624,7 @@ def set_speed_widgets_from_data():
             ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in speed_obj[inst_num]['balls to average'])
         ui_speed_obj[inst_num]['window size']['var'].set(speed_obj[inst_num]['window size'])
         for speed_midi_input_type in speed_midi_input_types:
-            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].set(speed_obj[str(inst_num)][speed_midi_input_type])
+            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].set(speed_obj[inst_num][speed_midi_input_type])
 
 def set_apart_widgets_from_data():
     for inst_num in apart_inst_nums:
@@ -630,7 +633,7 @@ def set_apart_widgets_from_data():
             ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in apart_obj[inst_num]['ball numbers'])
         ui_apart_obj[inst_num]['distance']['var'].set(apart_obj[inst_num]['distance'])
         for apart_midi_input_type in apart_midi_input_types:
-            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].set(apart_obj[str(inst_num)][apart_midi_input_type])
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].set(apart_obj[inst_num][apart_midi_input_type])
 
 def set_movement_widgets_from_data():
     for inst_num in movement_inst_nums:
@@ -638,7 +641,7 @@ def set_movement_widgets_from_data():
         ui_movement_obj[inst_num]['radiobutton']['var'].set(movement_obj[inst_num]['move or stop'])
         ui_movement_obj[inst_num]['sensitivity']['var'].set(movement_obj[inst_num]['sensitivity'])
         for movement_midi_input_type in movement_midi_input_types:
-            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].set(movement_obj[str(inst_num)][movement_midi_input_type])
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].set(movement_obj[inst_num][movement_midi_input_type])
 
 def set_path_point_instance_widgets_from_data():
     for i in range (8):
@@ -651,22 +654,22 @@ def set_ui_location_vars_from_data():
     for inst_num in location_inst_nums:
         ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].set(fade_location_obj[inst_num]['active'])
         for ball_number in ball_numbers:            
-            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in fade_location_obj[str(inst_num)]['balls to average'])
-        ui_location_obj['fade'][inst_num]['window size']['var'].set(fade_location_obj[str(inst_num)]['window size'])
+            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in fade_location_obj[inst_num]['balls to average'])
+        ui_location_obj['fade'][inst_num]['window size']['var'].set(fade_location_obj[inst_num]['window size'])
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(fade_location_obj[str(inst_num)][location_direction][location_midi_input_type])
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(fade_location_obj[inst_num][location_direction][location_midi_input_type])
         for location_border_side in location_border_sides:
-            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].set(fade_location_obj[str(inst_num)]['location border sides'][location_border_side])
+            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].set(fade_location_obj[inst_num]['location border sides'][location_border_side])
     for inst_num in location_inst_nums:
         ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].set(spot_location_obj[inst_num]['active'])
         for ball_number in ball_numbers:    
-            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in spot_location_obj[str(inst_num)]['balls to average'])
-        ui_location_obj['spot'][inst_num]['window size']['var'].set(spot_location_obj[str(inst_num)]['window size'])
+            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in spot_location_obj[inst_num]['balls to average'])
+        ui_location_obj['spot'][inst_num]['window size']['var'].set(spot_location_obj[inst_num]['window size'])
         for location_midi_input_type in location_midi_input_types:
-            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].set(spot_location_obj[str(inst_num)][location_midi_input_type])
+            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].set(spot_location_obj[inst_num][location_midi_input_type])
         for location_border_side in location_border_sides:
-            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].set(spot_location_obj[str(inst_num)]['location border sides'][location_border_side])
+            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].set(spot_location_obj[inst_num]['location border sides'][location_border_side])
 
 def set_path_point_buttons_based_on_selected_path_point_config_letter():
     for path_type in path_types:
@@ -773,12 +776,12 @@ def location_border_changed(location_type,entry_text,inst_num,location_border_si
     print('inst_num '+str(inst_num))
     print('location_border_side '+location_border_side)
     if location_type == 'fade':
-        fade_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
+        fade_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
         print('lol')
-        print(fade_location_obj[str(inst_num)]['location border sides'][location_border_side])
+        print(fade_location_obj[inst_num]['location border sides'][location_border_side])
     if location_type == 'spot':
-        spot_location_obj[str(inst_num)]['location border sides'][location_border_side] = entry_text
-    print( fade_location_obj[str(inst_num)]['location border sides'])
+        spot_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
+    print( fade_location_obj[inst_num]['location border sides'])
 #########################     END LOCATION SECTION     ##########################
 
 

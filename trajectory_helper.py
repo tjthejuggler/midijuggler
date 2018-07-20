@@ -44,7 +44,7 @@ def calculate_kinematics(frame_count):
             settings.all_ay[i].append(0)
 
 def determine_relative_positions():
-    #relative_positions = [[] for _ in range(max_balls)]
+    '''#relative_positions = [[] for _ in range(max_balls)]
     relative_positions = ['left','right','mid']
     last_cxs = []
     last_cxs_indices = []
@@ -60,8 +60,40 @@ def determine_relative_positions():
                 relative_positions[i]= 'right'
             else:
                 relative_positions[i]= 'mid'
-    #return ['left', 'mid', 'right']
     return [relative_positions[0],relative_positions[1],relative_positions[2]]
+
+average_contour_area_from_last_frame'''
+
+
+
+#we want to find out if they are lower than all other non-X settings.all_cx[i][-1] - average_contour_area_from_last_frame
+#   if so then the relative position is left
+#we want to do the same for if they are higher than all other non-Xs + average_contour_area_from_last_frame
+#   this means that they should be set to right
+
+
+    relative_positions = ['mid','mid','mid']#first we set all relative positions to mid, that is the default
+    last_cxs = []
+    last_cxs_indices = []
+    for i in range(len(settings.all_cx)):#then we want to go through every non-X settings.all_cx[i][-1]
+        if settings.all_cx[i][-1] != 'X':
+            last_cxs.append(settings.all_cx[i][-1])
+            last_cxs_indices.append(i)
+    if len(last_cxs) > 1:
+        second_lowest_last_cxs = sorted(last_cxs)[1]
+        if min(last_cxs) < second_lowest_last_cxs-average_contour_area_from_last_frame:
+            index_of_min = last_cxs.index(min(last_cxs))
+            relative_positions[last_cxs_indices[index_of_min]] = 'left'
+        second_highest_last_cxs = sorted(last_cxs)[-2]
+        if max(last_cxs) > second_highest_last_cxs+average_contour_area_from_last_frame:
+            index_of_max = last_cxs.index(max(last_cxs))
+            relative_positions[last_cxs_indices[index_of_max]] = 'right'            
+    return [relative_positions[0],relative_positions[1],relative_positions[2]]
+
+
+
+
+
 
 fall_acceleration_from_calibration = -5
 
@@ -128,7 +160,7 @@ def determine_path_phase(ball_index, frame_count,average_fps):
         else:
             settings.path_phase[ball_index] = 'none'
     tab=' '*20
-    #print(tab*ball_index + str(path_phase[ball_index]))
+    print(tab*ball_index + str(path_phase[ball_index]))
 
 def determine_path_type(ball_index,position):
     settings.path_type[ball_index] = position

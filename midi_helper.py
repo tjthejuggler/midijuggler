@@ -681,8 +681,11 @@ def create_association_object():
     column_notes_to_use = settings.scale_to_use
     ball_config_index_to_use = [0,0,0]
 
+    print(path_point_instance_obj)
+
     for i in range(number_of_path_point_instances):
         if path_point_instance_obj[i]['active'] == 1:
+            print('active!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
             ball_number = int(path_point_instance_obj[i]['ball number'])
             ball_number = ball_number - 1
             ball_number = str(ball_number)
@@ -700,11 +703,11 @@ def create_association_object():
                     path_point_midi_index = path_point_path_obj[path_config][path_type][path_phase]
                     if path_point_midi_index > 0:
                         if path_point_midi_obj[path_point_midi_index]['input type'] == 'midi':
-                            notes_to_use = list(map(int,path_point_midi_obj[path_point_midi_index]['input'].split(',')))
+                            settings.notes_to_use = list(map(int,path_point_midi_obj[path_point_midi_index]['input'].split(',')))
                         midi_associations['ball '+ball_number][path_phase][path_type]['channel'] = midi_channel
                         midi_associations['ball '+ball_number][path_phase][path_type]['note_selection_mode'] = path_point_midi_obj[path_point_midi_index]['note selection type']
                         midi_associations['ball '+ball_number][path_phase][path_type]['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-                        midi_associations['ball '+ball_number][path_phase][path_type]['notes'] = notes_to_use
+                        midi_associations['ball '+ball_number][path_phase][path_type]['notes'] = settings.notes_to_use
                         midi_associations['ball '+ball_number][path_phase][path_type]['magnitude'] = midi_magnitude
 
     print(midi_associations)

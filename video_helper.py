@@ -19,9 +19,7 @@ increase_fps = True
 rotating_sound_num,all_mask = 0,[]
 mouse_down = False
 current_color_selecter_color = [0,0,0]
-
 colors_to_track = [[100,100,100],[12,13,14],[150,170,190]]
-
 most_recently_set_color_to_track = 0
 
 def frames_are_similar(image1, image2):
@@ -83,7 +81,6 @@ def diff_remove_bg(img,img0,img1):
     d1 = diff(img0,img)
     d2 = diff(img,img1)
     return cv2.bitwise_xor(d1,d2)
-average_contour_area_from_last_frame = 0
 
 def get_contour_center(contour):
     cx,cy,moments = [],[],[]
@@ -155,7 +152,8 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
         use_path_type_coloring = True
         use_hybrid_coloring = False
         mask_copy=cv2.cvtColor(mask_copy,cv2.COLOR_GRAY2BGR)
-        rectangle_width = int(settings.frame_width/max(1,notes_in_scale_count))
+        #rectangle_width = int(settings.frame_width/max(1,notes_in_scale_count))
+        rectangle_width = int(settings.frame_width/max(1,len(settings.notes_to_use)))
         rectangles_with_peaks = []
         rectangles_with_peaks_path_types = []
         color_to_use = (0,0,0)
@@ -235,9 +233,6 @@ def show_color_selecter(frame):
         else:
             cv2.rectangle(frame_copy,(color_selecter_pos[0],color_selecter_pos[1]),(color_selecter_pos[2],color_selecter_pos[3]),(255,255,255),2)
     return frame_copy
-
-
-
 
 def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,notes_in_scale_count):    
     show_scale_grid = True            
