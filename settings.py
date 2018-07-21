@@ -47,7 +47,6 @@ number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
 	ball_numbers.append(str(i))
-print(ball_numbers)
 location_directions = ['horizontal','vertical']
 location_midi_input_types = ['channel','number']
 location_border_sides = ['left','right','top','bottom']
@@ -84,7 +83,7 @@ number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
 	ball_numbers.append(str(i))
-print(ball_numbers)
+
 speed_midi_input_types = ['channel','number']
 speed_obj = {}
 for inst_num in speed_inst_nums:
@@ -101,7 +100,7 @@ number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
 	ball_numbers.append(str(i))
-print(ball_numbers)
+
 apart_midi_input_types = ['channel','number']
 apart_obj = {}
 for inst_num in apart_inst_nums:
@@ -119,7 +118,7 @@ number_of_balls = 3
 ball_numbers = []
 for i in range (1,number_of_balls+1):
 	ball_numbers.append(str(i))
-print(ball_numbers)
+
 movement_midi_input_types = ['channel','number']
 movement_obj = {}
 for inst_num in movement_inst_nums:
@@ -172,6 +171,8 @@ all_cx, all_cy = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)]
 all_vx,all_vy,all_time_vx,all_time_vy,all_ay = [[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)],[[] for _ in range(max_balls)]
 
 frame_height, frame_width = 0,0
+
+show_scale_grid = False
 
 scale_to_use = []
 

@@ -147,7 +147,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
     trim_old_histories()
     return number_of_contours_seen, combined_mask, combined_mask, contour_count_window
 
-def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
+def create_positional_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     if settings.grid_type_to_show == 'positional':
         use_path_type_coloring = True
         use_hybrid_coloring = False
@@ -198,6 +198,23 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
         mask_copy = create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
     return mask_copy
 
+def create_location_rectangles(mask_copy):
+    for inst_num in location_inst_nums:
+        if fade_location_obj[inst_num]['active'] == 1:
+            left = settings.frame_width-int(fade_location_obj[inst_num]['location border sides']['left'])
+            top = int(fade_location_obj[inst_num]['location border sides']['top'])
+            right = settings.frame_width-int(fade_location_obj[inst_num]['location border sides']['right'])
+            bottom = int(fade_location_obj[inst_num]['location border sides']['bottom'])
+            cv2.rectangle(mask_copy,(left,top),(right,bottom),(255,255,255),2)
+    for inst_num in location_inst_nums:
+        if spot_location_obj[inst_num]['active'] == 1:
+            left = settings.frame_width-int(spot_location_obj[inst_num]['location border sides']['left'])
+            top = int(spot_location_obj[inst_num]['location border sides']['top'])
+            right = settings.frame_width-int(spot_location_obj[inst_num]['location border sides']['right'])
+            bottom = int(spot_location_obj[inst_num]['location border sides']['bottom'])
+            cv2.rectangle(mask_copy,(left,top),(right,bottom),(255,255,255),2)            
+    return mask_copy
+
 def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     honeycomb_diameter = int(settings.frame_width/settings.number_of_honeycomb_rows)
     honeycomb_radius = int(honeycomb_diameter/2)
@@ -235,7 +252,7 @@ def show_color_selecter(frame):
     return frame_copy
 
 def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,notes_in_scale_count):    
-    show_scale_grid = True            
+    #show_scale_grid = True
     if record_video:
         record_frame(frame, out, start, average_fps)
     if settings.show_color_calibration:
@@ -243,14 +260,15 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         cv2.putText(frame_copy, '(-Z/+X)exposure: '+str(camera_exposure_number),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
         cv2.imshow('individual color calibration', frame_copy)
         cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
-    if settings.show_main_camera:
-        if show_scale_grid:# and midi_note_based_on_position_is_in_use:
-            mask_copy = mask
-            mask_copy = create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
-            mask_copy = cv2.flip(mask_copy,1)
-            cv2.imshow('main_camera',mask_copy)
-        else:
-            cv2.imshow('color_calibration',mask)     
+    if settings.show_main_camera:        
+        mask_copy = mask
+        if settings.show_scale_grid:# and midi_note_based_on_position_is_in_use:
+            mask_copy = create_positional_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
+        mask_copy = create_location_rectangles(mask_copy)
+        mask_copy = cv2.flip(mask_copy,1)
+        cv2.imshow('main_camera',mask_copy)
+        #else:
+            #cv2.imshow('color_calibration',mask)     
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask

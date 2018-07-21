@@ -16,7 +16,6 @@ if use_user_interface:
     from PIL import ImageTk, Image
 #print(average_position_of_multiple_single_ball_average_positions([[1,1],[2,10]]))
 def begin_program():
-    print(False)
     setup_midi()
     if not use_user_interface:
         load_config_file(True)
@@ -126,7 +125,7 @@ def load_config_file(use_default_config):
             save_file_name.set(load_file_name.get().split('.')[0])
     except FileNotFoundError:
         pass
-    print(path_point_instance_obj)
+    #print(path_point_instance_obj)
 
 
 
@@ -564,24 +563,24 @@ def path_point_instances_or_configs_changed(*args):
 
 def path_point_active_checkbutton_changed(checked,inst_num):
     path_point_instance_obj[inst_num]['active'] = checked
-    print('inst_num')
-    print(inst_num)
-    print(path_point_instance_obj[inst_num]['active']) 
+    #print('inst_num')
+    #print(inst_num)
+    #print(path_point_instance_obj[inst_num]['active']) 
 
 def path_point_ball_number_changed(ball_number,inst_num):
     path_point_instance_obj[inst_num]['ball number'] = ball_number
-    print(inst_num)
-    print(path_point_instance_obj[inst_num]['ball number']) 
+    #print(inst_num)
+    #print(path_point_instance_obj[inst_num]['ball number']) 
 
 def path_point_path_config_changed(path_config,inst_num):
     path_point_instance_obj[inst_num]['path config'] = path_config
-    print(inst_num)
-    print(path_point_instance_obj[inst_num]['path config']) 
+    #print(inst_num)
+    #print(path_point_instance_obj[inst_num]['path config']) 
 
 def path_point_midi_channel_changed(channel,inst_num):
     path_point_instance_obj[inst_num]['midi channel'] = channel
-    print(inst_num)
-    print(path_point_instance_obj[inst_num]['midi channel']) 
+    #print(inst_num)
+    #print(path_point_instance_obj[inst_num]['midi channel']) 
 
 def note_selection_type_changed(*args):
     if note_selection_type.get() == 'current positional' and current_midi_config_index.get() != '0':
@@ -708,28 +707,28 @@ def selected_config_midi_channel_changed(*args):
 #########################     BEGIN LOCATION SECTION     ##########################
 
 def location_active_checkbutton_changed(location_type,checked,inst_num):
-    print('location_type')
-    print(location_type)
-    print('checked')
-    print(checked)
-    print('inst_num')
-    print(inst_num)
+    #print('location_type')
+    #print(location_type)
+    #print('checked')
+    #print(checked)
+    #print('inst_num')
+    #print(inst_num)
     if location_type == 'fade':
         fade_location_obj[inst_num]['active'] = checked
-        print(fade_location_obj[inst_num]['active'])
+        #print(fade_location_obj[inst_num]['active'])
     elif location_type == 'spot':
         spot_location_obj[inst_num]['active'] = checked
-        print(spot_location_obj[inst_num]['active'])
+        #print(spot_location_obj[inst_num]['active'])
 
 def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball_number):
-    print('location_type')
-    print(location_type)
-    print('checked')
-    print(checked)
-    print('ball_number')
-    print(ball_number)
-    print('inst_num')
-    print(inst_num)
+    #print('location_type')
+    #print(location_type)
+    #print('checked')
+    #print(checked)
+    #print('ball_number')
+    #print(ball_number)
+    #print('inst_num')
+    #print(inst_num)
     if location_type == 'fade':
         if checked:
             if not ball_number in fade_location_obj[inst_num]['balls to average']:
@@ -738,7 +737,7 @@ def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball
         else:
             if ball_number in fade_location_obj[inst_num]['balls to average']:
                 fade_location_obj[inst_num]['balls to average'].remove(ball_number)                
-        print(fade_location_obj[inst_num]['balls to average'])
+        #print(fade_location_obj[inst_num]['balls to average'])
     elif location_type == 'spot':
         if checked:
             if not ball_number in spot_location_obj[inst_num]['balls to average']:
@@ -747,60 +746,60 @@ def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball
         else:
             if ball_number in spot_location_obj[inst_num]['balls to average']:
                 spot_location_obj[inst_num]['balls to average'].remove(ball_number)
-        print(spot_location_obj[inst_num]['balls to average'])
+        #print(spot_location_obj[inst_num]['balls to average'])
 
 def location_number_of_frames_changed(location_type,entry_text,inst_num):
-    print('location_type '+location_type)
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('location_type '+location_type)
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     if location_type == 'fade':
         fade_location_obj[inst_num]['window size'] = entry_text
     if location_type == 'spot':
         spot_location_obj[inst_num]['window size'] = entry_text
 
 def location_fade_channel_or_number_changed(entry_text,inst_num,location_direction,location_midi_input_type):
-    print(inst_num)
-    print(entry_text)
-    print(location_direction)
+    #print(inst_num)
+    #print(entry_text)
+    #print(location_direction)
     fade_location_obj[inst_num][location_direction][location_midi_input_type] = str(entry_text)
-    print(fade_location_obj['0'][location_direction]['channel'])
+    #print(fade_location_obj['0'][location_direction]['channel'])
 
 def location_spot_channel_or_number_changed(entry_text,inst_num,location_midi_input_type):
-    print(inst_num)
-    print(entry_text)
+    #print(inst_num)
+    #print(entry_text)
     spot_location_obj[inst_num][location_midi_input_type] = str(entry_text)
 
 def location_border_changed(location_type,entry_text,inst_num,location_border_side):
-    print('location_type '+location_type)
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
-    print('location_border_side '+location_border_side)
+    #print('location_type '+location_type)
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
+    #print('location_border_side '+location_border_side)
     if location_type == 'fade':
         fade_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
-        print('lol')
-        print(fade_location_obj[inst_num]['location border sides'][location_border_side])
+        #print('lol')
+        #print(fade_location_obj[inst_num]['location border sides'][location_border_side])
     if location_type == 'spot':
         spot_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
-    print( fade_location_obj[inst_num]['location border sides'])
+    #print( fade_location_obj[inst_num]['location border sides'])
 #########################     END LOCATION SECTION     ##########################
 
 
 #########################     BEGIN SPEED SECTION     ##########################
 def speed_active_checkbutton_changed(checked,inst_num):
-    print('checked')
-    print(checked)
-    print('inst_num')
-    print(inst_num)
+    #print('checked')
+    #print(checked)
+    #print('inst_num')
+    #print(inst_num)
     speed_obj[inst_num]['active'] = checked
-    print(speed_obj[inst_num]['active'])
+    #print(speed_obj[inst_num]['active'])
 
 def speed_ball_number_checkbutton_changed(checked,inst_num,ball_number):
-    print('checked')
-    print(checked)
-    print('ball_number')
-    print(ball_number)
-    print('inst_num')
-    print(inst_num)
+    #print('checked')
+    #print(checked)
+    #print('ball_number')
+    #print(ball_number)
+    #print('inst_num')
+    #print(inst_num)
     if checked:
         if not ball_number in speed_obj[inst_num]['balls to average']:
             speed_obj[inst_num]['balls to average'].append(ball_number)
@@ -808,36 +807,36 @@ def speed_ball_number_checkbutton_changed(checked,inst_num,ball_number):
         if ball_number in speed_obj[inst_num]['balls to average']:
             speed_obj[inst_num]['balls to average'].remove(ball_number)
     if '' in speed_obj[inst_num]['balls to average']: speed_obj[inst_num]['balls to average'].remove('')
-    print(speed_obj[inst_num]['balls to average'])
+    #print(speed_obj[inst_num]['balls to average'])
 
 def speed_windows_size_changed(entry_text,inst_num):
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     speed_obj[inst_num]['window size'] = str(entry_text)    
 
 def speed_channel_or_number_changed(entry_text,inst_num,speed_midi_input_type):
-    print('speed_midi_input_type '+speed_midi_input_type)
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('speed_midi_input_type '+speed_midi_input_type)
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     speed_obj[inst_num][speed_midi_input_type] = str(entry_text)
 #########################     END SPEED SECTION     ##########################
 
 #########################     BEGIN APART SECTION     ##########################
 def apart_active_checkbutton_changed(checked,inst_num):
-    print('checked')
-    print(checked)
-    print('inst_num')
-    print(inst_num)
+    #print('checked')
+    #print(checked)
+    #print('inst_num')
+    #print(inst_num)
     apart_obj[inst_num]['active'] = checked
-    print(apart_obj[inst_num]['active'])
+    #print(apart_obj[inst_num]['active'])
 
 def apart_ball_number_checkbutton_changed(checked,inst_num,ball_number):
-    print('checked')
-    print(checked)
-    print('ball_number')
-    print(ball_number)
-    print('inst_num')
-    print(inst_num)
+    #print('checked')
+    #print(checked)
+    #print('ball_number')
+    #print(ball_number)
+    #print('inst_num')
+    #print(inst_num)
     if checked:
         if not ball_number in apart_obj[inst_num]['ball numbers']:
             apart_obj[inst_num]['ball numbers'].append(ball_number)
@@ -845,47 +844,47 @@ def apart_ball_number_checkbutton_changed(checked,inst_num,ball_number):
         if ball_number in apart_obj[inst_num]['ball numbers']:
             apart_obj[inst_num]['ball numbers'].remove(ball_number)
     if '' in apart_obj[inst_num]['ball numbers']: apart_obj[inst_num]['ball numbers'].remove('')
-    print(apart_obj[inst_num]['ball numbers'])
+    #print(apart_obj[inst_num]['ball numbers'])
 
 def apart_distance_changed(entry_text,inst_num):
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     apart_obj[inst_num]['distance'] = str(entry_text)    
 
 def apart_channel_or_number_changed(entry_text,inst_num,apart_midi_input_type):
-    print('apart_midi_input_type '+apart_midi_input_type)
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('apart_midi_input_type '+apart_midi_input_type)
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     apart_obj[inst_num][apart_midi_input_type] = str(entry_text)
 #########################     END APART SECTION     ##########################
 
 
 #########################     END MOVEMENT SECTION     ##########################
 def movement_active_checkbutton_changed(checked,inst_num):
-    print('checked')
-    print(checked)
-    print('inst_num')
-    print(inst_num)
+    #print('checked')
+    #print(checked)
+    #print('inst_num')
+    #print(inst_num)
     movement_obj[inst_num]['active'] = checked
-    print(movement_obj[inst_num]['active'])
+    #print(movement_obj[inst_num]['active'])
 
 def movement_radiobutton_changed(move_or_stop,inst_num):
-    print('move_or_stop')
-    print(move_or_stop)
-    print('inst_num')
-    print(inst_num)
+    #print('move_or_stop')
+    #print(move_or_stop)
+    #print('inst_num')
+    #print(inst_num)
     movement_obj[inst_num]['move or stop'] = move_or_stop
-    print(movement_obj[inst_num]['move or stop'])
+    #print(movement_obj[inst_num]['move or stop'])
 
 def movement_sensitivity_changed(entry_text,inst_num):
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     movement_obj[inst_num]['sensitivity'] = str(entry_text)    
 
 def movement_channel_or_number_changed(entry_text,inst_num,movement_midi_input_type):
-    print('movement_midi_input_type '+movement_midi_input_type)
-    print('entry_text '+entry_text)
-    print('inst_num '+str(inst_num))
+    #print('movement_midi_input_type '+movement_midi_input_type)
+    #print('entry_text '+entry_text)
+    #print('inst_num '+str(inst_num))
     movement_obj[inst_num][movement_midi_input_type] = str(entry_text)
 
 

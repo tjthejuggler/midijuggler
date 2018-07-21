@@ -95,7 +95,7 @@ def determine_path_phase(ball_index, frame_count,average_fps):
             if settings.all_vy[ball_index][-1] > 0:
                 settings.path_phase[ball_index] = 'up'
             else:
-                settings.path_phase[ball_index] = 'held'
+                settings.path_phase[ball_index] = 'held' #maybe this could be 'catch' and the line below an elif
         if path_phase[ball_index] == 'catch':                
             settings.path_phase[ball_index] = 'held'
         if all(isinstance(item, int) for item in settings.all_ay[ball_index][-3:]):
@@ -129,10 +129,9 @@ def determine_path_phase(ball_index, frame_count,average_fps):
                 settings.in_hand[ball_index] = True    
         else:
             settings.path_phase[ball_index] = 'none'
-    else:
-        settings.path_phase[ball_index] = 'held'
+
     tab=' '*20
-    print(tab*ball_index + str(path_phase[ball_index]))
+    #print(tab*ball_index + str(path_phase[ball_index]))
 
 def determine_path_type(ball_index,position):
     settings.path_type[ball_index] = position
