@@ -22,6 +22,7 @@ soundscape_image = cv2.imread('soundscape.png',1)
 can_send_spot_location_midi_note = [True,True,True,True]
 
 
+
 def position_to_midi_value(current_position, max_position, edge_buffer):
     value = 0
     if current_position<edge_buffer:

@@ -2,10 +2,12 @@ from settings import *
 from camera_loop import *
 import rtmidi #for sending midi
 from midi_helper import *
+
 import csv
 import os
 
 use_user_interface = True
+
 
 if use_user_interface:
     from tkinter import *
@@ -145,6 +147,9 @@ def set_active_instances_from_widgets():
         spot_location_obj[inst_num]['active'] = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get() 
         speed_obj[inst_num]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get() 
         movement_obj[inst_num]['active'] = ui_movement_obj[inst_num]['active']['var'].get()
+    chop_counter_active[0] = tools_chop_counter_active_checkbutton_var.get()
+    user_defined_chop_time_duration[0] = tools_chop_counter_duration_var.get()
+
 
 def start_camera():
     set_active_instances_from_widgets()
@@ -430,6 +435,14 @@ def set_movement_widgets_visibility(show_or_hide):
         ui_movement_obj[inst_num]['midi']['channel']['widget'].place(x=extra+370,y=170+(inst_num*65))
         ui_movement_obj[inst_num]['midi']['number']['widget'].place(x=extra+440,y=170+(inst_num*65))
 
+def set_tools_widgets_visibility(show_or_hide):
+    extra = 0
+    if show_or_hide == 'hide':
+        extra = 1000
+    tools_chop_counter_active_checkbutton.place(x=extra+10,y=150)
+    tools_chop_counter_duration_entry.place(x=extra+150,y=170)
+
+
 def set_path_points_config_inputs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
@@ -452,6 +465,7 @@ def selected_event_type_changed(*args):
     set_apart_widgets_visibility('hide')
     set_collision_widgets_visibility('hide')
     set_movement_widgets_visibility('hide')
+    set_tools_widgets_visibility('hide')
     if selected_event_type.get() == 'path points':
         set_path_points_widgets_visibility('show')
     if selected_event_type.get() == 'location fade':
@@ -466,7 +480,8 @@ def selected_event_type_changed(*args):
         set_collision_widgets_visibility('show')
     if selected_event_type.get() == 'movement':
         set_movement_widgets_visibility('show')
-
+    if selected_event_type.get() == 'tools':
+        set_tools_widgets_visibility('show')
 #########################     END TOP MAIN SECTION     ##########################
 
 
@@ -890,6 +905,17 @@ def movement_channel_or_number_changed(entry_text,inst_num,movement_midi_input_t
 
 #########################     END MOVEMENT SECTION     ##########################
 
+#########################     END TOOLS SECTION     ##########################
+def tools_chop_counter_active_checkbutton_changed(checked):
+    print('checked '+str(checked))
+    chop_counter_active[0] = checked
+    print(chop_counter_active)
+
+def tools_chop_counter_duration_changed(entry_text):
+    print('entry_text '+entry_text)
+    user_defined_chop_time_duration[0] = str(entry_text)   
+
+#########################     END TOOLS SECTION     ##########################
 
 if use_user_interface:
     root = Tk() 
@@ -1414,6 +1440,27 @@ if use_user_interface:
 
 ###########################  END MOVEMENT SECTION  #################################
 
+###########################  BEGIN TOOLS SECTION  #################################
+
+    tools_chop_counter_active_checkbutton_var = IntVar()
+    this_variable = tools_chop_counter_active_checkbutton_var
+    tools_chop_counter_active_checkbutton = Checkbutton(root, text='Use chop counter', \
+        variable= tools_chop_counter_active_checkbutton_var, \
+        command=lambda this_variable= tools_chop_counter_active_checkbutton_var: \
+        tools_chop_counter_active_checkbutton_changed(this_variable.get()))       
+
+    tools_chop_counter_duration_var = StringVar(root)
+    tools_chop_counter_duration_var.set(0)
+    this_variable = tools_chop_counter_duration_var
+    tools_chop_counter_duration_var.trace(
+        'w', lambda *args, this_variable=this_variable: \
+        tools_chop_counter_duration_changed(this_variable.get()))
+    tools_chop_counter_duration_entry = ttk.Entry(
+        root, width = 4,textvariable=tools_chop_counter_duration_var)       
+
+###########################  END TOOLS SECTION  #################################
+
+
 ###########################  BEGIN TOP MAIN SECTION  #################################
     start_button = ttk.Button(root,text='Start',fg='red',font=('Courier','16'),command=start_camera,height=2,width=13)
     start_button.place(x=664,y=710)
@@ -1441,7 +1488,7 @@ if use_user_interface:
 
     selected_event_type = StringVar(root)
 
-    selected_event_type_choices = ['path points','location fade','location spot','speed','apart','collision','movement']
+    selected_event_type_choices = ['path points','location fade','location spot','speed','apart','collision','movement','tools']
     selected_event_type.set('path points')
     selected_event_type_optionmenu = OptionMenu(root, selected_event_type, *selected_event_type_choices)
     Label(root, text='Events:').place(x=550,y=10)

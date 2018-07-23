@@ -148,6 +148,10 @@ throw_count = 0
 
 chop_count = 0
 chop_times = [0]
+chop_counter_active = {}
+chop_counter_active[0] = 0
+user_defined_chop_time_duration = {}
+user_defined_chop_time_duration[0] = 0
 
 catch_count = 0
 

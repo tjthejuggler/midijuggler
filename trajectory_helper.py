@@ -146,29 +146,21 @@ def determine_path_phase(ball_index, frame_count,average_fps):
                     catch_count = catch_count +1
                 else:
                     settings.path_phase[ball_index] = 'held'
-                    '''if chop_checker(ball_index,average_fps):                
-                        last_chop_time[ball_index] = time.time()
-                        settings.path_phase[ball_index] = 'chop'
-                        chop_count = chop_count +1
-                        #print('CHOP!!')'''
                 settings.in_hand[ball_index] = True    
         else:
             settings.path_phase[ball_index] = 'none'
 
     if chop_checker(ball_index):                
         chop_times.append(time.time())
-    chop_times = [value for value in chop_times if value > time.time()-20]
+    chop_times = [value for value in chop_times if value > time.time()-int(settings.user_defined_chop_time_duration[0])]
+    print(settings.user_defined_chop_time_duration[0])
     chop_count = len(chop_times)
-
     tab=' '*20
     #print(tab*ball_index + str(path_phase[ball_index]))
     #print(tab*ball_index + str(settings.all_vy[ball_index][-1]))
-
 #todo
 #   make chop_counter togglable in ui
 #   make amount of time user definable
-
-
 def determine_path_type(ball_index,position):
     settings.path_type[ball_index] = position
     if settings.all_vx[ball_index][-1] != 'X':

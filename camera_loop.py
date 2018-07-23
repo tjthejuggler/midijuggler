@@ -27,7 +27,6 @@ from tkinter.filedialog import askopenfilename
 #import win32com.client
 from settings import *
 
-
 show_time = False
 print_peaks = True
 max_balls = 3
