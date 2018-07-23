@@ -63,15 +63,30 @@ def determine_relative_positions():
     return [relative_positions[0],relative_positions[1],relative_positions[2]]
 
 fall_acceleration_from_calibration = -5
+can_chop = [False,False,False]
 
-def chop_checker(ball_index,average_fps):
+def chop_checker(ball_index):
+    chop_occurred = False
+    if settings.all_cx[ball_index][-1] != 'X':
+        if settings.all_cx[ball_index][-1] > 220 and settings.all_cx[ball_index][-1] < 420 \
+        and settings.all_cy[ball_index][-1] > 200 and settings.all_cy[ball_index][-1] < 400:
+            if can_chop[ball_index]:
+                can_chop[ball_index] = False
+                chop_occurred = True
+        else:
+            can_chop[ball_index] = True
+    return chop_occurred
+
+    #if a ball is out of the chop box, then can_chop == True
+
+
     #it isnt great, things to try:
     #       print everything
     #       change the variables, 
-    enough_time_since_last_chop = time.time() - last_chop_time[ball_index] > minimum_time_between_chops
-    fraction_of_a_second_to_look_back = 10
+    '''enough_time_since_last_chop = time.time() - last_chop_time[ball_index] > minimum_time_between_chops
+    fraction_of_a_second_to_look_back = 5
     number_of_frames_ago_to_use = int(math.ceil(average_fps/fraction_of_a_second_to_look_back))
-    times_faster_than_gravity_required = 5
+    times_faster_than_gravity_required = 3
     minimum_distance_to_trigger_chop = abs(fall_acceleration_from_calibration*number_of_frames_ago_to_use*times_faster_than_gravity_required)
     #print(ball_index)
     #print(number_of_frames_ago_to_use)
@@ -86,10 +101,17 @@ def chop_checker(ball_index,average_fps):
     #current position is an X, but if the position from Y frames ago could be slid 
     #up to the most recent non X frame. this might not even be needed, first we should 
     #try and just ignore any that have an X in it.
+    if settings.all_cy[ball_index][-1] != 'X' and settings.all_cy[ball_index][-2] != 'X' and settings.all_cy[ball_index][-3] != 'X':
+        if settings.all_cy[ball_index][-1] < settings.all_cy[ball_index][-2] and settings.all_cy[ball_index][-2] >= settings.all_cy[ball_index][-3]:
+            return True
+        else:
+            return False
+    else:
+        return False'''
 
 
 def determine_path_phase(ball_index, frame_count,average_fps):
-    global peak_count
+    global peak_count, throw_count, chop_count, catch_count, chop_times
     if len(settings.all_ay[ball_index]) > 0 and settings.all_vy[ball_index][-1]!='X':
         if path_phase[ball_index] == 'throw':
             if settings.all_vy[ball_index][-1] > 0:
@@ -105,6 +127,7 @@ def determine_path_phase(ball_index, frame_count,average_fps):
                 #print('                        NOT IN HAND'+str(ball_index))
                 if settings.in_hand[ball_index] == True and settings.path_phase[ball_index] != 'throw' and settings.path_phase[ball_index] != 'up':
                     settings.path_phase[ball_index] = 'throw'
+                    throw_count = throw_count+1
                 else:                
                     if settings.all_vy[ball_index][-1] > 0:
                         settings.path_phase[ball_index] = 'up'
@@ -120,18 +143,31 @@ def determine_path_phase(ball_index, frame_count,average_fps):
                 #print('                                             IN HAND')
                 if settings.in_hand[ball_index] == False:
                     settings.path_phase[ball_index] = 'catch' 
+                    catch_count = catch_count +1
                 else:
                     settings.path_phase[ball_index] = 'held'
-                    if chop_checker(ball_index,average_fps):                
+                    '''if chop_checker(ball_index,average_fps):                
                         last_chop_time[ball_index] = time.time()
                         settings.path_phase[ball_index] = 'chop'
-                        #print('CHOP!!')
+                        chop_count = chop_count +1
+                        #print('CHOP!!')'''
                 settings.in_hand[ball_index] = True    
         else:
             settings.path_phase[ball_index] = 'none'
 
+    if chop_checker(ball_index):                
+        chop_times.append(time.time())
+    chop_times = [value for value in chop_times if value > time.time()-20]
+    chop_count = len(chop_times)
+
     tab=' '*20
     #print(tab*ball_index + str(path_phase[ball_index]))
+    #print(tab*ball_index + str(settings.all_vy[ball_index][-1]))
+
+#todo
+#   make chop_counter togglable in ui
+#   make amount of time user definable
+
 
 def determine_path_type(ball_index,position):
     settings.path_type[ball_index] = position

@@ -144,6 +144,13 @@ family_count = len(family_identities)
 
 last_peak_time,peak_count = [-.25]*20,0
 
+throw_count = 0
+
+chop_count = 0
+chop_times = [0]
+
+catch_count = 0
+
 play_chords_as_arpeggio = False
 
 in_melody = False 

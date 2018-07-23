@@ -12,6 +12,8 @@ import random
 from settings import *
 import settings
 from calibration_helper import *
+import trajectory_helper
+from trajectory_helper import *
 record_video = True
 show_overlay = False
 video_name = 'test.avi'
@@ -229,6 +231,28 @@ def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_cou
             
     return mask_copy
 
+
+def show_chop_counter(mask_copy):
+    cv2.rectangle(mask_copy,(220,200),(420,400),(255,255,255),2) 
+    cv2.putText(mask_copy, 'Chops: '+str(trajectory_helper.chop_count),(10,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    #cv2.putText(mask_copy, 'Chops: '+str(trajectory_helper.chop_times[-1]),(10,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    
+
+    #cv2.putText(mask_copy, 'Peak/Second: '+str(settings.peak_count),(630,10), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)    
+    return mask_copy
+
+def indicate_active_apart_instances(mask_copy):
+    for inst_num in apart_inst_nums:
+        if apart_obj[inst_num]['active'] == 1:
+            cv2.putText(mask_copy, 'AP'+str(inst_num),(10+(inst_num*40),400), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    return mask_copy
+
+def indicate_active_movement_instances(mask_copy):
+    for inst_num in movement_inst_nums:
+        if movement_obj[inst_num]['active'] == 1:
+            cv2.putText(mask_copy, 'MO'+str(inst_num),(10+(inst_num*40),420), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    return mask_copy
+
 def on_mouse_click(event, x, y, flags, frame):
     global mouse_down, mouse_x, mouse_y, color_selecter_pos
     mouse_x = x
@@ -261,11 +285,15 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         cv2.imshow('individual color calibration', frame_copy)
         cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
     if settings.show_main_camera:        
-        mask_copy = mask
+        mask_copy = mask        
         if settings.show_scale_grid:# and midi_note_based_on_position_is_in_use:
             mask_copy = create_positional_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
         mask_copy = create_location_rectangles(mask_copy)
         mask_copy = cv2.flip(mask_copy,1)
+        mask_copy = indicate_active_apart_instances(mask_copy)
+        mask_copy = indicate_active_movement_instances(mask_copy)
+        
+        mask_copy = show_chop_counter(mask_copy) #this doesnt work, i want it to be a chop counter really        
         cv2.imshow('main_camera',mask_copy)
         #else:
             #cv2.imshow('color_calibration',mask)     

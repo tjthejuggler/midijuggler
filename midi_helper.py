@@ -392,23 +392,18 @@ def execute_apart():
                         apart_obj[inst_num]['currently apart'] = True
                         channel = apart_obj[inst_num]['channel']
                         number = apart_obj[inst_num]['number']
-                        send_event_messages(apart_obj,inst_num,channel,number,60)
-                        
+                        send_event_messages(apart_obj,inst_num,channel,number,60)                        
                 else:
                     apart_obj[inst_num]['currently apart'] = False
 
 def send_event_messages(event_obj,inst_num,channel,number,magnitude):
     messages = number.split('/') #we only send the messages(either midi or instance toggles) between the commas we are currently at
-    #print('messages')
-    #print(messages)
     number_of_messages = len(messages)
     messages = messages[event_obj[inst_num]['current message index']].split(';') #seperate each of the messages between our commas
     event_obj[inst_num]['current message index'] += 1
     if event_obj[inst_num]['current message index'] == number_of_messages:
         event_obj[inst_num]['current message index'] = 0
-    for message in messages: #go through them one at a time, 
-        #print('message')
-        #print(message)
+    for message in messages: #go through them one at a time,
         if any(c.isalpha() for c in message): #if they contain a letter, then we know they are instance toggles
             toggle_instance_if_valid_message(message)
         else: #if they do not contain a letter then we know they are midi signals
@@ -510,24 +505,26 @@ def execute_movement():
             if not currently_moving:
                 #print('STOPPED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                 for inst_num in movement_inst_nums:
+                    if movement_obj[inst_num]['active'] == 1:
                     #print(movement_obj[inst_num]['move or stop'])
-                    if movement_obj[inst_num]['move or stop'] == 'stop':
-                        channel = movement_obj[inst_num]['channel']
-                        number = movement_obj[inst_num]['number']
-                        #print('channel'+channel)
-                        #print('number'+number)
-                        send_event_messages(apart_obj,inst_num,channel,number,60)
-                        #send_midi_note(int(channel),int(number),60)
+                        if movement_obj[inst_num]['move or stop'] == 'stop':
+                            channel = movement_obj[inst_num]['channel']
+                            number = movement_obj[inst_num]['number']
+                            #print('channel'+channel)
+                            #print('number'+number)
+                            send_event_messages(apart_obj,inst_num,channel,number,60)
+                            #send_midi_note(int(channel),int(number),60)
         elif not currently_moving:
             currently_moving = check_for_movement()
             if currently_moving:
                 #print('MOVED@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
                 for inst_num in movement_inst_nums:
-                    if movement_obj[inst_num]['move or stop'] == 'move':
-                        channel = movement_obj[inst_num]['channel']
-                        number = movement_obj[inst_num]['number']
-                        send_event_messages(apart_obj,inst_num,channel,number,60)
-                        #send_midi_note(int(channel),int(number),60)
+                    if movement_obj[inst_num]['active'] == 1:
+                        if movement_obj[inst_num]['move or stop'] == 'move':
+                            channel = movement_obj[inst_num]['channel']
+                            number = movement_obj[inst_num]['number']
+                            send_event_messages(apart_obj,inst_num,channel,number,60)
+                            #send_midi_note(int(channel),int(number),60)
 
 def execute_spot_location():
     for i in range (4):
