@@ -37,11 +37,11 @@ def load_config_file(use_default_config):
         read_text_file = open('saved/'+load_config_file_name, 'r')
         lines = read_text_file.readlines()
         first_line = lines.index("begin path point instance obj\n") + 1
-        for i in range(number_of_path_point_instances):
-            path_point_instance_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
-            path_point_instance_obj[i]['ball number'] = lines[first_line+i].split(',')[1]
-            path_point_instance_obj[i]['path config'] = lines[first_line+i].split(',')[2]
-            path_point_instance_obj[i]['midi channel'] = lines[first_line+i].split(',')[3].rstrip('\n')
+        for i in range(8):
+            ui_path_point_obj[i]['active']['var'].set(int(lines[first_line+i].split(',')[0]))
+            ui_path_point_obj[i]['ball number']['var'].set(lines[first_line+i].split(',')[1])
+            ui_path_point_obj[i]['path config']['var'].set(lines[first_line+i].split(',')[2])
+            ui_path_point_obj[i]['midi channel']['var'].set(lines[first_line+i].split(',')[3].rstrip('\n'))
         first_line = lines.index("begin path point path obj\n") + 1
         for i in range (3):
             path_configs = ['X','Y','Z']
@@ -70,53 +70,53 @@ def load_config_file(use_default_config):
             path_point_midi_obj[i]['input'] = lines[first_line+i].split(',',2)[-1].rstrip('\n')
         first_line = lines.index('begin fade location obj\n') + 1
         for i in range (8):
-            fade_location_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
-            fade_location_obj[i]['balls to average'] = lines[first_line+i].split(',')[1]
-            fade_location_obj[i]['balls to average'] = fade_location_obj[i]['balls to average'].split(';')
-            fade_location_obj[i]['window size'] = lines[first_line+i].split(',')[2]
-            fade_location_obj[i]['location border sides']['left'] = lines[first_line+i].split(',')[3]
-            fade_location_obj[i]['location border sides']['right'] = lines[first_line+i].split(',')[4]
-            fade_location_obj[i]['location border sides']['top'] = lines[first_line+i].split(',')[5]
-            fade_location_obj[i]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
-            fade_location_obj[i]['horizontal']['channel'] = lines[first_line+i].split(',')[7]
-            fade_location_obj[i]['horizontal']['number'] = lines[first_line+i].split(',')[8]
-            fade_location_obj[i]['vertical']['channel'] = lines[first_line+i].split(',')[9]
-            fade_location_obj[i]['vertical']['number'] = lines[first_line+i].split(',')[10].rstrip('\n')
+            ui_location_obj['fade'][i]['checkbutton']['active']['var'].set(int(lines[first_line+i].split(',')[0]))
+            for ball_number in range(1,4):
+                ui_location_obj['fade'][i]['checkbutton']['ball '+str(ball_number)]['var'].set(int(lines[first_line+i].split(',')[ball_number]))
+            ui_location_obj['fade'][i]['window size']['var'].set(lines[first_line+i].split(',')[4])
+            ui_location_obj['fade'][i]['border']['left']['var'].set(lines[first_line+i].split(',')[5])
+            ui_location_obj['fade'][i]['border']['right']['var'].set(lines[first_line+i].split(',')[6])
+            ui_location_obj['fade'][i]['border']['top']['var'].set(lines[first_line+i].split(',')[7])
+            ui_location_obj['fade'][i]['border']['bottom']['var'].set(lines[first_line+i].split(',')[8])
+            ui_location_obj['fade'][i]['midi']['horizontal']['channel']['var'].set(lines[first_line+i].split(',')[9])
+            ui_location_obj['fade'][i]['midi']['horizontal']['number']['var'].set(lines[first_line+i].split(',')[10])
+            ui_location_obj['fade'][i]['midi']['vertical']['channel']['var'].set(lines[first_line+i].split(',')[11])
+            ui_location_obj['fade'][i]['midi']['vertical']['number']['var'].set(lines[first_line+i].split(',')[12].rstrip('\n'))
         first_line = lines.index('begin spot location obj\n') + 1
         for i in range (8):
-            spot_location_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
-            spot_location_obj[i]['balls to average'] = lines[first_line+i].split(',')[1]
-            spot_location_obj[i]['balls to average'] = spot_location_obj[i]['balls to average'].split(';')
-            spot_location_obj[i]['window size'] = lines[first_line+i].split(',')[2]
-            spot_location_obj[i]['location border sides']['left'] = lines[first_line+i].split(',')[3]
-            spot_location_obj[i]['location border sides']['right'] = lines[first_line+i].split(',')[4]
-            spot_location_obj[i]['location border sides']['top'] = lines[first_line+i].split(',')[5]
-            spot_location_obj[i]['location border sides']['bottom'] = lines[first_line+i].split(',')[6]
-            spot_location_obj[i]['channel'] = lines[first_line+i].split(',')[7]
-            spot_location_obj[i]['number'] = lines[first_line+i].split(',')[8].rstrip('\n')
+            ui_location_obj['spot'][i]['checkbutton']['active']['var'].set(int(lines[first_line+i].split(',')[0]))
+            for ball_number in range(1,4):
+                ui_location_obj['spot'][i]['checkbutton']['ball '+str(ball_number)]['var'].set(int(lines[first_line+i].split(',')[ball_number]))
+            ui_location_obj['spot'][i]['window size']['var'].set(lines[first_line+i].split(',')[4])
+            ui_location_obj['spot'][i]['border']['left']['var'].set(lines[first_line+i].split(',')[5])
+            ui_location_obj['spot'][i]['border']['right']['var'].set(lines[first_line+i].split(',')[6])
+            ui_location_obj['spot'][i]['border']['top']['var'].set(lines[first_line+i].split(',')[7])
+            ui_location_obj['spot'][i]['border']['bottom']['var'].set(lines[first_line+i].split(',')[8])
+            ui_location_obj['spot'][i]['midi']['channel']['var'].set(lines[first_line+i].split(',')[9])
+            ui_location_obj['spot'][i]['midi']['number']['var'].set(lines[first_line+i].split(',')[10].rstrip('\n'))
         first_line = lines.index('begin speed obj\n') + 1
         for i in range (8):
-            speed_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
-            speed_obj[i]['balls to average'] = lines[first_line+i].split(',')[1]
-            speed_obj[i]['balls to average'] = speed_obj[i]['balls to average'].split(';')
-            speed_obj[i]['window size'] = lines[first_line+i].split(',')[2]
-            speed_obj[i]['channel'] = lines[first_line+i].split(',')[3]
-            speed_obj[i]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
+            ui_speed_obj[i]['checkbutton']['active']['var'].set(int(lines[first_line+i].split(',')[0]))
+            for ball_number in range(1,4):
+                ui_speed_obj[i]['checkbutton']['ball '+str(ball_number)]['var'].set(int(lines[first_line+i].split(',')[ball_number]))
+            ui_speed_obj[i]['window size']['var'].set(lines[first_line+i].split(',')[4])
+            ui_speed_obj[i]['midi']['channel']['var'].set(lines[first_line+i].split(',')[5])
+            ui_speed_obj[i]['midi']['number']['var'].set(lines[first_line+i].split(',')[6].rstrip('\n'))
         first_line = lines.index('begin apart obj\n') + 1
         for i in range (8):
-            apart_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
-            apart_obj[i]['ball numbers'] = lines[first_line+i].split(',')[1]
-            apart_obj[i]['ball numbers'] = apart_obj[i]['ball numbers'].split(';')
-            apart_obj[i]['distance'] = lines[first_line+i].split(',')[2]
-            apart_obj[i]['channel'] = lines[first_line+i].split(',')[3]
-            apart_obj[i]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
+            ui_apart_obj[i]['checkbutton']['active']['var'].set(int(lines[first_line+i].split(',')[0]))
+            for ball_number in range(1,4):
+                ui_apart_obj[i]['checkbutton']['ball '+str(ball_number)]['var'].set(int(lines[first_line+i].split(',')[ball_number]))
+            ui_apart_obj[i]['distance']['var'].set(lines[first_line+i].split(',')[4])
+            ui_apart_obj[i]['midi']['channel']['var'].set(lines[first_line+i].split(',')[5])
+            ui_apart_obj[i]['midi']['number']['var'].set(lines[first_line+i].split(',')[6].rstrip('\n'))
         first_line = lines.index('begin movement obj\n') + 1
         for i in range (8):
-            movement_obj[i]['active'] = int(lines[first_line+i].split(',')[0])
-            movement_obj[i]['move or stop'] = lines[first_line+i].split(',')[1]
-            movement_obj[i]['sensitivity'] = lines[first_line+i].split(',')[2]
-            movement_obj[i]['channel'] = lines[first_line+i].split(',')[3]
-            movement_obj[i]['number'] = lines[first_line+i].split(',')[4].rstrip('\n')
+            ui_movement_obj[i]['active']['var'].set(int(lines[first_line+i].split(',')[0]))
+            ui_movement_obj[i]['radiobutton']['var'].set(lines[first_line+i].split(',')[1])
+            ui_movement_obj[i]['sensitivity']['var'].set(lines[first_line+i].split(',')[2])
+            ui_movement_obj[i]['midi']['channel']['var'].set(lines[first_line+i].split(',')[3])
+            ui_movement_obj[i]['midi']['number']['var'].set(lines[first_line+i].split(',')[4].rstrip('\n'))
         if not use_default_config:
             read_text_file.close()
             selected_config_midi_channel.set(selected_config_midi_channels[current_path_point_config_index])
@@ -129,48 +129,77 @@ def load_config_file(use_default_config):
         pass
     #print(path_point_instance_obj)
 
-
-
 def set_widgets_from_data():
-    set_path_point_instance_widgets_from_data()
     set_path_point_buttons_based_on_selected_path_point_config_letter()
-    set_ui_location_vars_from_data()
-    set_speed_widgets_from_data()
-    set_apart_widgets_from_data()
-    set_movement_widgets_from_data()
 
 def set_active_instances_from_widgets():
-    for inst_num in apart_inst_nums:
-        apart_obj[inst_num]['active'] = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
-        path_point_instance_obj[inst_num]['active'] = ui_path_point_obj[inst_num]['active']['var'].get()
-        fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get() 
-        spot_location_obj[inst_num]['active'] = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get() 
-        speed_obj[inst_num]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get() 
-        movement_obj[inst_num]['active'] = ui_movement_obj[inst_num]['active']['var'].get()
     chop_counter_active[0] = tools_chop_counter_active_checkbutton_var.get()
     user_defined_chop_time_duration[0] = tools_chop_counter_duration_var.get()
 
+def set_settings_variables_from_widgets():
+    for inst_num in location_inst_nums:
+        fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get()
+        fade_location_obj[inst_num]['balls to average'] = []
+        for ball_number in ball_numbers:            
+            fade_location_obj[inst_num]['balls to average'].append(ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].get())
+        fade_location_obj[inst_num]['window size'] = ui_location_obj['fade'][inst_num]['window size']['var'].get()
+        for location_direction in location_directions:
+            for location_midi_input_type in location_midi_input_types:
+                fade_location_obj[inst_num][location_direction][location_midi_input_type] = ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].get()
+        for location_border_side in location_border_sides:
+            fade_location_obj[inst_num]['location border sides'][location_border_side] = ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].get()
+
+        spot_location_obj[inst_num]['active'] = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get()
+        spot_location_obj[inst_num]['balls to average'] = []
+        for ball_number in ball_numbers:            
+            spot_location_obj[inst_num]['balls to average'].append(ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].get())
+        spot_location_obj[inst_num]['window size'] = ui_location_obj['spot'][inst_num]['window size']['var'].get()
+        for location_midi_input_type in location_midi_input_types:
+            spot_location_obj[inst_num][location_direction][location_midi_input_type] = ui_location_obj['spot'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].get()
+        for location_border_side in location_border_sides:
+            spot_location_obj[inst_num]['location border sides'][location_border_side] = ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].get()
+
+        speed_obj[inst_num]['active'] = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get()
+        speed_obj[inst_num]['balls to average'] = []
+        for ball_number in ball_numbers:            
+            speed_obj[inst_num]['balls to average'].append(ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].get())
+        speed_obj[inst_num]['window size'] = ui_speed_obj[inst_num]['window size']['var'].get()
+        for speed_midi_input_type in speed_midi_input_types:
+            speed_obj[inst_num][speed_midi_input_type] = ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].get()
+
+        apart_obj[inst_num]['active'] = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
+        apart_obj[inst_num]['balls to average'] = []
+        for ball_number in ball_numbers:            
+            apart_obj[inst_num]['balls to average'].append(ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].get())
+        apart_obj[inst_num]['distance'] = ui_apart_obj[inst_num]['distance']['var'].get()
+        for apart_midi_input_type in apart_midi_input_types:
+            apart_obj[inst_num][apart_midi_input_type] = ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].get()
+
+        movement_obj[inst_num]['active'] = ui_movement_obj[inst_num]['active']['var'].get()
+        movement_obj[inst_num]['move or stop'] = ui_movement_obj[inst_num]['radiobutton']['var'].get()
+        movement_obj[inst_num]['sensitivity'] = ui_movement_obj[inst_num]['sensitivity']['var'].get()        
+        for movement_midi_input_type in movement_midi_input_types:
+            movement_obj[inst_num][movement_midi_input_type] = ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].get()
 
 def start_camera():
     set_active_instances_from_widgets()
+    set_settings_variables_from_widgets()
     settings.show_color_calibration = False
     settings.show_main_camera = True
     settings.show_location_define = False
     run_camera()
 #with new save setup
 #   first row should be column names
-def save_config_file():
-    
+def save_config_file():    
+    set_active_instances_from_widgets()
     config_to_save = open('saved/'+save_file_name.get()+".txt","w+")   
-
-    #config_to_save = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
     text_in_config_to_save = ''
     text_in_config_to_save += 'begin path point instance obj\n'
     for i in range(number_of_path_point_instances):
-        text_in_config_to_save += str(path_point_instance_obj[i]['active']) + ','
-        text_in_config_to_save += path_point_instance_obj[i]['ball number'] + ','
-        text_in_config_to_save += path_point_instance_obj[i]['path config'] + ','
-        text_in_config_to_save += path_point_instance_obj[i]['midi channel'] + '\n'
+        text_in_config_to_save += str(ui_path_point_obj[i]['active']['var'].get()) + ','
+        text_in_config_to_save += ui_path_point_obj[i]['ball number']['var'].get() + ','
+        text_in_config_to_save += ui_path_point_obj[i]['path config']['var'].get() + ','
+        text_in_config_to_save += ui_path_point_obj[i]['midi channel']['var'].get() + '\n'
     text_in_config_to_save += 'begin path point path obj\n'
     row_list = []
     for path_config in path_configs: 
@@ -185,50 +214,53 @@ def save_config_file():
         text_in_config_to_save += path_point_midi_obj[i]['input'] + '\n'
     text_in_config_to_save += 'begin fade location obj\n'
     for i in range (8):
-        text_in_config_to_save += str(fade_location_obj[i]['active']) +','
-        text_in_config_to_save += ';'.join(fade_location_obj[i]['balls to average']) + ','
-        text_in_config_to_save += str(fade_location_obj[i]['window size']) + ','
+        text_in_config_to_save += str(ui_location_obj['fade'][i]['checkbutton']['active']['var'].get()) +','
+        for ball_number in range(1,4):            
+            text_in_config_to_save += str(ui_location_obj['fade'][i]['checkbutton']['ball '+str(ball_number)]['var'].get())+','
+        text_in_config_to_save += str(ui_location_obj['fade'][i]['window size']['var'].get()) + ','
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(fade_location_obj[i]['location border sides'][location_border_side]) + ','
+            text_in_config_to_save += str(ui_location_obj['fade'][i]['border'][location_border_side]['var'].get()) + ','
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
-                text_in_config_to_save += str(fade_location_obj[i][location_direction][location_midi_input_type]) + ','
+                text_in_config_to_save += str(ui_location_obj['fade'][i]['midi'][location_direction][location_midi_input_type]['var'].get()) + ','
         text_in_config_to_save += '\n'
     text_in_config_to_save += 'begin spot location obj\n'
     for i in range (8):
-        text_in_config_to_save += str(spot_location_obj[i]['active']) +','
-        text_in_config_to_save += ';'.join(spot_location_obj[i]['balls to average']) +','
-        text_in_config_to_save += str(spot_location_obj[i]['window size']) +','
+        text_in_config_to_save += str(ui_location_obj['spot'][i]['checkbutton']['active']['var'].get()) +','
+        for ball_number in range(1,4):            
+            text_in_config_to_save += str(ui_location_obj['spot'][i]['checkbutton']['ball '+str(ball_number)]['var'].get())+','
+        text_in_config_to_save += str(ui_location_obj['spot'][i]['window size']['var'].get()) + ','
         for location_border_side in location_border_sides:
-            text_in_config_to_save += str(spot_location_obj[i]['location border sides'][location_border_side]) +','
+            text_in_config_to_save += str(ui_location_obj['spot'][i]['border'][location_border_side]['var'].get()) + ','
         for location_midi_input_type in location_midi_input_types:
-            text_in_config_to_save += str(spot_location_obj[i][location_midi_input_type]) + ','
+            text_in_config_to_save += str(ui_location_obj['spot'][i]['midi'][location_midi_input_type]['var'].get()) + ','
         text_in_config_to_save += '\n'
     text_in_config_to_save += 'begin speed obj\n'
     for i in range (8):
-        text_in_config_to_save += str(speed_obj[i]['active']) +','
-        text_in_config_to_save += ';'.join(speed_obj[i]['balls to average']) +','
-        text_in_config_to_save += str(speed_obj[i]['window size']) +','
+        text_in_config_to_save += str(ui_speed_obj[i]['checkbutton']['active']['var'].get()) +','
+        for ball_number in range(1,4):            
+            text_in_config_to_save += str(ui_speed_obj[i]['checkbutton']['ball '+str(ball_number)]['var'].get())+','
+        text_in_config_to_save += str(ui_speed_obj[i]['window size']['var'].get()) + ','
         for speed_midi_input_type in speed_midi_input_types:
-            text_in_config_to_save += str(speed_obj[i][speed_midi_input_type]) + ','
+            text_in_config_to_save += str(ui_speed_obj[i]['midi'][speed_midi_input_type]['var'].get()) + ','
         text_in_config_to_save += '\n'
     text_in_config_to_save += 'begin apart obj\n'
     for i in range (8):
-        text_in_config_to_save += str(apart_obj[i]['active']) +','
-        text_in_config_to_save += ';'.join(apart_obj[i]['ball numbers']) +','
-        text_in_config_to_save += str(apart_obj[i]['distance']) +','
+        text_in_config_to_save += str(ui_apart_obj[i]['checkbutton']['active']['var'].get()) +','
+        for ball_number in range(1,4):            
+            text_in_config_to_save += str(ui_apart_obj[i]['checkbutton']['ball '+str(ball_number)]['var'].get())+','
+        text_in_config_to_save += str(ui_apart_obj[i]['distance']['var'].get()) + ','
         for apart_midi_input_type in apart_midi_input_types:
-            text_in_config_to_save += str(apart_obj[i][apart_midi_input_type]) + ','
+            text_in_config_to_save += str(ui_apart_obj[i]['midi'][apart_midi_input_type]['var'].get()) + ','
         text_in_config_to_save += '\n'
     text_in_config_to_save += 'begin movement obj\n'
     for i in range (8):
-        text_in_config_to_save += str(movement_obj[i]['active']) +','
-        text_in_config_to_save += str(movement_obj[i]['move or stop']) +','
-        text_in_config_to_save += str(movement_obj[i]['sensitivity']) +','
+        text_in_config_to_save += str(ui_movement_obj[i]['active']['var'].get()) +','
+        text_in_config_to_save += str(ui_movement_obj[i]['radiobutton']['var'].get()) + ','
+        text_in_config_to_save += str(ui_movement_obj[i]['sensitivity']['var'].get()) + ','
         for movement_midi_input_type in movement_midi_input_types:
-            text_in_config_to_save += str(movement_obj[i][movement_midi_input_type]) + ','
+            text_in_config_to_save += str(ui_movement_obj[i]['midi'][movement_midi_input_type]['var'].get()) + ','
         text_in_config_to_save += '\n'
-
     config_to_save.write(text_in_config_to_save)
     config_to_save.close()
 
@@ -631,59 +663,9 @@ def selected_all_midi_configs_optionmenu_index_changed(path_phase):
         path_point_path_obj[selected_path_point_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
     current_midi_config_index.set(index_for_all_path_phase_midi_configs)
 
-def set_speed_widgets_from_data():
-    for inst_num in speed_inst_nums:
-        ui_speed_obj[inst_num]['checkbutton']['active']['var'].set(speed_obj[inst_num]['active'])
-        for ball_number in ball_numbers:            
-            ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in speed_obj[inst_num]['balls to average'])
-        ui_speed_obj[inst_num]['window size']['var'].set(speed_obj[inst_num]['window size'])
-        for speed_midi_input_type in speed_midi_input_types:
-            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].set(speed_obj[inst_num][speed_midi_input_type])
-
-def set_apart_widgets_from_data():
-    for inst_num in apart_inst_nums:
-        ui_apart_obj[inst_num]['checkbutton']['active']['var'].set(apart_obj[inst_num]['active'])
-        for ball_number in ball_numbers:            
-            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in apart_obj[inst_num]['ball numbers'])
-        ui_apart_obj[inst_num]['distance']['var'].set(apart_obj[inst_num]['distance'])
-        for apart_midi_input_type in apart_midi_input_types:
-            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].set(apart_obj[inst_num][apart_midi_input_type])
-
-def set_movement_widgets_from_data():
-    for inst_num in movement_inst_nums:
-        ui_movement_obj[inst_num]['active']['var'].set(movement_obj[inst_num]['active'])
-        ui_movement_obj[inst_num]['radiobutton']['var'].set(movement_obj[inst_num]['move or stop'])
-        ui_movement_obj[inst_num]['sensitivity']['var'].set(movement_obj[inst_num]['sensitivity'])
-        for movement_midi_input_type in movement_midi_input_types:
-            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].set(movement_obj[inst_num][movement_midi_input_type])
-
-def set_path_point_instance_widgets_from_data():
-    for i in range (8):
-        ui_path_point_obj[i]['active']['var'].set(path_point_instance_obj[i]['active'])
-        ui_path_point_obj[i]['ball number']['var'].set(path_point_instance_obj[i]['ball number'])
-        ui_path_point_obj[i]['path config']['var'].set(path_point_instance_obj[i]['path config'])
-        ui_path_point_obj[i]['midi channel']['var'].set(path_point_instance_obj[i]['midi channel'])
-
-def set_ui_location_vars_from_data():
-    for inst_num in location_inst_nums:
-        ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].set(fade_location_obj[inst_num]['active'])
-        for ball_number in ball_numbers:            
-            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in fade_location_obj[inst_num]['balls to average'])
-        ui_location_obj['fade'][inst_num]['window size']['var'].set(fade_location_obj[inst_num]['window size'])
-        for location_direction in location_directions:
-            for location_midi_input_type in location_midi_input_types:
-                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].set(fade_location_obj[inst_num][location_direction][location_midi_input_type])
-        for location_border_side in location_border_sides:
-            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].set(fade_location_obj[inst_num]['location border sides'][location_border_side])
-    for inst_num in location_inst_nums:
-        ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].set(spot_location_obj[inst_num]['active'])
-        for ball_number in ball_numbers:    
-            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].set(ball_number in spot_location_obj[inst_num]['balls to average'])
-        ui_location_obj['spot'][inst_num]['window size']['var'].set(spot_location_obj[inst_num]['window size'])
-        for location_midi_input_type in location_midi_input_types:
-            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].set(spot_location_obj[inst_num][location_midi_input_type])
-        for location_border_side in location_border_sides:
-            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].set(spot_location_obj[inst_num]['location border sides'][location_border_side])
+'''we should load and save to widgets only
+whenever start is clicked, we set settings data from widgets
+when this is in place there should be no reason for widget variable traces'''
 
 def set_path_point_buttons_based_on_selected_path_point_config_letter():
     for path_type in path_types:
@@ -717,195 +699,7 @@ def selected_config_midi_channel_changed(*args):
 ###########################  END PATH POINTS SECTION  #################################
 
 
-
-
-#########################     BEGIN LOCATION SECTION     ##########################
-
-def location_active_checkbutton_changed(location_type,checked,inst_num):
-    #print('location_type')
-    #print(location_type)
-    #print('checked')
-    #print(checked)
-    #print('inst_num')
-    #print(inst_num)
-    if location_type == 'fade':
-        fade_location_obj[inst_num]['active'] = checked
-        #print(fade_location_obj[inst_num]['active'])
-    elif location_type == 'spot':
-        spot_location_obj[inst_num]['active'] = checked
-        #print(spot_location_obj[inst_num]['active'])
-
-def location_ball_number_checkbutton_changed(location_type,checked,inst_num,ball_number):
-    #print('location_type')
-    #print(location_type)
-    #print('checked')
-    #print(checked)
-    #print('ball_number')
-    #print(ball_number)
-    #print('inst_num')
-    #print(inst_num)
-    if location_type == 'fade':
-        if checked:
-            if not ball_number in fade_location_obj[inst_num]['balls to average']:
-                fade_location_obj[inst_num]['balls to average'].append(ball_number)
-                if '' in fade_location_obj[inst_num]['balls to average']: fade_location_obj[inst_num]['balls to average'].remove('')
-        else:
-            if ball_number in fade_location_obj[inst_num]['balls to average']:
-                fade_location_obj[inst_num]['balls to average'].remove(ball_number)                
-        #print(fade_location_obj[inst_num]['balls to average'])
-    elif location_type == 'spot':
-        if checked:
-            if not ball_number in spot_location_obj[inst_num]['balls to average']:
-                spot_location_obj[inst_num]['balls to average'].append(ball_number)
-                if '' in spot_location_obj[inst_num]['balls to average']: spot_location_obj[inst_num]['balls to average'].remove('')
-        else:
-            if ball_number in spot_location_obj[inst_num]['balls to average']:
-                spot_location_obj[inst_num]['balls to average'].remove(ball_number)
-        #print(spot_location_obj[inst_num]['balls to average'])
-
-def location_number_of_frames_changed(location_type,entry_text,inst_num):
-    #print('location_type '+location_type)
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    if location_type == 'fade':
-        fade_location_obj[inst_num]['window size'] = entry_text
-    if location_type == 'spot':
-        spot_location_obj[inst_num]['window size'] = entry_text
-
-def location_fade_channel_or_number_changed(entry_text,inst_num,location_direction,location_midi_input_type):
-    #print(inst_num)
-    #print(entry_text)
-    #print(location_direction)
-    fade_location_obj[inst_num][location_direction][location_midi_input_type] = str(entry_text)
-    #print(fade_location_obj['0'][location_direction]['channel'])
-
-def location_spot_channel_or_number_changed(entry_text,inst_num,location_midi_input_type):
-    #print(inst_num)
-    #print(entry_text)
-    spot_location_obj[inst_num][location_midi_input_type] = str(entry_text)
-
-def location_border_changed(location_type,entry_text,inst_num,location_border_side):
-    #print('location_type '+location_type)
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    #print('location_border_side '+location_border_side)
-    if location_type == 'fade':
-        fade_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
-        #print('lol')
-        #print(fade_location_obj[inst_num]['location border sides'][location_border_side])
-    if location_type == 'spot':
-        spot_location_obj[inst_num]['location border sides'][location_border_side] = entry_text
-    #print( fade_location_obj[inst_num]['location border sides'])
-#########################     END LOCATION SECTION     ##########################
-
-
-#########################     BEGIN SPEED SECTION     ##########################
-def speed_active_checkbutton_changed(checked,inst_num):
-    #print('checked')
-    #print(checked)
-    #print('inst_num')
-    #print(inst_num)
-    speed_obj[inst_num]['active'] = checked
-    #print(speed_obj[inst_num]['active'])
-
-def speed_ball_number_checkbutton_changed(checked,inst_num,ball_number):
-    #print('checked')
-    #print(checked)
-    #print('ball_number')
-    #print(ball_number)
-    #print('inst_num')
-    #print(inst_num)
-    if checked:
-        if not ball_number in speed_obj[inst_num]['balls to average']:
-            speed_obj[inst_num]['balls to average'].append(ball_number)
-    else:
-        if ball_number in speed_obj[inst_num]['balls to average']:
-            speed_obj[inst_num]['balls to average'].remove(ball_number)
-    if '' in speed_obj[inst_num]['balls to average']: speed_obj[inst_num]['balls to average'].remove('')
-    #print(speed_obj[inst_num]['balls to average'])
-
-def speed_windows_size_changed(entry_text,inst_num):
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    speed_obj[inst_num]['window size'] = str(entry_text)    
-
-def speed_channel_or_number_changed(entry_text,inst_num,speed_midi_input_type):
-    #print('speed_midi_input_type '+speed_midi_input_type)
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    speed_obj[inst_num][speed_midi_input_type] = str(entry_text)
-#########################     END SPEED SECTION     ##########################
-
-#########################     BEGIN APART SECTION     ##########################
-def apart_active_checkbutton_changed(checked,inst_num):
-    #print('checked')
-    #print(checked)
-    #print('inst_num')
-    #print(inst_num)
-    apart_obj[inst_num]['active'] = checked
-    #print(apart_obj[inst_num]['active'])
-
-def apart_ball_number_checkbutton_changed(checked,inst_num,ball_number):
-    #print('checked')
-    #print(checked)
-    #print('ball_number')
-    #print(ball_number)
-    #print('inst_num')
-    #print(inst_num)
-    if checked:
-        if not ball_number in apart_obj[inst_num]['ball numbers']:
-            apart_obj[inst_num]['ball numbers'].append(ball_number)
-    else:
-        if ball_number in apart_obj[inst_num]['ball numbers']:
-            apart_obj[inst_num]['ball numbers'].remove(ball_number)
-    if '' in apart_obj[inst_num]['ball numbers']: apart_obj[inst_num]['ball numbers'].remove('')
-    #print(apart_obj[inst_num]['ball numbers'])
-
-def apart_distance_changed(entry_text,inst_num):
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    apart_obj[inst_num]['distance'] = str(entry_text)    
-
-def apart_channel_or_number_changed(entry_text,inst_num,apart_midi_input_type):
-    #print('apart_midi_input_type '+apart_midi_input_type)
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    apart_obj[inst_num][apart_midi_input_type] = str(entry_text)
-#########################     END APART SECTION     ##########################
-
-
-#########################     END MOVEMENT SECTION     ##########################
-def movement_active_checkbutton_changed(checked,inst_num):
-    #print('checked')
-    #print(checked)
-    #print('inst_num')
-    #print(inst_num)
-    movement_obj[inst_num]['active'] = checked
-    #print(movement_obj[inst_num]['active'])
-
-def movement_radiobutton_changed(move_or_stop,inst_num):
-    #print('move_or_stop')
-    #print(move_or_stop)
-    #print('inst_num')
-    #print(inst_num)
-    movement_obj[inst_num]['move or stop'] = move_or_stop
-    #print(movement_obj[inst_num]['move or stop'])
-
-def movement_sensitivity_changed(entry_text,inst_num):
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    movement_obj[inst_num]['sensitivity'] = str(entry_text)    
-
-def movement_channel_or_number_changed(entry_text,inst_num,movement_midi_input_type):
-    #print('movement_midi_input_type '+movement_midi_input_type)
-    #print('entry_text '+entry_text)
-    #print('inst_num '+str(inst_num))
-    movement_obj[inst_num][movement_midi_input_type] = str(entry_text)
-
-
-#########################     END MOVEMENT SECTION     ##########################
-
-#########################     END TOOLS SECTION     ##########################
+#########################     BEGIN TOOLS SECTION     ##########################
 def tools_chop_counter_active_checkbutton_changed(checked):
     print('checked '+str(checked))
     chop_counter_active[0] = checked
@@ -1127,31 +921,17 @@ if use_user_interface:
         ui_location_obj['fade'][inst_num]['checkbutton'] = {}
         ui_location_obj['fade'][inst_num]['checkbutton']['active'] = {}
         ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'] = IntVar()
-        this_ui_location_obj = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get()
         ui_location_obj['fade'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'], \
-            command=lambda this_ui_location_obj= \
-            ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'], \
-            inst_num=inst_num: location_active_checkbutton_changed(
-                'fade',this_ui_location_obj.get(),inst_num))        
+            root, text='On', variable = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'])
         for ball_number in ball_numbers:
             ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_location_obj = ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].get()
             ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
                 root, text='Ball '+ball_number, variable= \
-                ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                command=lambda this_ui_location_obj= \
-                ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('fade',
-                    this_ui_location_obj.get(),inst_num,ball_number))
+                ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'])
         ui_location_obj['fade'][inst_num]['window size'] = {}            
         ui_location_obj['fade'][inst_num]['window size']['var'] = StringVar(root)
         ui_location_obj['fade'][inst_num]['window size']['var'].set(10)
-        this_variable = ui_location_obj['fade'][inst_num]['window size']['var']
-        ui_location_obj['fade'][inst_num]['window size']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            location_number_of_frames_changed('fade',this_variable.get(),inst_num))
         ui_location_obj['fade'][inst_num]['window size']['widget'] = ttk.Entry(
             root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['window size']['var'])
         ui_location_obj['fade'][inst_num]['midi'] = {}
@@ -1160,11 +940,6 @@ if use_user_interface:
             for location_midi_input_type in location_midi_input_types:
                 ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type] = {}
                 ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'] = StringVar(root)
-                this_variable = ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var']
-                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].trace(
-                    'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
-                    location_midi_input_type=location_midi_input_type: location_fade_channel_or_number_changed(
-                    this_variable.get(),inst_num,location_direction,location_midi_input_type))
                 ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
                 ttk.Entry(root, width = 4,textvariable= \
                     ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
@@ -1172,10 +947,6 @@ if use_user_interface:
         for location_border_side in location_border_sides:
             ui_location_obj['fade'][inst_num]['border'][location_border_side] = {}
             ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
-            this_variable = ui_location_obj['fade'][inst_num]['border'][location_border_side]['var']
-            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'].trace(
-                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
-                location_border_changed('fade',this_variable.get(),inst_num,location_border_side))
             ui_location_obj['fade'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
                 root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'])    
     
@@ -1208,52 +979,29 @@ if use_user_interface:
         ui_location_obj['spot'][inst_num]['checkbutton'] = {}
         ui_location_obj['spot'][inst_num]['checkbutton']['active'] = {}
         ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'] = IntVar()
-        this_ui_location_obj = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get()
         ui_location_obj['spot'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'], \
-            command=lambda this_ui_location_obj= \
-            ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'], \
-            inst_num=inst_num: location_active_checkbutton_changed(
-                'spot',this_ui_location_obj.get(),inst_num))      
+            root, text='On', variable= ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'])      
         for ball_number in ball_numbers:
             ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_location_obj = ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var']
             ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
                 root, text='Ball '+ball_number, variable= \
-                ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                command=lambda this_ui_location_obj= \
-                ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: location_ball_number_checkbutton_changed('spot',
-                    this_ui_location_obj.get(),inst_num,ball_number))
+                ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'])
         ui_location_obj['spot'][inst_num]['window size'] = {}              
         ui_location_obj['spot'][inst_num]['window size']['var'] = StringVar(root)
         ui_location_obj['spot'][inst_num]['window size']['var'].set(10)
-        this_variable = ui_location_obj['spot'][inst_num]['window size']['var']
-        ui_location_obj['spot'][inst_num]['window size']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            location_number_of_frames_changed('spot',this_variable.get(),inst_num))
         ui_location_obj['spot'][inst_num]['window size']['widget'] = ttk.Entry(
             root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['window size']['var'])        
         ui_location_obj['spot'][inst_num]['midi'] = {}
         for location_midi_input_type in location_midi_input_types:
             ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type] = {}
             ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
-            this_variable = ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var']
-            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].trace(
-                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_direction=location_direction, \
-                location_midi_input_type = location_midi_input_type: \
-                location_spot_channel_or_number_changed(this_variable.get(),inst_num,location_midi_input_type))
             ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
                 root, width = 13,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
         ui_location_obj['spot'][inst_num]['border'] = {}
         for location_border_side in location_border_sides:
             ui_location_obj['spot'][inst_num]['border'][location_border_side] = {}
             ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
-            this_variable = ui_location_obj['spot'][inst_num]['border'][location_border_side]['var']
-            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].trace(
-                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, location_border_side=location_border_side: \
-                location_border_changed('spot',this_variable.get(),inst_num,location_border_side))
             ui_location_obj['spot'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
                 root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'])
 
@@ -1280,41 +1028,22 @@ if use_user_interface:
         ui_speed_obj[inst_num]['checkbutton'] = {}
         ui_speed_obj[inst_num]['checkbutton']['active'] = {}
         ui_speed_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
-        this_ui_speed_obj = ui_speed_obj[inst_num]['checkbutton']['active']['var'].get()
         ui_speed_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_speed_obj[inst_num]['checkbutton']['active']['var'], \
-            command=lambda this_ui_speed_obj= \
-            ui_speed_obj[inst_num]['checkbutton']['active']['var'], \
-            inst_num=inst_num: speed_active_checkbutton_changed(
-                this_ui_speed_obj.get(),inst_num))  
+            root, text='On', variable= ui_speed_obj[inst_num]['checkbutton']['active']['var'])  
         for ball_number in ball_numbers:
             ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_speed_obj = ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].get()
             ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
                 root, text='Ball '+ball_number, variable= \
-                ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                command=lambda this_ui_speed_obj= \
-                ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: speed_ball_number_checkbutton_changed(
-                    this_ui_speed_obj.get(),inst_num,ball_number))            
+                ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'])            
         ui_speed_obj[inst_num]['window size']['var'] = StringVar(root)
         ui_speed_obj[inst_num]['window size']['var'].set(10)
-        this_variable = ui_speed_obj[inst_num]['window size']['var']
-        ui_speed_obj[inst_num]['window size']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            speed_windows_size_changed(this_variable.get(),inst_num))
         ui_speed_obj[inst_num]['window size']['widget'] = ttk.Entry(
             root, width = 4,textvariable=ui_speed_obj[inst_num]['window size']['var'])
         ui_speed_obj[inst_num]['midi'] = {}
         for speed_midi_input_type in speed_midi_input_types:
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type] = {}
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'] = StringVar(root)
-            this_variable = ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var']
-            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'].trace(
-                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, \
-                speed_midi_input_type=speed_midi_input_type: speed_channel_or_number_changed(
-                this_variable.get(),inst_num,speed_midi_input_type))
             ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['widget'] = \
             ttk.Entry(root, width = 4,textvariable= \
                 ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'])
@@ -1341,41 +1070,22 @@ if use_user_interface:
             root, text='instance '+str(inst_num),font=('Courier', 16)) 
         ui_apart_obj[inst_num]['checkbutton']['active'] = {}
         ui_apart_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
-        this_ui_apart_obj = ui_apart_obj[inst_num]['checkbutton']['active']['var'].get()
         ui_apart_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_apart_obj[inst_num]['checkbutton']['active']['var'], \
-            command=lambda this_ui_apart_obj= \
-            ui_apart_obj[inst_num]['checkbutton']['active']['var'], \
-            inst_num=inst_num: apart_active_checkbutton_changed(
-                this_ui_apart_obj.get(),inst_num))  
+            root, text='On', variable= ui_apart_obj[inst_num]['checkbutton']['active']['var'])  
         for ball_number in ball_numbers:
             ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
             ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            this_ui_apart_obj = ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'].get()
             ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
                 root, text='Ball '+ball_number, variable= \
-                ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                command=lambda this_ui_apart_obj= \
-                ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'], \
-                inst_num=inst_num,ball_number=ball_number: apart_ball_number_checkbutton_changed(
-                    this_ui_apart_obj.get(),inst_num,ball_number))     
+                ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'])     
         ui_apart_obj[inst_num]['distance']['var'] = StringVar(root)
         ui_apart_obj[inst_num]['distance']['var'].set(10)
-        this_variable = ui_apart_obj[inst_num]['distance']['var']
-        ui_apart_obj[inst_num]['distance']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            apart_distance_changed(this_variable.get(),inst_num))
         ui_apart_obj[inst_num]['distance']['widget'] = ttk.Entry(
             root, width = 4,textvariable=ui_apart_obj[inst_num]['distance']['var'])       
         ui_apart_obj[inst_num]['midi'] = {}
         for apart_midi_input_type in apart_midi_input_types:
             ui_apart_obj[inst_num]['midi'][apart_midi_input_type] = {}
             ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'] = StringVar(root)
-            this_variable = ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var']
-            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'].trace(
-                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, \
-                apart_midi_input_type=apart_midi_input_type: apart_channel_or_number_changed(
-                this_variable.get(),inst_num,apart_midi_input_type))
             ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['widget'] = \
             ttk.Entry(root, width = 4,textvariable= \
                 ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'])
@@ -1401,39 +1111,21 @@ if use_user_interface:
         ui_movement_obj[inst_num]['instance label'] = ttk.Label(
             root, text='instance '+str(inst_num),font=('Courier', 16)) 
         ui_movement_obj[inst_num]['active']['var'] = IntVar()
-        this_ui_movement_obj = ui_movement_obj[inst_num]['active']['var'].get()
         ui_movement_obj[inst_num]['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_movement_obj[inst_num]['active']['var'], \
-            command=lambda this_ui_movement_obj= \
-            ui_movement_obj[inst_num]['active']['var'], \
-            inst_num=inst_num: movement_active_checkbutton_changed(
-                this_ui_movement_obj.get(),inst_num))          
+            root, text='On', variable= ui_movement_obj[inst_num]['active']['var'])          
         ui_movement_obj[inst_num]['radiobutton'] = {}
         ui_movement_obj[inst_num]['radiobutton']['var'] = StringVar()
-        this_variable = ui_movement_obj[inst_num]['radiobutton']['var']
         ui_movement_obj[inst_num]['radiobutton']['move'] = Radiobutton(root, text='Move', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='move', font=('Courier', 10))
         ui_movement_obj[inst_num]['radiobutton']['stop'] = Radiobutton(root, text='Stop', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='stop', font=('Courier', 10))
         ui_movement_obj[inst_num]['radiobutton']['var'].set('move')
-        ui_movement_obj[inst_num]['radiobutton']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            movement_radiobutton_changed(this_variable.get(),inst_num))
         ui_movement_obj[inst_num]['sensitivity']['var'] = StringVar(root)
         ui_movement_obj[inst_num]['sensitivity']['var'].set(10)
-        this_variable = ui_movement_obj[inst_num]['sensitivity']['var']
-        ui_movement_obj[inst_num]['sensitivity']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            movement_sensitivity_changed(this_variable.get(),inst_num))
         ui_movement_obj[inst_num]['sensitivity']['widget'] = ttk.Entry(
             root, width = 4,textvariable=ui_movement_obj[inst_num]['sensitivity']['var'])       
         ui_movement_obj[inst_num]['midi'] = {}
         for movement_midi_input_type in movement_midi_input_types:
             ui_movement_obj[inst_num]['midi'][movement_midi_input_type] = {}
             ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'] = StringVar(root)
-            this_variable = ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var']
-            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].trace(
-                'w', lambda *args, this_variable=this_variable, inst_num=inst_num, \
-                movement_midi_input_type=movement_midi_input_type: movement_channel_or_number_changed(
-                this_variable.get(),inst_num,movement_midi_input_type))
             ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['widget'] = \
             ttk.Entry(root, width = 4,textvariable= \
                 ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'])
