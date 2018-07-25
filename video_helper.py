@@ -292,7 +292,7 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         mask_copy = cv2.flip(mask_copy,1)
         mask_copy = indicate_active_apart_instances(mask_copy)
         mask_copy = indicate_active_movement_instances(mask_copy)
-        if chop_counter_active[0] == 1:
+        if tool_inputs['chop']['active'].get() == 1:
             mask_copy = show_chop_counter(mask_copy) #this doesnt work, i want it to be a chop counter really        
         cv2.imshow('main_camera',mask_copy)
         #else:

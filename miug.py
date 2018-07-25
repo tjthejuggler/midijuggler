@@ -1,21 +1,28 @@
-from settings import *
-from camera_loop import *
-import rtmidi #for sending midi
-from midi_helper import *
+
+
+use_user_interface = True
+
+from tkinter import *
+import tkinter as ttk
+from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
+from tkinter import filedialog
+from PIL import ImageTk, Image
 
 import csv
 import os
 
-use_user_interface = True
+from camera_loop import *
+import rtmidi #for sending midi
+from midi_helper import *
+
+from settings import *
 
 
-if use_user_interface:
-    from tkinter import *
-    import tkinter as ttk
-    from tkinter.scrolledtext import ScrolledText
-    from tkinter import messagebox
-    from tkinter import filedialog
-    from PIL import ImageTk, Image
+
+
+
+
 #print(average_position_of_multiple_single_ball_average_positions([[1,1],[2,10]]))
 def begin_program():
     setup_midi()
@@ -132,10 +139,6 @@ def load_config_file(use_default_config):
 def set_widgets_from_data():
     set_path_point_buttons_based_on_selected_path_point_config_letter()
 
-def set_active_instances_from_widgets():
-    chop_counter_active[0] = tools_chop_counter_active_checkbutton_var.get()
-    user_defined_chop_time_duration[0] = tools_chop_counter_duration_var.get()
-
 def set_settings_variables_from_widgets():
     for inst_num in location_inst_nums:
         fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get()
@@ -155,7 +158,7 @@ def set_settings_variables_from_widgets():
             spot_location_obj[inst_num]['balls to average'].append(ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].get())
         spot_location_obj[inst_num]['window size'] = ui_location_obj['spot'][inst_num]['window size']['var'].get()
         for location_midi_input_type in location_midi_input_types:
-            spot_location_obj[inst_num][location_direction][location_midi_input_type] = ui_location_obj['spot'][inst_num]['midi'][location_direction][location_midi_input_type]['var'].get()
+            spot_location_obj[inst_num][location_midi_input_type] = ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].get()
         for location_border_side in location_border_sides:
             spot_location_obj[inst_num]['location border sides'][location_border_side] = ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'].get()
 
@@ -182,12 +185,12 @@ def set_settings_variables_from_widgets():
             movement_obj[inst_num][movement_midi_input_type] = ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].get()
 
 def start_camera():
-    set_active_instances_from_widgets()
     set_settings_variables_from_widgets()
     settings.show_color_calibration = False
     settings.show_main_camera = True
     settings.show_location_define = False
     run_camera()
+
 #with new save setup
 #   first row should be column names
 def save_config_file():    
@@ -330,8 +333,8 @@ def set_path_points_configs_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    path_point_config_letters_optionmenu.place(x=extra+300,y=150)
-    path_point_config_letters_optionmenu_label.place(x=extra+400,y=150)
+    path_point_config_letters_optionmenu.place(x=extra+140,y=150)
+    path_point_config_letters_optionmenu_label.place(x=extra+10,y=150)
     selected_config_midi_channel_optionmenu.place(x=extra+780,y=150)
     selected_config_midi_channel_optionmenu_label.place(x=extra+680,y=150)
     path_point_pattern_image_label['left'].place(x=extra+70,y=200)
@@ -367,7 +370,8 @@ def set_path_points_configs_widgets_visibility(show_or_hide):
     path_point_button['right cross']['peak'].place(x=extra+578,y=236)
     path_point_button['right cross']['catch'].place(x=extra+683,y=345)
     path_point_button['right cross']['throw'].place(x=extra+595,y=380)
-    current_midi_config_label.place(x=extra+10,y=435)
+    current_midi_config_optionmenu_label.place(x=extra+10,y=435)
+    current_midi_config_optionmenu.place(x=extra+100,y=435)
     ball_and_point_separator.place(x=extra+0, y=425, relwidth=1)
     if show_or_hide == 'show' and current_midi_config_index.get() != '0':
         set_path_points_config_inputs_visibility('show')
@@ -479,15 +483,15 @@ def set_path_points_config_inputs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    current_positional_note_selection_type.place(x=extra+80,y=450)
-    previous_positional_note_selection_type.place(x=extra+80,y=480)
-    penultimate_positional_note_selection_type.place(x=extra+80,y=510)
-    rotational_note_selection_type.place(x=extra+80,y=540)
-    midi_input_type.place(x=extra+280,y=450)
-    note_input_type.place(x=extra+280,y=480)
-    chord_input_type.place(x=extra+280,y=510)
-    arpeggio_input_type.place(x=extra+280,y=540)
-    point_single_line_input.place(x=extra+400,y=450)
+    current_positional_note_selection_type.place(x=extra+80,y=500)
+    previous_positional_note_selection_type.place(x=extra+80,y=530)
+    penultimate_positional_note_selection_type.place(x=extra+80,y=560)
+    rotational_note_selection_type.place(x=extra+80,y=590)
+    midi_input_type.place(x=extra+280,y=500)
+    note_input_type.place(x=extra+280,y=530)
+    chord_input_type.place(x=extra+280,y=560)
+    arpeggio_input_type.place(x=extra+280,y=590)
+    point_single_line_input.place(x=extra+400,y=500)
 
 def selected_event_type_changed(*args):
     set_path_points_widgets_visibility('hide')
@@ -631,13 +635,13 @@ def path_point_midi_channel_changed(channel,inst_num):
 
 def note_selection_type_changed(*args):
     if note_selection_type.get() == 'current positional' and current_midi_config_index.get() != '0':
-        arpeggio_input_type.place(x=280,y=540)
+        arpeggio_input_type.place(x=280,y=590)
     if note_selection_type.get() == 'previous positional'and current_midi_config_index.get() != '0':
-        arpeggio_input_type.place(x=280,y=540)
+        arpeggio_input_type.place(x=280,y=590)
     if note_selection_type.get() == 'penultimate positional'and current_midi_config_index.get() != '0':
-        arpeggio_input_type.place(x=280,y=540)
+        arpeggio_input_type.place(x=280,y=590)
     if note_selection_type.get() == 'rotational'and current_midi_config_index.get() != '0':
-        arpeggio_input_type.place(x=1280,y=540)
+        arpeggio_input_type.place(x=1280,y=590)
         if input_type.get() == 'arpeggio':
             input_type.set('chord')
     path_point_midi_obj[int(current_midi_config_index.get())]['note selection type'] = note_selection_type.get()
@@ -662,10 +666,6 @@ def selected_all_midi_configs_optionmenu_index_changed(path_phase):
         midi_config_number_of_current_path_config_number[path_type][path_phase].set(index_for_all_path_phase_midi_configs)
         path_point_path_obj[selected_path_point_config_letter.get()][path_type][path_phase] = index_for_all_path_phase_midi_configs
     current_midi_config_index.set(index_for_all_path_phase_midi_configs)
-
-'''we should load and save to widgets only
-whenever start is clicked, we set settings data from widgets
-when this is in place there should be no reason for widget variable traces'''
 
 def set_path_point_buttons_based_on_selected_path_point_config_letter():
     for path_type in path_types:
@@ -699,557 +699,537 @@ def selected_config_midi_channel_changed(*args):
 ###########################  END PATH POINTS SECTION  #################################
 
 
-#########################     BEGIN TOOLS SECTION     ##########################
-def tools_chop_counter_active_checkbutton_changed(checked):
-    print('checked '+str(checked))
-    chop_counter_active[0] = checked
-    print(chop_counter_active)
-
-def tools_chop_counter_duration_changed(entry_text):
-    print('entry_text '+entry_text)
-    user_defined_chop_time_duration[0] = str(entry_text)   
-
-#########################     END TOOLS SECTION     ##########################
-
-if use_user_interface:
-    root = Tk() 
-    root.title('Miug')
-    root.geometry('900x800')
-    root.resizable(0, 0)
 
 ###########################  BEGIN PATH POINTS SECTION  #################################
-    path_point_instances_or_configs = StringVar()
-    path_point_instances_radiobutton = Radiobutton(root, text='Instances', variable=path_point_instances_or_configs, value='instances', font=('Courier', 10))
-    #path_point_instances_radiobutton.place(x=80,y=140)
-    path_point_configs_radiobutton = Radiobutton(root, text='Configs', variable=path_point_instances_or_configs, value='configs', font=('Courier', 10))
-    #path_point_configs_radiobutton.place(x=200,y=140)
-    path_point_instances_or_configs.set('instances')
-    path_point_instances_or_configs.trace('w', path_point_instances_or_configs_changed)
+path_point_instances_or_configs = StringVar()
+path_point_instances_radiobutton = Radiobutton(root, text='Instances', variable=path_point_instances_or_configs, value='instances', font=('Courier', 10))
+#path_point_instances_radiobutton.place(x=80,y=140)
+path_point_configs_radiobutton = Radiobutton(root, text='Configs', variable=path_point_instances_or_configs, value='configs', font=('Courier', 10))
+#path_point_configs_radiobutton.place(x=200,y=140)
+path_point_instances_or_configs.set('instances')
+path_point_instances_or_configs.trace('w', path_point_instances_or_configs_changed)
 
-    ui_path_point_obj = {}
-    ui_path_point_obj['header label'] = {}
-    ui_path_point_obj['header label']['ball number'] = ttk.Label(
-        root, text='Ball number',font=('Courier', 10))
-    ui_path_point_obj['header label']['path config'] = ttk.Label(
-        root, text='Path config',font=('Courier', 10))
-    ui_path_point_obj['header label']['midi channel'] = ttk.Label(
-        root, text='Midi channel',font=('Courier', 10))
+ui_path_point_obj = {}
+ui_path_point_obj['header label'] = {}
+ui_path_point_obj['header label']['ball number'] = ttk.Label(
+    root, text='Ball number',font=('Courier', 10))
+ui_path_point_obj['header label']['path config'] = ttk.Label(
+    root, text='Path config',font=('Courier', 10))
+ui_path_point_obj['header label']['midi channel'] = ttk.Label(
+    root, text='Midi channel',font=('Courier', 10))
 
-    path_point_ball_numbers_choices = ['1','2','3']
-    for inst_num in range(number_of_path_point_instances):
-        ui_path_point_obj[inst_num] = {}
-        ui_path_point_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='instance '+str(inst_num),font=('Courier', 16)) 
-        ui_path_point_obj[inst_num]['active'] = {}
-        ui_path_point_obj[inst_num]['active']['var'] = IntVar()
-        this_ui_path_point_obj = ui_path_point_obj[inst_num]['active']['var'].get()
-        ui_path_point_obj[inst_num]['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_path_point_obj[inst_num]['active']['var'], \
-            command=lambda this_ui_path_point_obj= \
-            ui_path_point_obj[inst_num]['active']['var'], \
-            inst_num=inst_num: path_point_active_checkbutton_changed(
-                this_ui_path_point_obj.get(),inst_num))
-        ui_path_point_obj[inst_num]['ball number'] = {}
-        ui_path_point_obj[inst_num]['ball number']['var'] = StringVar(root)
-        ui_path_point_obj[inst_num]['ball number']['var'].set('1')
-        ui_path_point_obj[inst_num]['ball number']['widget'] = OptionMenu(
-            root, ui_path_point_obj[inst_num]['ball number']['var'], *path_point_ball_numbers_choices)
-        this_variable = ui_path_point_obj[inst_num]['ball number']['var']
-        ui_path_point_obj[inst_num]['ball number']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            path_point_ball_number_changed(this_variable.get(),inst_num))
-        ui_path_point_obj[inst_num]['path config'] = {}
-        ui_path_point_obj[inst_num]['path config']['var'] = StringVar(root)
-        ui_path_point_obj[inst_num]['path config']['var'].set('X')
-        ui_path_point_obj[inst_num]['path config']['widget'] = OptionMenu(
-            root, ui_path_point_obj[inst_num]['path config']['var'], *path_configs)
-        this_variable = ui_path_point_obj[inst_num]['path config']['var']
-        ui_path_point_obj[inst_num]['path config']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            path_point_path_config_changed(this_variable.get(),inst_num))
-        ui_path_point_obj[inst_num]['midi channel'] = {}
-        ui_path_point_obj[inst_num]['midi channel']['var'] = StringVar(root)
-        ui_path_point_obj[inst_num]['midi channel']['var'].set('0')
-        ui_path_point_obj[inst_num]['midi channel']['widget'] = OptionMenu(
-            root, ui_path_point_obj[inst_num]['midi channel']['var'], *midi_channel_choices)
-        this_variable = ui_path_point_obj[inst_num]['midi channel']['var']
-        ui_path_point_obj[inst_num]['midi channel']['var'].trace(
-            'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
-            path_point_midi_channel_changed(this_variable.get(),inst_num))
+path_point_ball_numbers_choices = ['1','2','3']
+for inst_num in range(number_of_path_point_instances):
+    ui_path_point_obj[inst_num] = {}
+    ui_path_point_obj[inst_num]['instance label'] = ttk.Label(
+        root, text='instance '+str(inst_num),font=('Courier', 16)) 
+    ui_path_point_obj[inst_num]['active'] = {}
+    ui_path_point_obj[inst_num]['active']['var'] = IntVar()
+    this_ui_path_point_obj = ui_path_point_obj[inst_num]['active']['var'].get()
+    ui_path_point_obj[inst_num]['active']['widget'] = Checkbutton(
+        root, text='On', variable= ui_path_point_obj[inst_num]['active']['var'], \
+        command=lambda this_ui_path_point_obj= \
+        ui_path_point_obj[inst_num]['active']['var'], \
+        inst_num=inst_num: path_point_active_checkbutton_changed(
+            this_ui_path_point_obj.get(),inst_num))
+    ui_path_point_obj[inst_num]['ball number'] = {}
+    ui_path_point_obj[inst_num]['ball number']['var'] = StringVar(root)
+    ui_path_point_obj[inst_num]['ball number']['var'].set('1')
+    ui_path_point_obj[inst_num]['ball number']['widget'] = OptionMenu(
+        root, ui_path_point_obj[inst_num]['ball number']['var'], *path_point_ball_numbers_choices)
+    this_variable = ui_path_point_obj[inst_num]['ball number']['var']
+    ui_path_point_obj[inst_num]['ball number']['var'].trace(
+        'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+        path_point_ball_number_changed(this_variable.get(),inst_num))
+    ui_path_point_obj[inst_num]['path config'] = {}
+    ui_path_point_obj[inst_num]['path config']['var'] = StringVar(root)
+    ui_path_point_obj[inst_num]['path config']['var'].set('X')
+    ui_path_point_obj[inst_num]['path config']['widget'] = OptionMenu(
+        root, ui_path_point_obj[inst_num]['path config']['var'], *path_configs)
+    this_variable = ui_path_point_obj[inst_num]['path config']['var']
+    ui_path_point_obj[inst_num]['path config']['var'].trace(
+        'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+        path_point_path_config_changed(this_variable.get(),inst_num))
+    ui_path_point_obj[inst_num]['midi channel'] = {}
+    ui_path_point_obj[inst_num]['midi channel']['var'] = StringVar(root)
+    ui_path_point_obj[inst_num]['midi channel']['var'].set('0')
+    ui_path_point_obj[inst_num]['midi channel']['widget'] = OptionMenu(
+        root, ui_path_point_obj[inst_num]['midi channel']['var'], *midi_channel_choices)
+    this_variable = ui_path_point_obj[inst_num]['midi channel']['var']
+    ui_path_point_obj[inst_num]['midi channel']['var'].trace(
+        'w', lambda *args, this_variable=this_variable, inst_num=inst_num: \
+        path_point_midi_channel_changed(this_variable.get(),inst_num))
 
-    selected_path_point_config_letter = StringVar(root)    
-    selected_path_point_config_letter.set('X')
-    current_path_point_config_index = 0
-    
-    path_point_config_letters_optionmenu = OptionMenu(root, selected_path_point_config_letter, *path_configs)
-    path_point_config_letters_optionmenu.place(x=300,y=150)
-    path_point_config_letters_optionmenu_label = Label(root, text='config letter')
-    path_point_config_letters_optionmenu_label.place(x=400,y=150)
-    selected_path_point_config_letter.trace('w', selected_path_point_config_letter_changed)
+selected_path_point_config_letter = StringVar(root)    
+selected_path_point_config_letter.set('X')
+current_path_point_config_index = 0
 
-    midi_config_number_of_current_path_config_number = {}
-    for path_type in path_types:
-        midi_config_number_of_current_path_config_number[path_type] = {}
-        for path_phase in path_phases:
-            midi_config_number_of_current_path_config_number[path_type][path_phase] = StringVar()
-            midi_config_number_of_current_path_config_number[path_type][path_phase].set('0')    
- 
-    current_midi_config_index = StringVar()
-    current_midi_config_index.set('0')
+path_point_config_letters_optionmenu = OptionMenu(root, selected_path_point_config_letter, *path_configs)
+path_point_config_letters_optionmenu_label = Label(root, text='path point letter')
+selected_path_point_config_letter.trace('w', selected_path_point_config_letter_changed)
 
-    selected_config_midi_channel = StringVar(root)
-    
-    selected_config_midi_channel.set('0')
-
-    current_midi_config_label = Label(root, textvariable=current_midi_config_index, font=('Courier', 60))
-    current_midi_config_label.place(x=10,y=435)
-
-    note_selection_type = StringVar()
-    current_positional_note_selection_type = Radiobutton(root, text='Positional(current)', variable=note_selection_type, value='current positional')
-    current_positional_note_selection_type.place(x=80,y=450)
-    previous_positional_note_selection_type = Radiobutton(root, text='Positional(previous)', variable=note_selection_type, value='previous positional')
-    previous_positional_note_selection_type.place(x=80,y=480)
-    penultimate_positional_note_selection_type = Radiobutton(root, text='Positional(penultimate)', variable=note_selection_type, value='penultimate positional')
-    penultimate_positional_note_selection_type.place(x=80,y=510)
-    rotational_note_selection_type = Radiobutton(root, text='Rotational', variable=note_selection_type, value='rotational')
-    rotational_note_selection_type.place(x=80,y=540)
-    note_selection_type.set('current positional')
-    note_selection_type.trace('w', note_selection_type_changed)
-
-    input_type = StringVar()
-    midi_input_type = Radiobutton(root, text='Midi', variable=input_type, value='midi')
-    midi_input_type.place(x=280,y=450)
-    note_input_type = Radiobutton(root, text='Note', variable=input_type, value='note')
-    note_input_type.place(x=280,y=480)
-    chord_input_type = Radiobutton(root, text='Chord', variable=input_type, value='chord')
-    chord_input_type.place(x=280,y=510)
-    arpeggio_input_type = Radiobutton(root, text='Arpeggio', variable=input_type, value='arpeggio')
-    arpeggio_input_type.place(x=280,y=540)
-    input_type.set('midi')
-    input_type.trace('w', input_type_changed)
-
-    point_single_line_input_text = StringVar()
-    point_single_line_input = ttk.Entry(root, width = 57,textvariable=point_single_line_input_text)
-    point_single_line_input.place(x=400,y=450)
-    point_single_line_input_text.trace('w', point_single_line_input_changed)
-    
-    selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
-    selected_config_midi_channel_optionmenu.place(x=780,y=150)
-    selected_config_midi_channel_optionmenu_label = Label(root, text='midi channel')
-    selected_config_midi_channel_optionmenu_label.place(x=680,y=150)
-
-    path_point_pattern_image_label = {}
-    for relative_position in relative_positions:
-        path_point_pattern_image_label[relative_position] = Label(root, text=relative_position+' ball',font=('Courier', 10))
-
-    path_point_pattern_image = {}
-    path_point_pattern_image_panel = {}
-    for path_type in path_types:
-        if 'column' in path_type:
-            path = 'juggling_column_image.png'
-        elif 'cross' in path_type:
-            path = 'juggling_cross_image.png'
-        path_point_pattern_image[path_type] = ImageTk.PhotoImage(Image.open(path))
-        path_point_pattern_image_panel[path_type] = ttk.Label(root, image = path_point_pattern_image[path_type])
-
-    number_of_used_path_point_configurations = 5
-
-    ball_and_point_separator = Frame(height=5, bd=1, relief=SUNKEN)
-    ball_and_point_separator.place(x=0, y=425, relwidth=1)
-
-    path_point_button = {}
-    for path_type in path_types:
-        path_point_button[path_type] = {}
-        for path_phase in path_phases:
-            current_letter = selected_path_point_config_letter
-            path_point_button[path_type][path_phase] = ttk.Button(
-                root,textvariable=midi_config_number_of_current_path_config_number[path_type][path_phase], \
-                command=lambda current_letter=current_letter, path_type=path_type, path_phase=path_phase: \
-                path_point_button_clicked(current_letter.get(),path_type,path_phase), \
-                font=('Courier', 10),border=0,height=1,width=1)
-
-    all_possible_point_config_indices = ['0','1','2','3','4','5','6']
-    
-    all_midi_configs_optionmenu = {}
-    all_midi_configs_optionmenu_index = {}
-    all_midi_configs_optionmenu_label = {}
+midi_config_number_of_current_path_config_number = {}
+for path_type in path_types:
+    midi_config_number_of_current_path_config_number[path_type] = {}
     for path_phase in path_phases:
-        all_midi_configs_optionmenu_index[path_phase] = StringVar(root)
-        all_midi_configs_optionmenu_index[path_phase].set('0')
-        all_midi_configs_optionmenu[path_phase] = OptionMenu(root, all_midi_configs_optionmenu_index[path_phase], *all_possible_point_config_indices)
-        all_midi_configs_optionmenu_label[path_phase] = Label(root, text='All '+path_phase+':')
-        #all_midi_configs_optionmenu_index[path_phase].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed(path_phase))
+        midi_config_number_of_current_path_config_number[path_type][path_phase] = StringVar()
+        midi_config_number_of_current_path_config_number[path_type][path_phase].set('0')    
 
-    all_midi_configs_optionmenu_index['peak'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('peak'))
-    all_midi_configs_optionmenu_index['catch'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('catch'))
-    all_midi_configs_optionmenu_index['throw'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('throw'))
 
-    '''for ball_number in ball_numbers:
-        path_config['ball '+ball_number].trace('w', lambda *args, ball_number=ball_number: path_config_number_changed(ball_number))'''
+all_possible_point_config_indices = ['0','1','2','3','4','5','6']
 
-    current_midi_config_index.trace('w', current_midi_config_index_changed)
-    selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
+
+current_midi_config_index = StringVar()
+current_midi_config_index.set('0')
+
+selected_config_midi_channel = StringVar(root)
+
+selected_config_midi_channel.set('0')
+
+
+
+current_midi_config_optionmenu_label = Label(root, text='midi config')
+current_midi_config_optionmenu = OptionMenu(root, current_midi_config_index, *all_possible_point_config_indices)
+current_midi_config_optionmenu.place(x=10,y=480)
+
+
+note_selection_type = StringVar()
+current_positional_note_selection_type = Radiobutton(root, text='Positional(current)', variable=note_selection_type, value='current positional')
+current_positional_note_selection_type.place(x=80,y=450)
+previous_positional_note_selection_type = Radiobutton(root, text='Positional(previous)', variable=note_selection_type, value='previous positional')
+previous_positional_note_selection_type.place(x=80,y=480)
+penultimate_positional_note_selection_type = Radiobutton(root, text='Positional(penultimate)', variable=note_selection_type, value='penultimate positional')
+penultimate_positional_note_selection_type.place(x=80,y=510)
+rotational_note_selection_type = Radiobutton(root, text='Rotational', variable=note_selection_type, value='rotational')
+rotational_note_selection_type.place(x=80,y=540)
+note_selection_type.set('current positional')
+note_selection_type.trace('w', note_selection_type_changed)
+
+input_type = StringVar()
+midi_input_type = Radiobutton(root, text='Midi', variable=input_type, value='midi')
+midi_input_type.place(x=280,y=450)
+note_input_type = Radiobutton(root, text='Note', variable=input_type, value='note')
+note_input_type.place(x=280,y=480)
+chord_input_type = Radiobutton(root, text='Chord', variable=input_type, value='chord')
+chord_input_type.place(x=280,y=510)
+arpeggio_input_type = Radiobutton(root, text='Arpeggio', variable=input_type, value='arpeggio')
+arpeggio_input_type.place(x=280,y=540)
+input_type.set('midi')
+input_type.trace('w', input_type_changed)
+
+point_single_line_input_text = StringVar()
+point_single_line_input = ttk.Entry(root, width = 57,textvariable=point_single_line_input_text)
+point_single_line_input.place(x=400,y=450)
+point_single_line_input_text.trace('w', point_single_line_input_changed)
+
+selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
+selected_config_midi_channel_optionmenu.place(x=780,y=150)
+selected_config_midi_channel_optionmenu_label = Label(root, text='midi channel')
+selected_config_midi_channel_optionmenu_label.place(x=680,y=150)
+
+path_point_pattern_image_label = {}
+for relative_position in relative_positions:
+    path_point_pattern_image_label[relative_position] = Label(root, text=relative_position+' ball',font=('Courier', 10))
+
+path_point_pattern_image = {}
+path_point_pattern_image_panel = {}
+for path_type in path_types:
+    if 'column' in path_type:
+        path = 'juggling_column_image.png'
+    elif 'cross' in path_type:
+        path = 'juggling_cross_image.png'
+    path_point_pattern_image[path_type] = ImageTk.PhotoImage(Image.open(path))
+    path_point_pattern_image_panel[path_type] = ttk.Label(root, image = path_point_pattern_image[path_type])
+
+number_of_used_path_point_configurations = 5
+
+ball_and_point_separator = Frame(height=5, bd=1, relief=SUNKEN)
+ball_and_point_separator.place(x=0, y=425, relwidth=1)
+
+path_point_button = {}
+for path_type in path_types:
+    path_point_button[path_type] = {}
+    for path_phase in path_phases:
+        current_letter = selected_path_point_config_letter
+        path_point_button[path_type][path_phase] = ttk.Button(
+            root,textvariable=midi_config_number_of_current_path_config_number[path_type][path_phase], \
+            command=lambda current_letter=current_letter, path_type=path_type, path_phase=path_phase: \
+            path_point_button_clicked(current_letter.get(),path_type,path_phase), \
+            font=('Courier', 10),border=0,height=1,width=1)
+
+
+
+all_midi_configs_optionmenu = {}
+all_midi_configs_optionmenu_index = {}
+all_midi_configs_optionmenu_label = {}
+for path_phase in path_phases:
+    all_midi_configs_optionmenu_index[path_phase] = StringVar(root)
+    all_midi_configs_optionmenu_index[path_phase].set('0')
+    all_midi_configs_optionmenu[path_phase] = OptionMenu(root, all_midi_configs_optionmenu_index[path_phase], *all_possible_point_config_indices)
+    all_midi_configs_optionmenu_label[path_phase] = Label(root, text='All '+path_phase+':')
+    #all_midi_configs_optionmenu_index[path_phase].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed(path_phase))
+
+all_midi_configs_optionmenu_index['peak'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('peak'))
+all_midi_configs_optionmenu_index['catch'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('catch'))
+all_midi_configs_optionmenu_index['throw'].trace('w', lambda *args: selected_all_midi_configs_optionmenu_index_changed('throw'))
+
+'''for ball_number in ball_numbers:
+    path_config['ball '+ball_number].trace('w', lambda *args, ball_number=ball_number: path_config_number_changed(ball_number))'''
+
+current_midi_config_index.trace('w', current_midi_config_index_changed)
+selected_config_midi_channel.trace('w', selected_config_midi_channel_changed)
 ###########################  END PATH POINTS SECTION  #################################
 
 ###########################  BEGIN LOCATION FADE SECTION  ######################
 
-    ui_location_obj = {}
-    ui_location_obj['fade'] = {}
-    ui_location_obj['fade']['header label'] = {}
-    ui_location_obj['fade']['header label']['window'] = ttk.Label(
-        root, text='Window',font=('Courier', 10))
-    for location_border_side in location_border_sides:
-        ui_location_obj['fade']['header label'][location_border_side] = ttk.Label(
-        root, text=location_border_side,font=('Courier', 10))
-    for location_direction in location_directions:
-        ui_location_obj['fade']['header label'][location_direction] = {}        
-        ui_location_obj['fade']['header label'][location_direction]['main'] = ttk.Label(
-            root, text=location_direction,font=('Courier', 10))
-        ui_location_obj['fade']['header label'][location_direction]['channel'] = ttk.Label(
-            root, text='Channel',font=('Courier', 8))
-        ui_location_obj['fade']['header label'][location_direction]['number'] = ttk.Label(
-            root, text='Number',font=('Courier', 8))
+ui_location_obj = {}
+ui_location_obj['fade'] = {}
+ui_location_obj['fade']['header label'] = {}
+ui_location_obj['fade']['header label']['window'] = ttk.Label(
+    root, text='Window',font=('Courier', 10))
+for location_border_side in location_border_sides:
+    ui_location_obj['fade']['header label'][location_border_side] = ttk.Label(
+    root, text=location_border_side,font=('Courier', 10))
+for location_direction in location_directions:
+    ui_location_obj['fade']['header label'][location_direction] = {}        
+    ui_location_obj['fade']['header label'][location_direction]['main'] = ttk.Label(
+        root, text=location_direction,font=('Courier', 10))
+    ui_location_obj['fade']['header label'][location_direction]['channel'] = ttk.Label(
+        root, text='Channel',font=('Courier', 8))
+    ui_location_obj['fade']['header label'][location_direction]['number'] = ttk.Label(
+        root, text='Number',font=('Courier', 8))
 
-    for inst_num in location_inst_nums:
-        ui_location_obj['fade'][inst_num] = {}
-        ui_location_obj['fade'][inst_num]['checkbutton'] = {}
-        ui_location_obj['fade'][inst_num]['window size'] = {}      
-        ui_location_obj['fade'][inst_num]['midi'] = {}
-        ui_location_obj['fade'][inst_num]['border'] = {}         
-        ui_location_obj['fade'][inst_num]['instance label'] = ttk.Label(
-            root, text='instance '+str(inst_num),font=('Courier', 16)) 
-        ui_location_obj['fade'][inst_num]['checkbutton'] = {}
-        ui_location_obj['fade'][inst_num]['checkbutton']['active'] = {}
-        ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'] = IntVar()
-        ui_location_obj['fade'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'])
-        for ball_number in ball_numbers:
-            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number] = {}
-            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
-                root, text='Ball '+ball_number, variable= \
-                ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'])
-        ui_location_obj['fade'][inst_num]['window size'] = {}            
-        ui_location_obj['fade'][inst_num]['window size']['var'] = StringVar(root)
-        ui_location_obj['fade'][inst_num]['window size']['var'].set(10)
-        ui_location_obj['fade'][inst_num]['window size']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['window size']['var'])
-        ui_location_obj['fade'][inst_num]['midi'] = {}
-        for location_direction in location_directions:
-            ui_location_obj['fade'][inst_num]['midi'][location_direction] = {}
-            for location_midi_input_type in location_midi_input_types:
-                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type] = {}
-                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'] = StringVar(root)
-                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
-                ttk.Entry(root, width = 4,textvariable= \
-                    ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
-        ui_location_obj['fade'][inst_num]['border'] = {}
-        for location_border_side in location_border_sides:
-            ui_location_obj['fade'][inst_num]['border'][location_border_side] = {}
-            ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
-            ui_location_obj['fade'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'])    
-    
+for inst_num in location_inst_nums:
+    ui_location_obj['fade'][inst_num] = {}
+    ui_location_obj['fade'][inst_num]['checkbutton'] = {}
+    ui_location_obj['fade'][inst_num]['window size'] = {}      
+    ui_location_obj['fade'][inst_num]['midi'] = {}
+    ui_location_obj['fade'][inst_num]['border'] = {}         
+    ui_location_obj['fade'][inst_num]['instance label'] = ttk.Label(
+        root, text='instance '+str(inst_num),font=('Courier', 16)) 
+    ui_location_obj['fade'][inst_num]['checkbutton'] = {}
+    ui_location_obj['fade'][inst_num]['checkbutton']['active'] = {}
+    ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'] = IntVar()
+    ui_location_obj['fade'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+        root, text='On', variable = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'])
+    for ball_number in ball_numbers:
+        ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number] = {}
+        ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+        ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+            root, text='Ball '+ball_number, variable= \
+            ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'])
+    ui_location_obj['fade'][inst_num]['window size'] = {}            
+    ui_location_obj['fade'][inst_num]['window size']['var'] = StringVar(root)
+    ui_location_obj['fade'][inst_num]['window size']['var'].set(10)
+    ui_location_obj['fade'][inst_num]['window size']['widget'] = ttk.Entry(
+        root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['window size']['var'])
+    ui_location_obj['fade'][inst_num]['midi'] = {}
+    for location_direction in location_directions:
+        ui_location_obj['fade'][inst_num]['midi'][location_direction] = {}
+        for location_midi_input_type in location_midi_input_types:
+            ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type] = {}
+            ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'] = StringVar(root)
+            ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['widget'] = \
+            ttk.Entry(root, width = 4,textvariable= \
+                ui_location_obj['fade'][inst_num]['midi'][location_direction][location_midi_input_type]['var'])
+    ui_location_obj['fade'][inst_num]['border'] = {}
+    for location_border_side in location_border_sides:
+        ui_location_obj['fade'][inst_num]['border'][location_border_side] = {}
+        ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
+        ui_location_obj['fade'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['fade'][inst_num]['border'][location_border_side]['var'])    
+
 ###########################  END LOCATION FADE SECTION  ######################
 
 ###########################  BEGIN LOCATION SPOT SECTION  ######################
 
-    ui_location_obj['spot'] = {}
+ui_location_obj['spot'] = {}
 
-    ui_location_obj['spot']['header label'] = {}
-    ui_location_obj['spot']['header label']['window'] = ttk.Label(
-        root, text='Window',font=('Courier', 10))
+ui_location_obj['spot']['header label'] = {}
+ui_location_obj['spot']['header label']['window'] = ttk.Label(
+    root, text='Window',font=('Courier', 10))
+for location_border_side in location_border_sides:
+    ui_location_obj['spot']['header label'][location_border_side] = ttk.Label(
+        root, text=location_border_side,font=('Courier', 10))
+ui_location_obj['spot']['header label']['channel'] = ttk.Label(
+    root, text='Channel',font=('Courier', 8))
+ui_location_obj['spot']['header label']['note'] = ttk.Label(
+    root, text='Note',font=('Courier', 8))
+
+for inst_num in location_inst_nums:
+    ui_location_obj['spot'][inst_num] = {}
+    ui_location_obj['spot'][inst_num]['header label'] = {}
+    ui_location_obj['spot'][inst_num]['checkbutton'] = {}
+    ui_location_obj['spot'][inst_num]['window size'] = {}
+    ui_location_obj['spot'][inst_num]['midi'] = {}
+    ui_location_obj['spot'][inst_num]['midi']['var'] = {}
+    ui_location_obj['spot'][inst_num]['border'] = {}
+    ui_location_obj['spot'][inst_num]['instance label'] = ttk.Label(root, text='instance '+str(inst_num),font=('Courier', 16)) 
+    ui_location_obj['spot'][inst_num]['checkbutton'] = {}
+    ui_location_obj['spot'][inst_num]['checkbutton']['active'] = {}
+    ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'] = IntVar()
+    ui_location_obj['spot'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+        root, text='On', variable= ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'])      
+    for ball_number in ball_numbers:
+        ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number] = {}
+        ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+        ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+            root, text='Ball '+ball_number, variable= \
+            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'])
+    ui_location_obj['spot'][inst_num]['window size'] = {}              
+    ui_location_obj['spot'][inst_num]['window size']['var'] = StringVar(root)
+    ui_location_obj['spot'][inst_num]['window size']['var'].set(10)
+    ui_location_obj['spot'][inst_num]['window size']['widget'] = ttk.Entry(
+        root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['window size']['var'])        
+    ui_location_obj['spot'][inst_num]['midi'] = {}
+    for location_midi_input_type in location_midi_input_types:
+        ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type] = {}
+        ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
+        ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
+            root, width = 13,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
+    ui_location_obj['spot'][inst_num]['border'] = {}
     for location_border_side in location_border_sides:
-        ui_location_obj['spot']['header label'][location_border_side] = ttk.Label(
-            root, text=location_border_side,font=('Courier', 10))
-    ui_location_obj['spot']['header label']['channel'] = ttk.Label(
-        root, text='Channel',font=('Courier', 8))
-    ui_location_obj['spot']['header label']['note'] = ttk.Label(
-        root, text='Note',font=('Courier', 8))
-
-    for inst_num in location_inst_nums:
-        ui_location_obj['spot'][inst_num] = {}
-        ui_location_obj['spot'][inst_num]['header label'] = {}
-        ui_location_obj['spot'][inst_num]['checkbutton'] = {}
-        ui_location_obj['spot'][inst_num]['window size'] = {}
-        ui_location_obj['spot'][inst_num]['midi'] = {}
-        ui_location_obj['spot'][inst_num]['midi']['var'] = {}
-        ui_location_obj['spot'][inst_num]['border'] = {}
-        ui_location_obj['spot'][inst_num]['instance label'] = ttk.Label(root, text='instance '+str(inst_num),font=('Courier', 16)) 
-        ui_location_obj['spot'][inst_num]['checkbutton'] = {}
-        ui_location_obj['spot'][inst_num]['checkbutton']['active'] = {}
-        ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'] = IntVar()
-        ui_location_obj['spot'][inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'])      
-        for ball_number in ball_numbers:
-            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number] = {}
-            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
-                root, text='Ball '+ball_number, variable= \
-                ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'])
-        ui_location_obj['spot'][inst_num]['window size'] = {}              
-        ui_location_obj['spot'][inst_num]['window size']['var'] = StringVar(root)
-        ui_location_obj['spot'][inst_num]['window size']['var'].set(10)
-        ui_location_obj['spot'][inst_num]['window size']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['window size']['var'])        
-        ui_location_obj['spot'][inst_num]['midi'] = {}
-        for location_midi_input_type in location_midi_input_types:
-            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type] = {}
-            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
-            ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
-                root, width = 13,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
-        ui_location_obj['spot'][inst_num]['border'] = {}
-        for location_border_side in location_border_sides:
-            ui_location_obj['spot'][inst_num]['border'][location_border_side] = {}
-            ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
-            ui_location_obj['spot'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
-                root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'])
+        ui_location_obj['spot'][inst_num]['border'][location_border_side] = {}
+        ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'] = StringVar(root)
+        ui_location_obj['spot'][inst_num]['border'][location_border_side]['widget'] = ttk.Entry(
+            root, width = 4,textvariable=ui_location_obj['spot'][inst_num]['border'][location_border_side]['var'])
 
 ###########################  END LOCATION SPOT SECTION  ######################
 
 ###########################  BEGIN SPEED SECTION  ######################
-    ui_speed_obj = {}
-    ui_speed_obj['header label'] = {}
-    ui_speed_obj['header label']['window'] = ttk.Label(
-        root, text='Window',font=('Courier', 10))
-    ui_speed_obj['header label']['channel'] = ttk.Label(
-        root, text='Channel',font=('Courier', 8))
-    ui_speed_obj['header label']['number'] = ttk.Label(
-        root, text='Number',font=('Courier', 8))
+ui_speed_obj = {}
+ui_speed_obj['header label'] = {}
+ui_speed_obj['header label']['window'] = ttk.Label(
+    root, text='Window',font=('Courier', 10))
+ui_speed_obj['header label']['channel'] = ttk.Label(
+    root, text='Channel',font=('Courier', 8))
+ui_speed_obj['header label']['number'] = ttk.Label(
+    root, text='Number',font=('Courier', 8))
 
-    for inst_num in speed_inst_nums:
-        ui_speed_obj[inst_num] = {}
-        ui_speed_obj[inst_num]['instance label'] = {}
-        ui_speed_obj[inst_num]['checkbutton'] = {}
-        ui_speed_obj[inst_num]['window size'] = {}      
-        ui_speed_obj[inst_num]['midi'] = {}       
-        ui_speed_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='instance '+str(inst_num),font=('Courier', 16)) 
-        ui_speed_obj[inst_num]['checkbutton'] = {}
-        ui_speed_obj[inst_num]['checkbutton']['active'] = {}
-        ui_speed_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
-        ui_speed_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_speed_obj[inst_num]['checkbutton']['active']['var'])  
-        for ball_number in ball_numbers:
-            ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
-            ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
-                root, text='Ball '+ball_number, variable= \
-                ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'])            
-        ui_speed_obj[inst_num]['window size']['var'] = StringVar(root)
-        ui_speed_obj[inst_num]['window size']['var'].set(10)
-        ui_speed_obj[inst_num]['window size']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_speed_obj[inst_num]['window size']['var'])
-        ui_speed_obj[inst_num]['midi'] = {}
-        for speed_midi_input_type in speed_midi_input_types:
-            ui_speed_obj[inst_num]['midi'][speed_midi_input_type] = {}
-            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'] = StringVar(root)
-            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['widget'] = \
-            ttk.Entry(root, width = 4,textvariable= \
-                ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'])
+for inst_num in speed_inst_nums:
+    ui_speed_obj[inst_num] = {}
+    ui_speed_obj[inst_num]['instance label'] = {}
+    ui_speed_obj[inst_num]['checkbutton'] = {}
+    ui_speed_obj[inst_num]['window size'] = {}      
+    ui_speed_obj[inst_num]['midi'] = {}       
+    ui_speed_obj[inst_num]['instance label'] = ttk.Label(
+        root, text='instance '+str(inst_num),font=('Courier', 16)) 
+    ui_speed_obj[inst_num]['checkbutton'] = {}
+    ui_speed_obj[inst_num]['checkbutton']['active'] = {}
+    ui_speed_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
+    ui_speed_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+        root, text='On', variable= ui_speed_obj[inst_num]['checkbutton']['active']['var'])  
+    for ball_number in ball_numbers:
+        ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
+        ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+        ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+            root, text='Ball '+ball_number, variable= \
+            ui_speed_obj[inst_num]['checkbutton']['ball '+ball_number]['var'])            
+    ui_speed_obj[inst_num]['window size']['var'] = StringVar(root)
+    ui_speed_obj[inst_num]['window size']['var'].set(10)
+    ui_speed_obj[inst_num]['window size']['widget'] = ttk.Entry(
+        root, width = 4,textvariable=ui_speed_obj[inst_num]['window size']['var'])
+    ui_speed_obj[inst_num]['midi'] = {}
+    for speed_midi_input_type in speed_midi_input_types:
+        ui_speed_obj[inst_num]['midi'][speed_midi_input_type] = {}
+        ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'] = StringVar(root)
+        ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['widget'] = \
+        ttk.Entry(root, width = 4,textvariable= \
+            ui_speed_obj[inst_num]['midi'][speed_midi_input_type]['var'])
 ###########################  END SPEED SECTION  ######################
 
 
 ###########################  BEGIN APART SECTION  #################################
-    ui_apart_obj = {}
-    ui_apart_obj['header label'] = {}
-    ui_apart_obj['header label']['distance'] = ttk.Label(
-        root, text='Distance',font=('Courier', 10))
-    ui_apart_obj['header label']['channel'] = ttk.Label(
-        root, text='Channel',font=('Courier', 8))
-    ui_apart_obj['header label']['number'] = ttk.Label(
-        root, text='Number',font=('Courier', 8))
+ui_apart_obj = {}
+ui_apart_obj['header label'] = {}
+ui_apart_obj['header label']['distance'] = ttk.Label(
+    root, text='Distance',font=('Courier', 10))
+ui_apart_obj['header label']['channel'] = ttk.Label(
+    root, text='Channel',font=('Courier', 8))
+ui_apart_obj['header label']['number'] = ttk.Label(
+    root, text='Number',font=('Courier', 8))
 
-    for inst_num in apart_inst_nums:
-        ui_apart_obj[inst_num] = {}
-        ui_apart_obj[inst_num]['instance label'] = {}
-        ui_apart_obj[inst_num]['checkbutton'] = {}
-        ui_apart_obj[inst_num]['distance'] = {} 
-        ui_apart_obj[inst_num]['midi'] = {}       
-        ui_apart_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='instance '+str(inst_num),font=('Courier', 16)) 
-        ui_apart_obj[inst_num]['checkbutton']['active'] = {}
-        ui_apart_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
-        ui_apart_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_apart_obj[inst_num]['checkbutton']['active']['var'])  
-        for ball_number in ball_numbers:
-            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
-            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
-            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
-                root, text='Ball '+ball_number, variable= \
-                ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'])     
-        ui_apart_obj[inst_num]['distance']['var'] = StringVar(root)
-        ui_apart_obj[inst_num]['distance']['var'].set(10)
-        ui_apart_obj[inst_num]['distance']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_apart_obj[inst_num]['distance']['var'])       
-        ui_apart_obj[inst_num]['midi'] = {}
-        for apart_midi_input_type in apart_midi_input_types:
-            ui_apart_obj[inst_num]['midi'][apart_midi_input_type] = {}
-            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'] = StringVar(root)
-            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['widget'] = \
-            ttk.Entry(root, width = 4,textvariable= \
-                ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'])
+for inst_num in apart_inst_nums:
+    ui_apart_obj[inst_num] = {}
+    ui_apart_obj[inst_num]['instance label'] = {}
+    ui_apart_obj[inst_num]['checkbutton'] = {}
+    ui_apart_obj[inst_num]['distance'] = {} 
+    ui_apart_obj[inst_num]['midi'] = {}       
+    ui_apart_obj[inst_num]['instance label'] = ttk.Label(
+        root, text='instance '+str(inst_num),font=('Courier', 16)) 
+    ui_apart_obj[inst_num]['checkbutton']['active'] = {}
+    ui_apart_obj[inst_num]['checkbutton']['active']['var'] = IntVar()
+    ui_apart_obj[inst_num]['checkbutton']['active']['widget'] = Checkbutton(
+        root, text='On', variable= ui_apart_obj[inst_num]['checkbutton']['active']['var'])  
+    for ball_number in ball_numbers:
+        ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number] = {}
+        ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'] = IntVar()
+        ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
+            root, text='Ball '+ball_number, variable= \
+            ui_apart_obj[inst_num]['checkbutton']['ball '+ball_number]['var'])     
+    ui_apart_obj[inst_num]['distance']['var'] = StringVar(root)
+    ui_apart_obj[inst_num]['distance']['var'].set(10)
+    ui_apart_obj[inst_num]['distance']['widget'] = ttk.Entry(
+        root, width = 4,textvariable=ui_apart_obj[inst_num]['distance']['var'])       
+    ui_apart_obj[inst_num]['midi'] = {}
+    for apart_midi_input_type in apart_midi_input_types:
+        ui_apart_obj[inst_num]['midi'][apart_midi_input_type] = {}
+        ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'] = StringVar(root)
+        ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['widget'] = \
+        ttk.Entry(root, width = 4,textvariable= \
+            ui_apart_obj[inst_num]['midi'][apart_midi_input_type]['var'])
 ###########################  END APART SECTION  #################################
 
 ###########################  BEGIN MOVEMENT SECTION  #################################
 
-    ui_movement_obj = {}
-    ui_movement_obj['header label'] = {}
-    ui_movement_obj['header label']['sensitivity'] = ttk.Label(
-        root, text='sensitivity',font=('Courier', 10))
-    ui_movement_obj['header label']['channel'] = ttk.Label(
-        root, text='Channel',font=('Courier', 8))
-    ui_movement_obj['header label']['number'] = ttk.Label(
-        root, text='Number',font=('Courier', 8))
+ui_movement_obj = {}
+ui_movement_obj['header label'] = {}
+ui_movement_obj['header label']['sensitivity'] = ttk.Label(
+    root, text='sensitivity',font=('Courier', 10))
+ui_movement_obj['header label']['channel'] = ttk.Label(
+    root, text='Channel',font=('Courier', 8))
+ui_movement_obj['header label']['number'] = ttk.Label(
+    root, text='Number',font=('Courier', 8))
 
-    for inst_num in movement_inst_nums:
-        ui_movement_obj[inst_num] = {}
-        ui_movement_obj[inst_num]['instance label'] = {}
-        ui_movement_obj[inst_num]['active'] = {}
-        ui_movement_obj[inst_num]['sensitivity'] = {} 
-        ui_movement_obj[inst_num]['midi'] = {}       
-        ui_movement_obj[inst_num]['instance label'] = ttk.Label(
-            root, text='instance '+str(inst_num),font=('Courier', 16)) 
-        ui_movement_obj[inst_num]['active']['var'] = IntVar()
-        ui_movement_obj[inst_num]['active']['widget'] = Checkbutton(
-            root, text='On', variable= ui_movement_obj[inst_num]['active']['var'])          
-        ui_movement_obj[inst_num]['radiobutton'] = {}
-        ui_movement_obj[inst_num]['radiobutton']['var'] = StringVar()
-        ui_movement_obj[inst_num]['radiobutton']['move'] = Radiobutton(root, text='Move', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='move', font=('Courier', 10))
-        ui_movement_obj[inst_num]['radiobutton']['stop'] = Radiobutton(root, text='Stop', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='stop', font=('Courier', 10))
-        ui_movement_obj[inst_num]['radiobutton']['var'].set('move')
-        ui_movement_obj[inst_num]['sensitivity']['var'] = StringVar(root)
-        ui_movement_obj[inst_num]['sensitivity']['var'].set(10)
-        ui_movement_obj[inst_num]['sensitivity']['widget'] = ttk.Entry(
-            root, width = 4,textvariable=ui_movement_obj[inst_num]['sensitivity']['var'])       
-        ui_movement_obj[inst_num]['midi'] = {}
-        for movement_midi_input_type in movement_midi_input_types:
-            ui_movement_obj[inst_num]['midi'][movement_midi_input_type] = {}
-            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'] = StringVar(root)
-            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['widget'] = \
-            ttk.Entry(root, width = 4,textvariable= \
-                ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'])
+for inst_num in movement_inst_nums:
+    ui_movement_obj[inst_num] = {}
+    ui_movement_obj[inst_num]['instance label'] = {}
+    ui_movement_obj[inst_num]['active'] = {}
+    ui_movement_obj[inst_num]['sensitivity'] = {} 
+    ui_movement_obj[inst_num]['midi'] = {}       
+    ui_movement_obj[inst_num]['instance label'] = ttk.Label(
+        root, text='instance '+str(inst_num),font=('Courier', 16)) 
+    ui_movement_obj[inst_num]['active']['var'] = IntVar()
+    ui_movement_obj[inst_num]['active']['widget'] = Checkbutton(
+        root, text='On', variable= ui_movement_obj[inst_num]['active']['var'])          
+    ui_movement_obj[inst_num]['radiobutton'] = {}
+    ui_movement_obj[inst_num]['radiobutton']['var'] = StringVar()
+    ui_movement_obj[inst_num]['radiobutton']['move'] = Radiobutton(root, text='Move', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='move', font=('Courier', 10))
+    ui_movement_obj[inst_num]['radiobutton']['stop'] = Radiobutton(root, text='Stop', variable=ui_movement_obj[inst_num]['radiobutton']['var'], value='stop', font=('Courier', 10))
+    ui_movement_obj[inst_num]['radiobutton']['var'].set('move')
+    ui_movement_obj[inst_num]['sensitivity']['var'] = StringVar(root)
+    ui_movement_obj[inst_num]['sensitivity']['var'].set(10)
+    ui_movement_obj[inst_num]['sensitivity']['widget'] = ttk.Entry(
+        root, width = 4,textvariable=ui_movement_obj[inst_num]['sensitivity']['var'])       
+    ui_movement_obj[inst_num]['midi'] = {}
+    for movement_midi_input_type in movement_midi_input_types:
+        ui_movement_obj[inst_num]['midi'][movement_midi_input_type] = {}
+        ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'] = StringVar(root)
+        ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['widget'] = \
+        ttk.Entry(root, width = 4,textvariable= \
+            ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'])
 
 ###########################  END MOVEMENT SECTION  #################################
 
 ###########################  BEGIN TOOLS SECTION  #################################
 
-    tools_chop_counter_active_checkbutton_var = IntVar()
-    this_variable = tools_chop_counter_active_checkbutton_var
-    tools_chop_counter_active_checkbutton = Checkbutton(root, text='Use chop counter', \
-        variable= tools_chop_counter_active_checkbutton_var, \
-        command=lambda this_variable= tools_chop_counter_active_checkbutton_var: \
-        tools_chop_counter_active_checkbutton_changed(this_variable.get()))       
 
-    tools_chop_counter_duration_var = StringVar(root)
-    tools_chop_counter_duration_var.set(0)
-    this_variable = tools_chop_counter_duration_var
-    tools_chop_counter_duration_var.trace(
-        'w', lambda *args, this_variable=this_variable: \
-        tools_chop_counter_duration_changed(this_variable.get()))
-    tools_chop_counter_duration_entry = ttk.Entry(
-        root, width = 4,textvariable=tools_chop_counter_duration_var)       
+tools_chop_counter_active_checkbutton = Checkbutton(root, text='Use chop counter', \
+    variable= tool_inputs['chop']['active'])       
+
+tools_chop_counter_duration_entry = ttk.Entry(
+    root, width = 4,textvariable=tool_inputs['chop']['duration'])       
 
 ###########################  END TOOLS SECTION  #################################
 
 
 ###########################  BEGIN TOP MAIN SECTION  #################################
-    start_button = ttk.Button(root,text='Start',fg='red',font=('Courier','16'),command=start_camera,height=2,width=13)
-    start_button.place(x=664,y=710)
+start_button = ttk.Button(root,text='Start',fg='red',font=('Courier','16'),command=start_camera,height=2,width=13)
+start_button.place(x=664,y=710)
 
-    save_button = ttk.Button(root,text='Save',fg='blue',command=save_config_file,height=1,width=9)
-    save_button.place(x=10,y=10)
+save_button = ttk.Button(root,text='Save',fg='blue',command=save_config_file,height=1,width=9)
+save_button.place(x=10,y=10)
 
-    save_file_name = StringVar(root)
-    save_file_name.set('')
-    save_file_name_entry = ttk.Entry(root, width = 15,textvariable=save_file_name)
-    save_file_name_entry.place(x=100,y=10)    
+save_file_name = StringVar(root)
+save_file_name.set('')
+save_file_name_entry = ttk.Entry(root, width = 15,textvariable=save_file_name)
+save_file_name_entry.place(x=100,y=10)    
 
-    load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_file(False),height=1,width=9)
-    load_button.place(x=10,y=50)
+load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_file(False),height=1,width=9)
+load_button.place(x=10,y=50)
 
-    #when a save happens we should repopulate the load optionmenu
-    load_file_name = StringVar(root)
-    path = 'saved/'
-    load_file_name_choices = [f.split('.')[0] for f in os.listdir(path) if f.endswith('.txt')]
-    if len(load_file_name_choices) < 1:
-        load_file_name_choices.append('')
-    load_file_name.set('')
-    load_file_name_type_optionmenu = OptionMenu(root, load_file_name, *load_file_name_choices)
-    load_file_name_type_optionmenu.place(x=100,y=50)  
+#when a save happens we should repopulate the load optionmenu
+load_file_name = StringVar(root)
+path = 'saved/'
+load_file_name_choices = [f.split('.')[0] for f in os.listdir(path) if f.endswith('.txt')]
+if len(load_file_name_choices) < 1:
+    load_file_name_choices.append('')
+load_file_name.set('')
+load_file_name_type_optionmenu = OptionMenu(root, load_file_name, *load_file_name_choices)
+load_file_name_type_optionmenu.place(x=100,y=50)  
 
-    selected_event_type = StringVar(root)
+selected_event_type = StringVar(root)
 
-    selected_event_type_choices = ['path points','location fade','location spot','speed','apart','collision','movement','tools']
-    selected_event_type.set('path points')
-    selected_event_type_optionmenu = OptionMenu(root, selected_event_type, *selected_event_type_choices)
-    Label(root, text='Events:').place(x=550,y=10)
-    selected_event_type_optionmenu.place(x=530,y=35)  
+selected_event_type_choices = ['path points','location fade','location spot','speed','apart','collision','movement','tools']
+selected_event_type.set('path points')
+selected_event_type_optionmenu = OptionMenu(root, selected_event_type, *selected_event_type_choices)
+Label(root, text='Events:').place(x=550,y=10)
+selected_event_type_optionmenu.place(x=530,y=35)  
 
-    selected_event_type.trace('w', selected_event_type_changed)
+selected_event_type.trace('w', selected_event_type_changed)
 
-    Label(root, text='Calibration').place(x=755,y=10)
-    gravity_calibration_button = ttk.Button(root,text='Gravity',fg='black',command=show_gravity_calibration_window,height=1,width=7)
-    gravity_calibration_button.place(x=730,y=35)
-    color_calibration_button = ttk.Button(root,text='Color',fg='black',command=show_color_calibration_window,height=1,width=7)
-    color_calibration_button.place(x=800,y=35)
+Label(root, text='Calibration').place(x=755,y=10)
+gravity_calibration_button = ttk.Button(root,text='Gravity',fg='black',command=show_gravity_calibration_window,height=1,width=7)
+gravity_calibration_button.place(x=730,y=35)
+color_calibration_button = ttk.Button(root,text='Color',fg='black',command=show_color_calibration_window,height=1,width=7)
+color_calibration_button.place(x=800,y=35)
 
-    top_separator = Frame(height=5, bd=1, relief=SUNKEN)
-    top_separator.place(x=0, y=90, relwidth=1)
+top_separator = Frame(height=5, bd=1, relief=SUNKEN)
+top_separator.place(x=0, y=90, relwidth=1)
 ###########################  END TOP MAIN SECTION  #################################
 
 
 ###########################  BEGIN BOTTOM SEND MIDI SECTION  #################################
-    bottom_separator = Frame(height=5, bd=1, relief=SUNKEN)
-    bottom_separator.place(x=0, y=710, width=650)
-    bottom_separator2 = Frame(width=5, bd=1, relief=SUNKEN)
-    bottom_separator2.place(x=651, y=710, relheight=1)    
+bottom_separator = Frame(height=5, bd=1, relief=SUNKEN)
+bottom_separator.place(x=0, y=710, width=650)
+bottom_separator2 = Frame(width=5, bd=1, relief=SUNKEN)
+bottom_separator2.place(x=651, y=710, relheight=1)    
 
-    send_midi_on_button = ttk.Button(root,text='SEND MIDI\nON',fg='purple',command=send_midi_on,height=3,width=10)
-    send_midi_on_button.place(x=10,y=720)
+send_midi_on_button = ttk.Button(root,text='SEND MIDI\nON',fg='purple',command=send_midi_on,height=3,width=10)
+send_midi_on_button.place(x=10,y=720)
 
-    send_midi_off_button = ttk.Button(root,text='SEND MIDI\nOFF',fg='purple',command=send_midi_off,height=3,width=10)
-    send_midi_off_button.place(x=110,y=720)
+send_midi_off_button = ttk.Button(root,text='SEND MIDI\nOFF',fg='purple',command=send_midi_off,height=3,width=10)
+send_midi_off_button.place(x=110,y=720)
 
-    send_midi_controller_change_button = ttk.Button(root,text='SEND MIDI\nCONTROLLER CHANGE',fg='purple',command=send_midi_controller_change,height=3,width=22)
-    send_midi_controller_change_button.place(x=10,y=1720)
+send_midi_controller_change_button = ttk.Button(root,text='SEND MIDI\nCONTROLLER CHANGE',fg='purple',command=send_midi_controller_change,height=3,width=22)
+send_midi_controller_change_button.place(x=10,y=1720)
 
-    selected_midi_channel_to_send = StringVar(root)
+selected_midi_channel_to_send = StringVar(root)
 
-    selected_midi_channel_to_send.set(0)
-    midi_channel_to_send_optionmenu = OptionMenu(root, selected_midi_channel_to_send, *midi_channel_choices)
-    Label(root, text='CHANNEL:', fg='purple').place(x=225,y=720)
-    midi_channel_to_send_optionmenu.place(x=230,y=750)
+selected_midi_channel_to_send.set(0)
+midi_channel_to_send_optionmenu = OptionMenu(root, selected_midi_channel_to_send, *midi_channel_choices)
+Label(root, text='CHANNEL:', fg='purple').place(x=225,y=720)
+midi_channel_to_send_optionmenu.place(x=230,y=750)
 
-    selected_midi_type_to_send = StringVar(root)
+selected_midi_type_to_send = StringVar(root)
 
-    midi_type_choices = {'ON/OFF','CO/CHG'}
-    selected_midi_type_to_send.set('ON/OFF')
-    midi_type_to_send_optionmenu = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
-    Label(root, text='TYPE:', fg='purple').place(x=330,y=720)
-    midi_type_to_send_optionmenu.place(x=300,y=750)    
+midi_type_choices = {'ON/OFF','CO/CHG'}
+selected_midi_type_to_send.set('ON/OFF')
+midi_type_to_send_optionmenu = OptionMenu(root, selected_midi_type_to_send, *midi_type_choices)
+Label(root, text='TYPE:', fg='purple').place(x=330,y=720)
+midi_type_to_send_optionmenu.place(x=300,y=750)    
 
-    midi_to_send_note_or_number = StringVar(root)
-    midi_to_send_note_or_number.set(60)
-    midi_to_send_note_or_number_entry_label_text = StringVar(root)
-    midi_to_send_note_or_number_entry_label_text.set('NOTE:')
-    midi_to_send_note_or_number_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_note_or_number)
-    midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
-    midi_to_send_note_or_number_entry_label = Label(root, textvariable=midi_to_send_note_or_number_entry_label_text, fg='purple')
-    midi_to_send_note_or_number_entry_label.place(x=422,y=720)
-    midi_to_send_note_or_number_entry.place(x=430,y=753)
+midi_to_send_note_or_number = StringVar(root)
+midi_to_send_note_or_number.set(60)
+midi_to_send_note_or_number_entry_label_text = StringVar(root)
+midi_to_send_note_or_number_entry_label_text.set('NOTE:')
+midi_to_send_note_or_number_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_note_or_number)
+midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
+midi_to_send_note_or_number_entry_label = Label(root, textvariable=midi_to_send_note_or_number_entry_label_text, fg='purple')
+midi_to_send_note_or_number_entry_label.place(x=422,y=720)
+midi_to_send_note_or_number_entry.place(x=430,y=753)
 
-    midi_to_send_velocity_or_value = StringVar(root)
-    midi_to_send_velocity_or_value.set(60)
-    midi_to_send_velocity_or_value_entry_label_text = StringVar(root)
-    midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
-    midi_to_send_velocity_or_value_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_velocity_or_value)
-    midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
-    midi_to_send_velocity_or_value_entry_label = Label(root, textvariable=midi_to_send_velocity_or_value_entry_label_text, fg='purple')
-    midi_to_send_velocity_or_value_entry_label.place(x=497,y=720)
-    midi_to_send_velocity_or_value_entry.place(x=510,y=753)
+midi_to_send_velocity_or_value = StringVar(root)
+midi_to_send_velocity_or_value.set(60)
+midi_to_send_velocity_or_value_entry_label_text = StringVar(root)
+midi_to_send_velocity_or_value_entry_label_text.set('VELOCITY:')
+midi_to_send_velocity_or_value_entry = ttk.Entry(root, width = 4,textvariable=midi_to_send_velocity_or_value)
+midi_to_send_note_or_number_entry.bind("<FocusOut>", midi_to_send_note_or_number_entry_lost_focus)
+midi_to_send_velocity_or_value_entry_label = Label(root, textvariable=midi_to_send_velocity_or_value_entry_label_text, fg='purple')
+midi_to_send_velocity_or_value_entry_label.place(x=497,y=720)
+midi_to_send_velocity_or_value_entry.place(x=510,y=753)
 
-    selected_midi_type_to_send.trace('w', selected_midi_type_to_send_changed)
+selected_midi_type_to_send.trace('w', selected_midi_type_to_send_changed)
 ###########################  END BOTTOM SEND MIDI SECTION  #################################
 
 

@@ -152,8 +152,8 @@ def determine_path_phase(ball_index, frame_count,average_fps):
 
     if chop_checker(ball_index):                
         chop_times.append(time.time())
-    chop_times = [value for value in chop_times if value > time.time()-int(settings.user_defined_chop_time_duration[0])]
-    print(settings.user_defined_chop_time_duration[0])
+    chop_times = [value for value in chop_times if value > time.time()-tool_inputs['chop']['duration'].get()]
+    print(tool_inputs['chop']['duration'].get())
     chop_count = len(chop_times)
     tab=' '*20
     #print(tab*ball_index + str(path_phase[ball_index]))

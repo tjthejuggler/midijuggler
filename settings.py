@@ -1,3 +1,19 @@
+from tkinter import *
+import tkinter as ttk
+from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
+from tkinter import filedialog
+from PIL import ImageTk, Image
+
+
+
+root = Tk() 
+root.title('Miug')
+root.geometry('900x800')
+root.resizable(0, 0)
+
+
+
 selected_configs_of_balls = ['X','X','X']
 
 selected_config_midi_channels = [0,0,0]
@@ -148,10 +164,13 @@ throw_count = 0
 
 chop_count = 0
 chop_times = [0]
-chop_counter_active = {}
-chop_counter_active[0] = 0
-user_defined_chop_time_duration = {}
-user_defined_chop_time_duration[0] = 0
+tool_inputs = {}
+tool_inputs['chop'] = {}
+tool_inputs['chop']['active'] = IntVar(root)
+tool_inputs['chop']['active'].set(0)
+tool_inputs['chop']['duration'] = IntVar(root)
+tool_inputs['chop']['duration'].set(0)
+
 
 catch_count = 0
 
