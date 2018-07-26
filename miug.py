@@ -141,6 +141,11 @@ def set_widgets_from_data():
 
 def set_settings_variables_from_widgets():
     for inst_num in location_inst_nums:
+        path_point_instance_obj[inst_num]['active'] = ui_path_point_obj[inst_num]['active']['var'].get()
+        path_point_instance_obj[inst_num]['ball number'] = ui_path_point_obj[inst_num]['ball number']['var'].get()
+        path_point_instance_obj[inst_num]['path config'] = ui_path_point_obj[inst_num]['path config']['var'].get()
+        path_point_instance_obj[inst_num]['midi channel'] = ui_path_point_obj[inst_num]['midi channel']['var'].get()
+
         fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get()
         fade_location_obj[inst_num]['balls to average'] = []
         for ball_number in ball_numbers:            
@@ -184,7 +189,12 @@ def set_settings_variables_from_widgets():
         for movement_midi_input_type in movement_midi_input_types:
             movement_obj[inst_num][movement_midi_input_type] = ui_movement_obj[inst_num]['midi'][movement_midi_input_type]['var'].get()
 
+def reset_path_point_counters():
+    for path_point_position in path_point_positions:
+        path_point_info[path_point_position]['counter'] = 0
+
 def start_camera():
+    reset_path_point_counters()
     set_settings_variables_from_widgets()
     settings.show_color_calibration = False
     settings.show_main_camera = True
@@ -194,7 +204,6 @@ def start_camera():
 #with new save setup
 #   first row should be column names
 def save_config_file():    
-    set_active_instances_from_widgets()
     config_to_save = open('saved/'+save_file_name.get()+".txt","w+")   
     text_in_config_to_save = ''
     text_in_config_to_save += 'begin path point instance obj\n'
@@ -335,8 +344,6 @@ def set_path_points_configs_widgets_visibility(show_or_hide):
         extra = 1000
     path_point_config_letters_optionmenu.place(x=extra+140,y=150)
     path_point_config_letters_optionmenu_label.place(x=extra+10,y=150)
-    selected_config_midi_channel_optionmenu.place(x=extra+780,y=150)
-    selected_config_midi_channel_optionmenu_label.place(x=extra+680,y=150)
     path_point_pattern_image_label['left'].place(x=extra+70,y=200)
     path_point_pattern_image_panel['left column'].place(x=extra+10,y=230)
     path_point_pattern_image_panel['left cross'].place(x=extra+70,y=230)
@@ -475,9 +482,11 @@ def set_tools_widgets_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    tools_chop_counter_active_checkbutton.place(x=extra+10,y=150)
-    tools_chop_counter_duration_entry.place(x=extra+150,y=170)
-
+    tools_box_counter_active_checkbutton.place(x=extra+10,y=150)
+    tools_box_counter_duration_entry.place(x=extra+150,y=150)
+    tools_throw_counter_active_checkbutton.place(x=extra+10,y=200)
+    tools_peak_counter_active_checkbutton.place(x=extra+10,y=250)
+    tools_catch_counter_active_checkbutton.place(x=extra+10,y=300)
 
 def set_path_points_config_inputs_visibility(show_or_hide):
     extra = 0
@@ -822,11 +831,6 @@ point_single_line_input = ttk.Entry(root, width = 57,textvariable=point_single_l
 point_single_line_input.place(x=400,y=450)
 point_single_line_input_text.trace('w', point_single_line_input_changed)
 
-selected_config_midi_channel_optionmenu = OptionMenu(root, selected_config_midi_channel, *midi_channel_choices)
-selected_config_midi_channel_optionmenu.place(x=780,y=150)
-selected_config_midi_channel_optionmenu_label = Label(root, text='midi channel')
-selected_config_midi_channel_optionmenu_label.place(x=680,y=150)
-
 path_point_pattern_image_label = {}
 for relative_position in relative_positions:
     path_point_pattern_image_label[relative_position] = Label(root, text=relative_position+' ball',font=('Courier', 10))
@@ -1124,11 +1128,20 @@ for inst_num in movement_inst_nums:
 ###########################  BEGIN TOOLS SECTION  #################################
 
 
-tools_chop_counter_active_checkbutton = Checkbutton(root, text='Use chop counter', \
-    variable= tool_inputs['chop']['active'])       
+tools_box_counter_active_checkbutton = Checkbutton(root, text='Use box counter', \
+    variable= tool_inputs['box']['active'])       
 
-tools_chop_counter_duration_entry = ttk.Entry(
-    root, width = 4,textvariable=tool_inputs['chop']['duration'])       
+tools_box_counter_duration_entry = ttk.Entry(
+    root, width = 4,textvariable=tool_inputs['box']['duration'])
+
+tools_throw_counter_active_checkbutton = Checkbutton(root, text='Throw counter', \
+    variable=path_point_info['throw']['counter active']) 
+
+tools_peak_counter_active_checkbutton = Checkbutton(root, text='Use peak counter', \
+    variable=path_point_info['peak']['counter active']) 
+
+tools_catch_counter_active_checkbutton = Checkbutton(root, text='Use catch counter', \
+    variable=path_point_info['catch']['counter active'])        
 
 ###########################  END TOOLS SECTION  #################################
 

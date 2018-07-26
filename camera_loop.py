@@ -44,7 +44,7 @@ def should_break(start,break_for_no_video):
 def closing_operations(average_fps,vs,camera,out,all_mask):
     global midiout
     print('average fps: '+str(average_fps))
-    print('peaks: '+str(peak_count))
+    print('peaks: '+str(path_point_info['peak']['counter']))
     if using_midi:
         midiout = None
     if increase_fps:

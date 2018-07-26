@@ -158,21 +158,30 @@ slot_system = [0,1,0,1] #single note,5th,5th,single note,5th,5th, = 1 full famil
 family_size = len(slot_system)
 family_count = len(family_identities)
 
-last_peak_time,peak_count = [-.25]*20,0
+last_peak_time = [-.25]*20
 
-throw_count = 0
+ball_indeces = range(3)
+path_point_positions = ['throw','catch','peak']
 
-chop_count = 0
-chop_times = [0]
+path_point_info = {}
+for path_point_position in path_point_positions:
+	path_point_info[path_point_position] = {}
+	path_point_info[path_point_position]['counter active'] = IntVar(root)
+	path_point_info[path_point_position]['counter active'].set(0)
+	path_point_info[path_point_position]['counter'] = 0
+	path_point_info[path_point_position]['previous timestamp'] = {}
+	for ball_index in ball_indeces:	
+		path_point_info[path_point_position]['previous timestamp'][ball_index] = 0
+
+
+box_count = 0
+box_times = [0]
 tool_inputs = {}
-tool_inputs['chop'] = {}
-tool_inputs['chop']['active'] = IntVar(root)
-tool_inputs['chop']['active'].set(0)
-tool_inputs['chop']['duration'] = IntVar(root)
-tool_inputs['chop']['duration'].set(0)
-
-
-catch_count = 0
+tool_inputs['box'] = {}
+tool_inputs['box']['active'] = IntVar(root)
+tool_inputs['box']['active'].set(0)
+tool_inputs['box']['duration'] = IntVar(root)
+tool_inputs['box']['duration'].set(0)
 
 play_chords_as_arpeggio = False
 

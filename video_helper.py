@@ -228,29 +228,30 @@ def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_cou
                 cv2.circle(mask_copy,(r*honeycomb_diameter,c*honeycomb_diameter), honeycomb_radius, (255,255,255), 2)
             else:
                 cv2.circle(mask_copy,(r*honeycomb_diameter+honeycomb_radius,c*honeycomb_diameter), honeycomb_radius, (255,255,255), 2)
-            
     return mask_copy
 
-
-def show_chop_counter(mask_copy):
+def show_box_counter(mask_copy):
     cv2.rectangle(mask_copy,(220,200),(420,400),(255,255,255),2) 
-    cv2.putText(mask_copy, 'Chops: '+str(trajectory_helper.chop_count),(10,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-    #cv2.putText(mask_copy, 'Chops: '+str(trajectory_helper.chop_times[-1]),(10,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-    
+    cv2.putText(mask_copy, 'In box: '+str(trajectory_helper.box_count),(10,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    return mask_copy
 
-    #cv2.putText(mask_copy, 'Peak/Second: '+str(settings.peak_count),(630,10), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)    
+def show_path_point_counters(mask_copy):
+    path_point_positions = ['throw','catch','peak']
+    for index,path_point_position in enumerate(path_point_positions):
+        if path_point_info[path_point_position]['counter active'].get() == 1:
+            cv2.putText(mask_copy, path_point_position+': '+str(path_point_info[path_point_position]['counter']),(10+(index+1)*120,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
     return mask_copy
 
 def indicate_active_apart_instances(mask_copy):
     for inst_num in apart_inst_nums:
         if apart_obj[inst_num]['active'] == 1:
-            cv2.putText(mask_copy, 'AP'+str(inst_num),(10+(inst_num*40),400), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            cv2.putText(mask_copy, 'AP'+str(inst_num),(10+(inst_num*65),400), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
     return mask_copy
 
 def indicate_active_movement_instances(mask_copy):
     for inst_num in movement_inst_nums:
         if movement_obj[inst_num]['active'] == 1:
-            cv2.putText(mask_copy, 'MO'+str(inst_num),(10+(inst_num*40),420), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+            cv2.putText(mask_copy, 'MO'+str(inst_num),(10+(inst_num*65),420), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
     return mask_copy
 
 def on_mouse_click(event, x, y, flags, frame):
@@ -292,8 +293,9 @@ def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mas
         mask_copy = cv2.flip(mask_copy,1)
         mask_copy = indicate_active_apart_instances(mask_copy)
         mask_copy = indicate_active_movement_instances(mask_copy)
-        if tool_inputs['chop']['active'].get() == 1:
-            mask_copy = show_chop_counter(mask_copy) #this doesnt work, i want it to be a chop counter really        
+        if tool_inputs['box']['active'].get() == 1:
+            mask_copy = show_box_counter(mask_copy) #this doesnt work, i want it to be a box counter really        
+        mask_copy = show_path_point_counters(mask_copy)
         cv2.imshow('main_camera',mask_copy)
         #else:
             #cv2.imshow('color_calibration',mask)     
