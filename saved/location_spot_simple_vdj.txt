@@ -1,0 +1,117 @@
+begin path point instance obj
+0,1,X,0
+0,1,X,0
+0,1,X,0
+0,1,X,0
+0,1,X,0
+0,1,X,0
+0,1,X,0
+0,1,X,0
+begin path point path obj
+X,left column,peak,0
+X,left column,catch,0
+X,left column,throw,0
+X,left cross,peak,0
+X,left cross,catch,0
+X,left cross,throw,0
+X,mid column,peak,0
+X,mid column,catch,0
+X,mid column,throw,0
+X,mid cross,peak,0
+X,mid cross,catch,0
+X,mid cross,throw,0
+X,right column,peak,0
+X,right column,catch,0
+X,right column,throw,0
+X,right cross,peak,0
+X,right cross,catch,0
+X,right cross,throw,0
+Y,left column,peak,0
+Y,left column,catch,0
+Y,left column,throw,0
+Y,left cross,peak,0
+Y,left cross,catch,0
+Y,left cross,throw,0
+Y,mid column,peak,0
+Y,mid column,catch,0
+Y,mid column,throw,0
+Y,mid cross,peak,0
+Y,mid cross,catch,0
+Y,mid cross,throw,0
+Y,right column,peak,0
+Y,right column,catch,0
+Y,right column,throw,0
+Y,right cross,peak,0
+Y,right cross,catch,0
+Y,right cross,throw,0
+Z,left column,peak,0
+Z,left column,catch,0
+Z,left column,throw,0
+Z,left cross,peak,0
+Z,left cross,catch,0
+Z,left cross,throw,0
+Z,mid column,peak,0
+Z,mid column,catch,0
+Z,mid column,throw,0
+Z,mid cross,peak,0
+Z,mid cross,catch,0
+Z,mid cross,throw,0
+Z,right column,peak,0
+Z,right column,catch,0
+Z,right column,throw,0
+Z,right cross,peak,0
+Z,right cross,catch,0
+Z,right cross,throw,0
+begin path point midi obj
+current positional,midi,
+current positional,midi,
+current positional,midi,
+current positional,midi,
+current positional,midi,
+current positional,midi,
+current positional,midi,
+begin fade location obj
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+0,0,0,0,10,,,,,,,,,
+begin spot location obj
+1,1,0,0,10,0,200,0,200,0,0,
+1,0,1,0,10,0,200,0,200,0,0,
+1,0,0,1,10,0,200,0,200,0,0,
+1,1,0,0,10,440,640,0,200,0,1,
+1,0,1,0,10,440,640,0,200,0,1,
+1,0,0,1,10,440,640,0,200,0,1,
+0,0,0,0,10,,,,,,,
+0,0,0,0,10,,,,,,,
+begin speed obj
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+begin apart obj
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+0,0,0,0,10,,,
+begin movement obj
+0,move,10,,,
+0,move,10,,,
+0,move,10,,,
+0,move,10,,,
+0,move,10,,,
+0,move,10,,,
+0,move,10,,,
+0,move,10,,,
