@@ -148,8 +148,9 @@ def set_settings_variables_from_widgets():
 
         fade_location_obj[inst_num]['active'] = ui_location_obj['fade'][inst_num]['checkbutton']['active']['var'].get()
         fade_location_obj[inst_num]['balls to average'] = []
-        for ball_number in ball_numbers:            
-            fade_location_obj[inst_num]['balls to average'].append(ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].get())
+        for ball_number in ball_numbers:
+            if ui_location_obj['fade'][inst_num]['checkbutton']['ball '+ball_number]['var'].get() == 1:            
+                fade_location_obj[inst_num]['balls to average'].append(ball_number)
         fade_location_obj[inst_num]['window size'] = ui_location_obj['fade'][inst_num]['window size']['var'].get()
         for location_direction in location_directions:
             for location_midi_input_type in location_midi_input_types:
@@ -159,8 +160,9 @@ def set_settings_variables_from_widgets():
 
         spot_location_obj[inst_num]['active'] = ui_location_obj['spot'][inst_num]['checkbutton']['active']['var'].get()
         spot_location_obj[inst_num]['balls to average'] = []
-        for ball_number in ball_numbers:            
-            spot_location_obj[inst_num]['balls to average'].append(ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].get())
+        for ball_number in ball_numbers:
+            if ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].get() == 1:          
+                spot_location_obj[inst_num]['balls to average'].append(ball_number)
         spot_location_obj[inst_num]['window size'] = ui_location_obj['spot'][inst_num]['window size']['var'].get()
         for location_midi_input_type in location_midi_input_types:
             spot_location_obj[inst_num][location_midi_input_type] = ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].get()
@@ -540,6 +542,7 @@ def send_midi_on():
     i = int(h, 16)
     i += int(selected_midi_channel_to_send.get())
     note_on = [int(i), int(midi_to_send_note_or_number.get()), int(midi_to_send_velocity_or_value.get())]                        
+    print(note_on)
     midiout.send_message(note_on)
 
 def send_midi_off():
@@ -1128,7 +1131,7 @@ for inst_num in movement_inst_nums:
 ###########################  BEGIN TOOLS SECTION  #################################
 
 
-tools_box_counter_active_checkbutton = Checkbutton(root, text='Use box counter', \
+tools_box_counter_active_checkbutton = Checkbutton(root, text='Box counter', \
     variable= tool_inputs['box']['active'])       
 
 tools_box_counter_duration_entry = ttk.Entry(
@@ -1137,10 +1140,10 @@ tools_box_counter_duration_entry = ttk.Entry(
 tools_throw_counter_active_checkbutton = Checkbutton(root, text='Throw counter', \
     variable=path_point_info['throw']['counter active']) 
 
-tools_peak_counter_active_checkbutton = Checkbutton(root, text='Use peak counter', \
+tools_peak_counter_active_checkbutton = Checkbutton(root, text='Peak counter', \
     variable=path_point_info['peak']['counter active']) 
 
-tools_catch_counter_active_checkbutton = Checkbutton(root, text='Use catch counter', \
+tools_catch_counter_active_checkbutton = Checkbutton(root, text='Catch counter', \
     variable=path_point_info['catch']['counter active'])        
 
 ###########################  END TOOLS SECTION  #################################

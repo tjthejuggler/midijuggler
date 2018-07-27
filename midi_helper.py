@@ -19,7 +19,7 @@ midi_associations = {}
 use_adjust_song_magnitude = False
 use_override_notes,override_notes = False,[]
 soundscape_image = cv2.imread('soundscape.png',1)
-can_send_spot_location_midi_note = [True,True,True,True]
+can_send_spot_location_midi_note = [True,True,True,True,True,True,True,True]
 
 
 
@@ -208,11 +208,14 @@ def get_midi_modulation(ball_index,path_phase,path_type):
 
 def send_midi_messages(channel, notes, magnitude, modulators): 
     for i in modulators:
+        print('modulators')
         send_midi_cc(i[0],i[1],i[2])
     try:
         send_midi_note(channel,notes,magnitude)
+        print('try')
     except TypeError:
         for n in notes:
+            print('except')
             send_midi_note(channel,n,magnitude)
 
 def get_wav_sample(index):
@@ -254,12 +257,12 @@ def turn_midi_note_off(channel,note):
 
 def send_midi_note(channel,note,magnitude):                  
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    #print(note_on)
+    print(note_on)
     midiout.send_message(note_on)
-    midi_channel_to_off = channel
+    '''midi_channel_to_off = channel
     midi_note_to_off = note
     off = th.Timer(0.4,turn_midi_note_off, args = [channel,note])     
-    off.start()
+    off.start()'''
 
 def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
@@ -367,7 +370,7 @@ def is_valid_spot_location_input(inst_num):
     list_of_ball_numbers = ['1','2','3']
     is_valid = False
     if spot_location_obj[inst_num]['active'] == 1:
-        #print('nt active')
+        #print(spot_location_obj[inst_num]['balls to average'])
         if any(i in list_of_ball_numbers for i in spot_location_obj[inst_num]['balls to average']):
             if int(spot_location_obj[inst_num]['window size']) > 0:
                 if spot_location_obj[inst_num]['channel'].isdigit():
@@ -411,7 +414,7 @@ def send_event_messages(event_obj,inst_num,channel,number,magnitude):
             send_midi_note(int(channel),int(message),60)
 
 def toggle_instance_if_valid_message(message):
-    inst_num = str(''.join(c for c in message if c.isdigit()))
+    inst_num = int(''.join(c for c in message if c.isdigit()))
     if 'pp' in message:
         if path_point_instance_obj[inst_num]['active'] == 0:
             path_point_instance_obj[inst_num]['active'] = 1
@@ -528,7 +531,7 @@ def execute_movement():
                             #send_midi_note(int(channel),int(number),60)
 
 def execute_spot_location():
-    for i in range (4):
+    for i in range (8):
         if is_valid_spot_location_input(i):
             ball_numbers_to_average = spot_location_obj[i]['balls to average']
             if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
@@ -552,16 +555,13 @@ def execute_spot_location():
                 right_border = spot_location_obj[i]['location border sides']['right']
                 top_border = spot_location_obj[i]['location border sides']['top']
                 bottom_border = spot_location_obj[i]['location border sides']['bottom']
-                '''print('np.average(ave_cx)' +str(np.average(ave_cx)))
-                print('np.average(ave_cy)' +str(np.average(ave_cy)))
-                print(left_border)
-                print(right_border)
-                print(top_border)
-                print(bottom_border)'''
+                #print('np.average(ave_cx)' +str(np.average(ave_cx)))
+                #print('np.average(ave_cy)' +str(np.average(ave_cy)))
+
                 if (np.average(ave_cx) > int(left_border) and np.average(ave_cx) < int(right_border) 
                     and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
                     if can_send_spot_location_midi_note[i]:
-                        #print('sendM')
+                        print('sendM')
                         send_event_messages(apart_obj,inst_num,channel,number,60)
                         #send_midi_note(int(channel),int(number),60)
                         can_send_spot_location_midi_note[i] = False
@@ -569,7 +569,7 @@ def execute_spot_location():
                     can_send_spot_location_midi_note[i] = True
 
 def execute_fade_location():
-    for i in range (4):
+    for i in range (8):
         for location_direction in location_directions:
             if is_valid_fade_location_input(i,location_direction):
                 ball_numbers_to_average = fade_location_obj[i]['balls to average']
