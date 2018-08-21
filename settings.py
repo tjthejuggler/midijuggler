@@ -87,6 +87,7 @@ for inst_num in location_inst_nums:
 	spot_location_obj[inst_num]['active'] = 0
 	spot_location_obj[inst_num]['current message index'] = 0
 	spot_location_obj[inst_num]['balls to average'] = []
+	spot_location_obj[inst_num]['any or all'] = 'any'
 	spot_location_obj[inst_num]['window size'] = 10
 	spot_location_obj[inst_num]['location border sides'] = {}
 	for location_border_side in location_border_sides:

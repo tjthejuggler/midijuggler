@@ -407,6 +407,7 @@ def send_event_messages(event_obj,inst_num,channel,number,magnitude):
     event_obj[inst_num]['current message index'] += 1
     if event_obj[inst_num]['current message index'] == number_of_messages:
         event_obj[inst_num]['current message index'] = 0
+    print(messages)
     for message in messages: #go through them one at a time,
         if any(c.isalpha() for c in message): #if they contain a letter, then we know they are instance toggles
             toggle_instance_if_valid_message(message)
@@ -414,12 +415,14 @@ def send_event_messages(event_obj,inst_num,channel,number,magnitude):
             send_midi_note(int(channel),int(message),60)
 
 def toggle_instance_if_valid_message(message):
+    global midi_associations
     inst_num = int(''.join(c for c in message if c.isdigit()))
     if 'pp' in message:
         if path_point_instance_obj[inst_num]['active'] == 0:
             path_point_instance_obj[inst_num]['active'] = 1
         elif path_point_instance_obj[inst_num]['active'] == 1:
             path_point_instance_obj[inst_num]['active'] = 0
+        midi_associations = {}
         create_association_object()  
     elif 'lf' in message:
         if fade_location_obj[inst_num]['active'] == 0:
@@ -547,17 +550,24 @@ def execute_spot_location():
                 Cx, Cy = average_position_of_single_ball(ball_number,window_size)
                 #print('Cx '+str(Cx))
                 #print('Cy '+str(Cy))
-                if Cx >= 0:
-                    ave_cx.append(Cx) 
-                    ave_cy.append(Cy)
-                #print( spot_location_obj[i]['location border sides'])
-                left_border = spot_location_obj[i]['location border sides']['left']
-                right_border = spot_location_obj[i]['location border sides']['right']
-                top_border = spot_location_obj[i]['location border sides']['top']
-                bottom_border = spot_location_obj[i]['location border sides']['bottom']
-                #print('np.average(ave_cx)' +str(np.average(ave_cx)))
-                #print('np.average(ave_cy)' +str(np.average(ave_cy)))
-
+                if spot_location_obj[i]['any or all'] == 'all':
+                    if Cx >= 0:
+                        ave_cx.append(Cx) 
+                        ave_cy.append(Cy)
+                elif spot_location_obj[i]['any or all'] == 'any':
+                    if Cx >= 0:
+                        ave_cx = []
+                        ave_cx.append(Cx) 
+                        ave_cy = []
+                        ave_cy.append(Cy)                    
+            #print( spot_location_obj[i]['location border sides'])
+            left_border = spot_location_obj[i]['location border sides']['left']
+            right_border = spot_location_obj[i]['location border sides']['right']
+            top_border = spot_location_obj[i]['location border sides']['top']
+            bottom_border = spot_location_obj[i]['location border sides']['bottom']
+            #print('np.average(ave_cx)' +str(np.average(ave_cx)))
+            #print('np.average(ave_cy)' +str(np.average(ave_cy)))
+            try:
                 if (np.average(ave_cx) > int(left_border) and np.average(ave_cx) < int(right_border) 
                     and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
                     if can_send_spot_location_midi_note[i]:
@@ -567,6 +577,8 @@ def execute_spot_location():
                         can_send_spot_location_midi_note[i] = False
                 else:
                     can_send_spot_location_midi_note[i] = True
+            except:
+                pass
 
 def execute_fade_location():
     for i in range (8):

@@ -94,13 +94,14 @@ def load_config_file(use_default_config):
             ui_location_obj['spot'][i]['checkbutton']['active']['var'].set(int(lines[first_line+i].split(',')[0]))
             for ball_number in range(1,4):
                 ui_location_obj['spot'][i]['checkbutton']['ball '+str(ball_number)]['var'].set(int(lines[first_line+i].split(',')[ball_number]))
-            ui_location_obj['spot'][i]['window size']['var'].set(lines[first_line+i].split(',')[4])
-            ui_location_obj['spot'][i]['border']['left']['var'].set(lines[first_line+i].split(',')[5])
-            ui_location_obj['spot'][i]['border']['right']['var'].set(lines[first_line+i].split(',')[6])
-            ui_location_obj['spot'][i]['border']['top']['var'].set(lines[first_line+i].split(',')[7])
-            ui_location_obj['spot'][i]['border']['bottom']['var'].set(lines[first_line+i].split(',')[8])
-            ui_location_obj['spot'][i]['midi']['channel']['var'].set(lines[first_line+i].split(',')[9])
-            ui_location_obj['spot'][i]['midi']['number']['var'].set(lines[first_line+i].split(',')[10].rstrip('\n'))
+            ui_location_obj['spot'][i]['any or all']['var'].set(lines[first_line+i].split(',')[4])
+            ui_location_obj['spot'][i]['window size']['var'].set(lines[first_line+i].split(',')[5]) 
+            ui_location_obj['spot'][i]['border']['left']['var'].set(lines[first_line+i].split(',')[6])
+            ui_location_obj['spot'][i]['border']['right']['var'].set(lines[first_line+i].split(',')[7])
+            ui_location_obj['spot'][i]['border']['top']['var'].set(lines[first_line+i].split(',')[8])
+            ui_location_obj['spot'][i]['border']['bottom']['var'].set(lines[first_line+i].split(',')[9])
+            ui_location_obj['spot'][i]['midi']['channel']['var'].set(lines[first_line+i].split(',')[10])
+            ui_location_obj['spot'][i]['midi']['number']['var'].set(lines[first_line+i].split(',')[11].rstrip('\n'))
         first_line = lines.index('begin speed obj\n') + 1
         for i in range (8):
             ui_speed_obj[i]['checkbutton']['active']['var'].set(int(lines[first_line+i].split(',')[0]))
@@ -163,6 +164,7 @@ def set_settings_variables_from_widgets():
         for ball_number in ball_numbers:
             if ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'].get() == 1:          
                 spot_location_obj[inst_num]['balls to average'].append(ball_number)
+        spot_location_obj[inst_num]['any or all'] = ui_location_obj['spot'][inst_num]['any or all']['var'].get()        
         spot_location_obj[inst_num]['window size'] = ui_location_obj['spot'][inst_num]['window size']['var'].get()
         for location_midi_input_type in location_midi_input_types:
             spot_location_obj[inst_num][location_midi_input_type] = ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'].get()
@@ -195,8 +197,17 @@ def reset_path_point_counters():
     for path_point_position in path_point_positions:
         path_point_info[path_point_position]['counter'] = 0
 
+def reset_current_message_indeces():
+    path_point_instance_obj[inst_num]['current message index'] = 0
+    fade_location_obj[inst_num]['current message index'] = 0
+    spot_location_obj[inst_num]['current message index'] = 0
+    speed_obj[inst_num]['current message index'] = 0
+    apart_obj[inst_num]['current message index'] = 0
+    movement_obj[inst_num]['current message index'] = 0    
+
 def start_camera():
     reset_path_point_counters()
+    reset_current_message_indeces()
     set_settings_variables_from_widgets()
     settings.show_color_calibration = False
     settings.show_main_camera = True
@@ -243,6 +254,7 @@ def save_config_file():
         text_in_config_to_save += str(ui_location_obj['spot'][i]['checkbutton']['active']['var'].get()) +','
         for ball_number in range(1,4):            
             text_in_config_to_save += str(ui_location_obj['spot'][i]['checkbutton']['ball '+str(ball_number)]['var'].get())+','
+        text_in_config_to_save += str(ui_location_obj['spot'][i]['any or all']['var'].get()) + ','
         text_in_config_to_save += str(ui_location_obj['spot'][i]['window size']['var'].get()) + ','
         for location_border_side in location_border_sides:
             text_in_config_to_save += str(ui_location_obj['spot'][i]['border'][location_border_side]['var'].get()) + ','
@@ -422,9 +434,9 @@ def set_ui_location_spot_objs_visibility(show_or_hide):
     extra = 0
     if show_or_hide == 'hide':
         extra = 1000
-    ui_location_obj['spot']['header label']['channel'].place(x=extra+370,y=130)
-    ui_location_obj['spot']['header label']['note'].place(x=extra+440,y=130)
-    ui_location_obj['spot']['header label']['window'].place(x=extra+280,y=130)
+    ui_location_obj['spot']['header label']['channel'].place(x=extra+470,y=130)
+    ui_location_obj['spot']['header label']['note'].place(x=extra+540,y=130)
+    ui_location_obj['spot']['header label']['window'].place(x=extra+380,y=130)
     ui_location_obj['spot']['header label']['left'].place(x=extra+665,y=130)
     ui_location_obj['spot']['header label']['right'].place(x=extra+720,y=130)
     ui_location_obj['spot']['header label']['top'].place(x=extra+790,y=130)
@@ -435,9 +447,10 @@ def set_ui_location_spot_objs_visibility(show_or_hide):
         ui_location_obj['spot'][inst_num]['checkbutton']['ball 1']['widget'].place(x=extra+50,y=185+(inst_num*65))
         ui_location_obj['spot'][inst_num]['checkbutton']['ball 2']['widget'].place(x=extra+120,y=185+(inst_num*65))
         ui_location_obj['spot'][inst_num]['checkbutton']['ball 3']['widget'].place(x=extra+190,y=185+(inst_num*65))
-        ui_location_obj['spot'][inst_num]['window size']['widget'].place(x=extra+300,y=170+(inst_num*65))
-        ui_location_obj['spot'][inst_num]['midi']['channel']['widget'].place(x=extra+370,y=170+(inst_num*65))
-        ui_location_obj['spot'][inst_num]['midi']['number']['widget'].place(x=extra+440,y=170+(inst_num*65))
+        ui_location_obj['spot'][inst_num]['any or all']['widget'].place(x=extra+300,y=170+(inst_num*65))
+        ui_location_obj['spot'][inst_num]['window size']['widget'].place(x=extra+400,y=170+(inst_num*65))
+        ui_location_obj['spot'][inst_num]['midi']['channel']['widget'].place(x=extra+470,y=170+(inst_num*65))
+        ui_location_obj['spot'][inst_num]['midi']['number']['widget'].place(x=extra+560,y=170+(inst_num*65))
         ui_location_obj['spot'][inst_num]['border']['left']['widget'].place(x=extra+670,y=170+(inst_num*65))
         ui_location_obj['spot'][inst_num]['border']['right']['widget'].place(x=extra+730,y=170+(inst_num*65))
         ui_location_obj['spot'][inst_num]['border']['top']['widget'].place(x=extra+790,y=170+(inst_num*65))
@@ -963,10 +976,13 @@ ui_location_obj['spot']['header label']['channel'] = ttk.Label(
 ui_location_obj['spot']['header label']['note'] = ttk.Label(
     root, text='Note',font=('Courier', 8))
 
+location_spot_any_or_all = ['any','all']
+
 for inst_num in location_inst_nums:
     ui_location_obj['spot'][inst_num] = {}
     ui_location_obj['spot'][inst_num]['header label'] = {}
     ui_location_obj['spot'][inst_num]['checkbutton'] = {}
+    ui_location_obj['spot'][inst_num]['any or all'] = {}
     ui_location_obj['spot'][inst_num]['window size'] = {}
     ui_location_obj['spot'][inst_num]['midi'] = {}
     ui_location_obj['spot'][inst_num]['midi']['var'] = {}
@@ -983,7 +999,10 @@ for inst_num in location_inst_nums:
         ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['widget'] = Checkbutton(
             root, text='Ball '+ball_number, variable= \
             ui_location_obj['spot'][inst_num]['checkbutton']['ball '+ball_number]['var'])
-    ui_location_obj['spot'][inst_num]['window size'] = {}              
+    ui_location_obj['spot'][inst_num]['any or all']['var'] = StringVar(root)
+    ui_location_obj['spot'][inst_num]['any or all']['var'].set('any')
+    ui_location_obj['spot'][inst_num]['any or all']['widget'] = OptionMenu(
+        root, ui_location_obj['spot'][inst_num]['any or all']['var'], *location_spot_any_or_all)              
     ui_location_obj['spot'][inst_num]['window size']['var'] = StringVar(root)
     ui_location_obj['spot'][inst_num]['window size']['var'].set(10)
     ui_location_obj['spot'][inst_num]['window size']['widget'] = ttk.Entry(
@@ -993,7 +1012,7 @@ for inst_num in location_inst_nums:
         ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type] = {}
         ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'] = StringVar(root)
         ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['widget'] = ttk.Entry(
-            root, width = 13,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
+            root, width = 10,textvariable=ui_location_obj['spot'][inst_num]['midi'][location_midi_input_type]['var'])
     ui_location_obj['spot'][inst_num]['border'] = {}
     for location_border_side in location_border_sides:
         ui_location_obj['spot'][inst_num]['border'][location_border_side] = {}
@@ -1158,7 +1177,7 @@ save_button.place(x=10,y=10)
 
 save_file_name = StringVar(root)
 save_file_name.set('')
-save_file_name_entry = ttk.Entry(root, width = 15,textvariable=save_file_name)
+save_file_name_entry = ttk.Entry(root, width = 30,textvariable=save_file_name)
 save_file_name_entry.place(x=100,y=10)    
 
 load_button = ttk.Button(root,text='Load',fg='green',command=lambda: load_config_file(False),height=1,width=9)

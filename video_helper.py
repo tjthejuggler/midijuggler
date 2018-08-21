@@ -69,21 +69,6 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
         break_for_no_video = True 
     return average_fps, grabbed, frame, loop_count, break_for_no_video
 
-    #these are some attempts at frame differencing to help with the color tracking,
-        #but may not be so useful since frame differencing wouldt tell us about balls
-        #we are holding still
-
-def diff(img,img1):
-    return cv2.absdiff(img,img1)
-
-def diff_remove_bg(img,img0,img1):
-    img0 = cv2.cvtColor(img0, cv2.COLOR_BGR2GRAY)
-    img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    d1 = diff(img0,img)
-    d2 = diff(img,img1)
-    return cv2.bitwise_xor(d1,d2)
-
 def get_contour_center(contour):
     cx,cy,moments = [],[],[]
     M = cv2.moments(contour)
