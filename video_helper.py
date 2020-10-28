@@ -17,7 +17,7 @@ from trajectory_helper import *
 record_video = True
 show_overlay = False
 video_name = 'test.avi'
-increase_fps = True
+increase_fps = False
 rotating_sound_num,all_mask = 0,[]
 mouse_down = False
 current_color_selecter_color = [0,0,0]
@@ -43,6 +43,7 @@ def do_arguments_stuff():
 
 def setup_camera():
     load_track_ranges_from_txt_file()
+    vs = None
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
@@ -110,7 +111,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
             show_color_calibration_if_necessary(mask[selected_ball_num],selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value)
             continue
         else:
-            _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+            contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
             for j in range(len(contours)):
                 contour_area = cv2.contourArea(contours[j])

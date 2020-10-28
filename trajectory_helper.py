@@ -20,8 +20,8 @@ def calculate_acceleration(last_two_velocities):
 
 def calculate_kinematics(frame_count):
     global previous_frame_time,temp_count
-    time_since_previous_frame = time.clock() - previous_frame_time
-    previous_frame_time = time.clock() 
+    time_since_previous_frame = time.time() - previous_frame_time
+    previous_frame_time = time.time()
     for i in range(len(settings.all_cx)):
         if settings.all_cx[i][-1] != 'X' and settings.all_cx[i][-2] != 'X':
             last_two_cx = settings.all_cx[i][-2:]
