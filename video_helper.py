@@ -189,6 +189,7 @@ def create_positional_grid_of_notes(mask_copy,matched_indices_count,notes_in_sca
 def create_location_rectangles(mask_copy):
     for inst_num in location_inst_nums:
         if fade_location_obj[inst_num]['active'] == 1:
+            #print("fade_location_obj[inst_num]['location border sides']['left']",fade_location_obj[inst_num]['location border sides']['left'])
             left = settings.frame_width-int(fade_location_obj[inst_num]['location border sides']['left'])
             top = int(fade_location_obj[inst_num]['location border sides']['top'])
             right = settings.frame_width-int(fade_location_obj[inst_num]['location border sides']['right'])

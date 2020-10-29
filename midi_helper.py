@@ -11,6 +11,14 @@ import numpy as np #for webcam
 import random
 import platform
 import cv2
+
+
+from socket import *
+import struct
+
+udp_header = struct.pack("!bIBH", 66, 0, 0, 0)
+s = socket(AF_INET, SOCK_DGRAM)
+
 play_peak_notes = True
 using_height_as_magnitude = True
 using_midi = True
@@ -207,6 +215,7 @@ def get_midi_modulation(ball_index,path_phase,path_type):
     return modulators
 
 def send_midi_messages(channel, notes, magnitude, modulators): 
+    print('send_midi_messages',send_midi_messages)
     for i in modulators:
         print('modulators')
         send_midi_cc(i[0],i[1],i[2])
@@ -270,6 +279,13 @@ def use_as_midi_signal(current_num,max_num):
 def send_midi_cc(channel,controller_num,value):
     send_cc = [midi_cc_channel_num(channel), controller_num, value]
     midiout.send_message(send_cc)
+    print('value', value)
+    #send
+    adjustedValue = min(255,int((value/120)*255))
+    data = struct.pack("!BBBB", 0x0a, adjustedValue,0,255-adjustedValue)
+    s.sendto(udp_header+data, ('192.168.43.240', 41412));
+    s.sendto(udp_header+data, ('192.168.43.85', 41412));
+    s.sendto(udp_header+data, ('192.168.43.35', 41412));
 
 def adjust_song_magnitude(axis,edge_buffer,position,song):
     if axis == 'y':
