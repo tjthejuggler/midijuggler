@@ -11,22 +11,17 @@ from random import randint
 import random
 from settings import *
 import settings
-show_camera = False
+from calibration_helper import *
+import trajectory_helper
+from trajectory_helper import *
 record_video = True
-show_mask = True
 show_overlay = False
 video_name = 'test.avi'
-increase_fps = True
+increase_fps = False
 rotating_sound_num,all_mask = 0,[]
 mouse_down = False
 current_color_selecter_color = [0,0,0]
-color_selecter_pos = [0,0,0,0]
 colors_to_track = [[100,100,100],[12,13,14],[150,170,190]]
-low_track_range_hue= [0,0,0]
-high_track_range_hue= [0,0,0]
-low_track_range_value= [0,0,0]
-high_track_range_value= [0,0,0]
-camera_exposure_number = -7
 most_recently_set_color_to_track = 0
 
 def frames_are_similar(image1, image2):
@@ -46,19 +41,9 @@ def do_arguments_stuff():
     pts = deque(maxlen=args['buffer'])   
     return args
 
-def load_track_ranges_from_txt_file():
-    global low_track_range_hue,low_track_range_value,low_track_range_value,high_track_range_value
-    read_text_file = open('tracked_colors.txt', 'r')
-    lines = read_text_file.readlines()
-    read_text_file.close()
-    for i in range(3):
-        low_track_range_hue[i] = float(lines[0].split(',')[i])
-        high_track_range_hue[i] = float(lines[1].split(',')[i])
-        low_track_range_value[i] = float(lines[2].split(',')[i])
-        high_track_range_value[i] = float(lines[3].split(',')[i])
-
 def setup_camera():
     load_track_ranges_from_txt_file()
+    vs = None
     if increase_fps:
         vs = WebcamVideoStream(src=0).start()
     args = do_arguments_stuff()#i dont know what this is, maybe it is garbage?
@@ -85,22 +70,6 @@ def analyze_video(start,loop_count,vs,camera,args,frame_count):
         break_for_no_video = True 
     return average_fps, grabbed, frame, loop_count, break_for_no_video
 
-    #these are some attempts at frame differencing to help with the color tracking,
-        #but may not be so useful since frame differencing wouldt tell us about balls
-        #we are holding still
-
-def diff(img,img1):
-    return cv2.absdiff(img,img1)
-
-def diff_remove_bg(img,img0,img1):
-    img0 = cv2.cvtColor(img0, cv2.COLOR_BGR2GRAY)
-    img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    d1 = diff(img0,img)
-    d2 = diff(img,img1)
-    return cv2.bitwise_xor(d1,d2)
-average_contour_area_from_last_frame = 0
-
 def get_contour_center(contour):
     cx,cy,moments = [],[],[]
     M = cv2.moments(contour)
@@ -110,14 +79,14 @@ def get_contour_center(contour):
 
 def trim_old_histories():
     for index in range(settings.max_balls):
-        if len(all_cx) > 59:
-            settings.all_cx[index]=settings.all_cx[index][-30:]
-            settings.all_cy[index]=settings.all_cy[index][-30:]
-            miugCom.all_vx[index]=miugCom.all_vx[index][-30:]
-            miugCom.all_vy[index]=miugCom.all_vy[index][-30:]
-            miugCom.all_ay[index]=miugCom.all_ay[index][-30:]
-            #miugCom.all_time_vx[index]=miugCom.all_time_vx[index][-30:]
-            #miugCom.all_time_vy[index]=miugCom.all_time_vy[index][-30:]
+        if len(all_cx[index]) > 100:
+            settings.all_cx[index]=settings.all_cx[index][-80:]
+            settings.all_cy[index]=settings.all_cy[index][-80:]
+            settings.all_vx[index]=settings.all_vx[index][-80:]
+            settings.all_vy[index]=settings.all_vy[index][-80:]
+            settings.all_ay[index]=settings.all_ay[index][-80:]
+            #settings.all_time_vx[index]=settings.all_time_vx[index][-30:]
+            #settings.all_time_vy[index]=settings.all_time_vy[index][-30:]
 
 def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count_window,selected_ball_num):
     global average_contour_area_from_last_frame
@@ -137,22 +106,12 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
         upper_range = np.array([float(high_track_range_hue[i]), float(255),  float(high_track_range_value[i])])
         mask[i] = cv2.inRange(current_framehsv, lower_range, upper_range)
         mask[i]=cv2.erode(mask[i], erode_kernel, iterations=1)
-        mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=3)
-        if show_camera:
-            print("show camera")
-            mask_with_tracking_number = mask[selected_ball_num]
-            cv2.putText(mask_with_tracking_number, 'Calibrating ball '+str(selected_ball_num),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-
-            cv2.putText(mask_with_tracking_number, '(-E/+R)hue low:'+str(low_track_range_hue[selected_ball_num]),(50,80), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, '(-T/+Y)hue high:'+str(high_track_range_hue[selected_ball_num]),(50,110), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, '(-U/+I)value low:'+str(low_track_range_value[selected_ball_num]),(50,140), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            cv2.putText(mask_with_tracking_number, '(-O/+P)value high:'+str(high_track_range_value[selected_ball_num]),(50,170), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
-            print(low_track_range_hue)
-            cv2.imshow('Calibration',mask_with_tracking_number)
+        mask[i]=cv2.dilate(mask[i], dilate_kernel, iterations=4)
+        if settings.show_color_calibration:
+            show_color_calibration_if_necessary(mask[selected_ball_num],selected_ball_num,low_track_range_hue,high_track_range_hue,low_track_range_value,high_track_range_value)
             continue
         else:
-            _, contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
+            contours, hierarchy = cv2.findContours(mask[i],cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         if len(contours) > 0:
             for j in range(len(contours)):
                 contour_area = cv2.contourArea(contours[j])
@@ -163,7 +122,7 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
                     largest_contour_index=j
         if largest_area>0:            
             x, y = get_contour_center(contours[largest_contour_index])
-            settings.all_cx[i].append(x)
+            settings.all_cx[i].append(640-x)
             settings.all_cy[i].append(y)
             number_of_contours_seen = number_of_contours_seen+1
         else:
@@ -176,22 +135,25 @@ def update_contour_histories(frame, previous_frame,two_frames_ago, contour_count
     trim_old_histories()
     return number_of_contours_seen, combined_mask, combined_mask, contour_count_window
 
-def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
+def create_positional_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     if settings.grid_type_to_show == 'positional':
         use_path_type_coloring = True
         use_hybrid_coloring = False
         mask_copy=cv2.cvtColor(mask_copy,cv2.COLOR_GRAY2BGR)
-        rectangle_width = int(settings.frame_width/max(1,notes_in_scale_count))
+        #rectangle_width = int(settings.frame_width/max(1,notes_in_scale_count))
+        rectangle_width = int(settings.frame_width/max(1,len(settings.notes_to_use)))
         rectangles_with_peaks = []
         rectangles_with_peaks_path_types = []
         color_to_use = (0,0,0)
+        #print(str(matched_indices_count))
         for i in range(0,matched_indices_count):
             if path_phase[i] == 'peak' or path_phase[i] == 'lift':
-                rectangles_with_peaks.append(math.floor(all_cx[i][-1]/rectangle_width))
-                rectangles_with_peaks_path_types.append(path_type[i])  
+                if all_cx[i][-1] != 'X':
+                    rectangles_with_peaks.append(math.floor(int(all_cx[i][-1])/int(rectangle_width)))
+                    rectangles_with_peaks_path_types.append(path_type[i])  
         for i in range(0,notes_in_scale_count):
-            left_corner = i*rectangle_width
-            right_corner = (i+1)*rectangle_width
+            left_corner = settings.frame_width-i*rectangle_width
+            right_corner = settings.frame_width-(i+1)*rectangle_width
             if i in rectangles_with_peaks:
                 if use_path_type_coloring:
                     this_path_type = rectangles_with_peaks_path_types[rectangles_with_peaks.index(i)]
@@ -199,7 +161,7 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
                     if 'cross' in this_path_type:
                         fill_red = 0
                     if 'column' in this_path_type:
-                        fill_blue,fill_green,fill_red = 100,100,200
+                        fill_blue,fill_green,fill_red = 255,255,255
                     if 'right' in this_path_type:
                         fill_blue = 255
                     if 'left' in this_path_type:
@@ -224,6 +186,23 @@ def create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
         mask_copy = create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
     return mask_copy
 
+def create_location_rectangles(mask_copy):
+    for inst_num in location_inst_nums:
+        if fade_location_obj[inst_num]['active'] == 1:
+            left = settings.frame_width-int(fade_location_obj[inst_num]['location border sides']['left'])
+            top = int(fade_location_obj[inst_num]['location border sides']['top'])
+            right = settings.frame_width-int(fade_location_obj[inst_num]['location border sides']['right'])
+            bottom = int(fade_location_obj[inst_num]['location border sides']['bottom'])
+            cv2.rectangle(mask_copy,(left,top),(right,bottom),(255,255,255),2)
+    for inst_num in location_inst_nums:
+        if spot_location_obj[inst_num]['active'] == 1:
+            left = settings.frame_width-int(spot_location_obj[inst_num]['location border sides']['left'])
+            top = int(spot_location_obj[inst_num]['location border sides']['top'])
+            right = settings.frame_width-int(spot_location_obj[inst_num]['location border sides']['right'])
+            bottom = int(spot_location_obj[inst_num]['location border sides']['bottom'])
+            cv2.rectangle(mask_copy,(left,top),(right,bottom),(255,255,255),2)            
+    return mask_copy
+
 def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_count):
     honeycomb_diameter = int(settings.frame_width/settings.number_of_honeycomb_rows)
     honeycomb_radius = int(honeycomb_diameter/2)
@@ -235,7 +214,30 @@ def create_honeycomb_of_notes(mask_copy,matched_indices_count,notes_in_scale_cou
                 cv2.circle(mask_copy,(r*honeycomb_diameter,c*honeycomb_diameter), honeycomb_radius, (255,255,255), 2)
             else:
                 cv2.circle(mask_copy,(r*honeycomb_diameter+honeycomb_radius,c*honeycomb_diameter), honeycomb_radius, (255,255,255), 2)
-            
+    return mask_copy
+
+def show_box_counter(mask_copy):
+    cv2.rectangle(mask_copy,(220,200),(420,400),(255,255,255),2) 
+    cv2.putText(mask_copy, 'In box: '+str(trajectory_helper.box_count),(10,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    return mask_copy
+
+def show_path_point_counters(mask_copy):
+    path_point_positions = ['throw','catch','peak']
+    for index,path_point_position in enumerate(path_point_positions):
+        if path_point_info[path_point_position]['counter active'].get() == 1:
+            cv2.putText(mask_copy, path_point_position+': '+str(path_point_info[path_point_position]['counter']),(10+(index+1)*120,440), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    return mask_copy
+
+def indicate_active_apart_instances(mask_copy):
+    for inst_num in apart_inst_nums:
+        if apart_obj[inst_num]['active'] == 1:
+            cv2.putText(mask_copy, 'AP'+str(inst_num),(10+(inst_num*65),400), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
+    return mask_copy
+
+def indicate_active_movement_instances(mask_copy):
+    for inst_num in movement_inst_nums:
+        if movement_obj[inst_num]['active'] == 1:
+            cv2.putText(mask_copy, 'MO'+str(inst_num),(10+(inst_num*65),420), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
     return mask_copy
 
 def on_mouse_click(event, x, y, flags, frame):
@@ -244,7 +246,7 @@ def on_mouse_click(event, x, y, flags, frame):
     mouse_y = y
     #if event == cv2.EVENT_RBUTTONDOWN:
     if event == cv2.EVENT_LBUTTONDOWN:
-        if show_camera:
+        if settings.show_color_calibration:
             color_selecter_pos[0],color_selecter_pos[1] = min(settings.frame_width,x),min(settings.frame_height,y)
         mouse_down = True
     elif event == cv2.EVENT_LBUTTONUP:
@@ -253,7 +255,7 @@ def on_mouse_click(event, x, y, flags, frame):
 
 def show_color_selecter(frame):
     frame_copy = frame 
-    if show_camera:
+    if settings.show_color_calibration:
         if mouse_down:
             cv2.rectangle(frame_copy,(color_selecter_pos[0],color_selecter_pos[1]),(mouse_x,mouse_y),(255,255,255),2)
         else:
@@ -261,22 +263,28 @@ def show_color_selecter(frame):
     return frame_copy
 
 def show_and_record_video(frame,out,start,average_fps,mask,all_mask,original_mask,matched_indices_count,notes_in_scale_count):    
-    show_scale_grid = True            
+    #show_scale_grid = True
     if record_video:
         record_frame(frame, out, start, average_fps)
-    if show_camera:
+    if settings.show_color_calibration:
         frame_copy = show_color_selecter(frame)
         cv2.putText(frame_copy, '(-Z/+X)exposure: '+str(camera_exposure_number),(50,50), cv2.FONT_HERSHEY_SIMPLEX,0.7,(255,255,255),1)
         cv2.imshow('individual color calibration', frame_copy)
         cv2.setMouseCallback('individual color calibration', on_mouse_click, frame_copy)
-    if show_mask:
-        if show_scale_grid:# and midi_note_based_on_position_is_in_use:
-            mask_copy = mask
-            mask_copy = create_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
-            mask_copy = cv2.flip(mask_copy,1)
-            cv2.imshow('miug',mask_copy)
-        else:
-            cv2.imshow('mask',mask)
+    if settings.show_main_camera:        
+        mask_copy = mask        
+        if settings.show_scale_grid:# and midi_note_based_on_position_is_in_use:
+            mask_copy = create_positional_grid_of_notes(mask_copy,matched_indices_count,notes_in_scale_count)
+        mask_copy = create_location_rectangles(mask_copy)
+        mask_copy = cv2.flip(mask_copy,1)
+        mask_copy = indicate_active_apart_instances(mask_copy)
+        mask_copy = indicate_active_movement_instances(mask_copy)
+        if tool_inputs['box']['active'].get() == 1:
+            mask_copy = show_box_counter(mask_copy) #this doesnt work, i want it to be a box counter really        
+        mask_copy = show_path_point_counters(mask_copy)
+        cv2.imshow('main_camera',mask_copy)
+        #else:
+            #cv2.imshow('color_calibration',mask)     
     if show_overlay: 
         all_mask.append(original_mask)
     return all_mask

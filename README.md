@@ -34,6 +34,9 @@ Install pygame:
 
 Windows installation should be very similar to the Mac installation.
 
+Linux:
+	apt-get install libasound2-dev
+
 
 
 A third-party DAW is not required to use miugCom, however more features are available

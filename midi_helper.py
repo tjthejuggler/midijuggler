@@ -1,4 +1,3 @@
-import pygame as pg
 from music_helper import get_notes_in_scale
 import time #for sending midi
 import rtmidi #for sending midi
@@ -7,13 +6,11 @@ from settings import *
 import settings
 from pychord import Chord
 import math
+from math import sqrt
 import numpy as np #for webcam
 import random
 import platform
-pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
-pg.mixer.init()
-pg.init()
-pg.mixer.set_num_channels(19)
+import cv2
 play_peak_notes = True
 using_height_as_magnitude = True
 using_midi = True
@@ -21,6 +18,10 @@ midiout = rtmidi.MidiOut()
 midi_associations = {}
 use_adjust_song_magnitude = False
 use_override_notes,override_notes = False,[]
+soundscape_image = cv2.imread('soundscape.png',1)
+can_send_spot_location_midi_note = [True,True,True,True,True,True,True,True]
+
+
 
 def position_to_midi_value(current_position, max_position, edge_buffer):
     value = 0
@@ -55,12 +56,12 @@ def positional_selecter(ball_index, list_of_notes):
         stretched_note_positions.append(int(i*section_size+section_size*.5))
     triggered_section_position = min(stretched_note_positions, key=lambda x:abs(x-all_cx[ball_index][-1]))
     triggered_section_index = stretched_note_positions.index(triggered_section_position)
-    midi_associations['peak']['mid column']['times_position_triggered'][triggered_section_index]+=1
+    '''midi_associations['ball '+str(ball_index)]['peak']['mid column']['times_position_triggered'][triggered_section_index]+=1
     for i in range(4):
         if i != triggered_section_index:
-            midi_associations['peak']['mid column']['times_position_triggered'][triggered_section_index]=0
+            midi_associations['ball '+str(ball_index)]['peak']['mid column']['times_position_triggered'][triggered_section_index]=0'''
     if settings.play_chords_as_arpeggio:
-        cur_arpeggio_index = midi_associations['peak']['mid column']['times_position_triggered'][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
+        #cur_arpeggio_index = midi_associations['ball '+str(ball_index)]['peak']['mid column']['times_position_triggered'][triggered_section_index]%len(settings.scale_to_use[triggered_section_index])
         notes_to_return = list_of_notes[triggered_section_index][cur_arpeggio_index]
     else:
         notes_to_return = list_of_notes[triggered_section_index]
@@ -136,7 +137,7 @@ def get_midi_from_letter(letter, current_octave):
 loop_creator_counter = 0
 
 def loop_creator(note):
-    print('p')
+    #print('p')
     global loop_creator_counter
     if loop_creator_counter == 0:
         send_midi_note_on_only(2,note,100)
@@ -147,11 +148,8 @@ def loop_creator(note):
     loop_creator_counter =+ 1
     return note 
 
-
-def setup_midi():
-    create_association_object()
+def setup_midi():    
     available_ports = midiout.get_ports()
-    print('hereeeee')
     if available_ports:
         try:
             if platform.system().lower() == "darwin":
@@ -164,87 +162,60 @@ def setup_midi():
     else:
         midiout.open_virtual_port('My virtual output')
 
-def setup_peak_notes():
-    sounds = []
-    sounds.append(pg.mixer.Sound('notes01.wav'))
-    sounds.append(pg.mixer.Sound('notes02.wav'))
-    sounds.append(pg.mixer.Sound('notes03.wav'))
-    sounds.append(pg.mixer.Sound('notes04.wav'))
-    return sounds
-
-def setup_adjust_song_magnitude():
-    pg.mixer.pre_init(frequency=44100, size=-16, channels=1, buffer=512)
-    pg.mixer.init()
-    pg.init()
-    pg.mixer.set_num_channels(19)
-    song=pg.mixer.Sound('song.wav')
-    song.play()
-    return song
-
-def setup_audio():
-    if play_peak_notes:
-        sounds = setup_peak_notes()
-    else:
-        sounds = None
-    if use_adjust_song_magnitude:
-        song = setup_adjust_song_magnitude()
-    else:
-        song = None
-    if using_midi:
-        setup_midi()
-    return sounds, song
-
-def get_midi_note(index,path_phase,path_type):
+def get_midi_note(ball_index,path_phase,path_type):
     channel = 0
     notes = []
     magnitude = 0
-    this_path_phase = path_phase[index]
-    this_path_type = path_type[index]
+    this_path_phase = path_phase[ball_index]
+    this_path_type = path_type[ball_index]
     is_ongoing = False
-    if this_path_phase in midi_associations:
-        if this_path_type in midi_associations[this_path_phase]:
-            if 'channel' in midi_associations[this_path_phase][this_path_type]:
-                channel = midi_associations[this_path_phase][this_path_type]['channel']           
-            if 'notes' in midi_associations[this_path_phase][this_path_type]:
-                all_possible_notes = midi_associations[this_path_phase][this_path_type]['notes']
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'rotational':
-                        notes = rotational_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'positional':
-                        notes = positional_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'hybrid':
-                        notes = hybrid_selecter(index,all_possible_notes)
-                if midi_associations[this_path_phase][this_path_type]['note_selection_mode'] == 'loop':
+    if this_path_phase in midi_associations['ball '+str(ball_index)]:
+        if this_path_type in midi_associations['ball '+str(ball_index)][this_path_phase]:
+            if 'channel' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                channel = midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['channel']           
+            if 'notes' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                all_possible_notes = midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['notes']
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'rotational':
+                        notes = rotational_selecter(ball_index,all_possible_notes)
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'current positional':
+                        #print('current positional')
+                        notes = positional_selecter(ball_index,all_possible_notes)
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'hybrid':
+                        notes = hybrid_selecter(ball_index,all_possible_notes)
+                if midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['note_selection_mode'] == 'loop':
                         notes = loop_creator(all_possible_notes)
-            if 'magnitude' in midi_associations[this_path_phase][this_path_type]:
-                magnitude = midi_associations[this_path_phase][this_path_type]['magnitude'](index)    
-    if 'all phases' in midi_associations:
-        if midi_associations['all phases']['all types']['note_selection_mode'] == 'honeycomb':
+            if 'magnitude' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                magnitude = midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['magnitude'](ball_index)    
+    if 'all phases' in midi_associations['ball '+str(ball_index)]:
+        if midi_associations['ball '+str(ball_index)]['all phases']['all types']['note_selection_mode'] == 'honeycomb':
             is_ongoing = True
-            all_possible_notes = midi_associations['all phases']['all types']['notes']
-            notes = honeycomb_selecter(index,all_possible_notes)
-            magnitude = midi_associations['all phases']['all types']['magnitude'](index)
-            channel = midi_associations['all phases']['all types']['channel']
+            all_possible_notes = midi_associations['ball '+str(ball_index)]['all phases']['all types']['notes']
+            notes = honeycomb_selecter(ball_index,all_possible_notes)
+            magnitude = midi_associations['ball '+str(ball_index)]['all phases']['all types']['magnitude'](ball_index)
+            channel = midi_associations['ball '+str(ball_index)]['all phases']['all types']['channel']
     return channel, notes, magnitude, is_ongoing
 
-def get_midi_modulation(index,path_phase,path_type):
-    this_path_phase = path_phase[index]
-    this_path_type = path_type[index]
+def get_midi_modulation(ball_index,path_phase,path_type):
+    this_path_phase = path_phase[ball_index]
+    this_path_type = path_type[ball_index]
     modulators = []
-    if this_path_phase in midi_associations:
-        if this_path_type in midi_associations[this_path_phase]:
-            if 'modulator' in midi_associations[this_path_phase][this_path_type]:
-                for i in midi_associations[this_path_phase][this_path_type]['modulator']:
-                    modulators.append(midi_modulator(index, i[0], i[1], i[2]))
+    if this_path_phase in midi_associations['ball '+str(ball_index)]:
+        if this_path_type in midi_associations['ball '+str(ball_index)][this_path_phase]:
+            if 'modulator' in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]:
+                for i in midi_associations['ball '+str(ball_index)][this_path_phase][this_path_type]['modulator']:
+                    modulators.append(midi_modulator(ball_index, i[0], i[1], i[2]))
     return modulators
 
-def send_midi_messages(channel, notes, magnitude, modulators):
-    #print(notes) 
+def send_midi_messages(channel, notes, magnitude, modulators): 
     for i in modulators:
+        print('modulators')
         send_midi_cc(i[0],i[1],i[2])
     try:
         send_midi_note(channel,notes,magnitude)
+        print('try')
     except TypeError:
         for n in notes:
+            print('except')
             send_midi_note(channel,n,magnitude)
 
 def get_wav_sample(index):
@@ -275,10 +246,6 @@ midi_note_to_off = 0
 
 def send_midi_note_on_only(channel,note,magnitude):
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
-    '''print('lll')
-    print(midi_note_channel_num(channel,'on'))
-    print(note)
-    print(magnitude)'''
     midiout.send_message(note_on)
 
 def turn_midi_note_off(channel,note):
@@ -290,11 +257,12 @@ def turn_midi_note_off(channel,note):
 
 def send_midi_note(channel,note,magnitude):                  
     note_on = [midi_note_channel_num(channel,'on'), note, magnitude]
+    print(note_on)
     midiout.send_message(note_on)
-    midi_channel_to_off = channel
+    '''midi_channel_to_off = channel
     midi_note_to_off = note
     off = th.Timer(0.4,turn_midi_note_off, args = [channel,note])     
-    off.start()
+    off.start()'''
 
 def use_as_midi_signal(current_num,max_num):
     return 127*(current_num/max_num)
@@ -314,6 +282,11 @@ def adjust_song_magnitude(axis,edge_buffer,position,song):
         song.set_magnitude(0)
     song.set_magnitude((position-edge_buffer)/(size-edge_buffer*2))
 
+def send_midi_note_from_soundscape_color(soundscape_color):
+    soundscape_color = np.array(soundscape_color).tolist()
+    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
+    send_midi_messages(2,average_soundscape_color,40,[])
+
 def average_position(all_axis, window_length, window_end_frame):
     average_pos = 0
     count = 0
@@ -322,47 +295,356 @@ def average_position(all_axis, window_length, window_end_frame):
         for j in range(0, average_duration):
             index = window_end_frame-j
             if abs(index)<len(all_axis[i]):
-                if all_axis[i][-index] > 0:
-                    count = count+1
-                    average_pos = average_pos + all_axis[i][index]
+                if not all_axis[i][index] == 'X':
+                    if all_axis[i][index] > 0:
+                        if not all_axis[i][index] == 'X':
+                            count = count+1
+                            average_pos = average_pos + all_axis[i][index]
     if count > 0:
         average_pos = average_pos/count
     return average_pos
 last_note_sent = 0
 
-def send_midi_note_from_soundscape_color(soundscape_color):
-    soundscape_color = np.array(soundscape_color).tolist()
-    average_soundscape_color = (soundscape_color[0]+soundscape_color[1]+soundscape_color[2])/4
-    send_midi_messages(2,average_soundscape_color,40,[])
+def average_position_of_single_ball(ball_number, window_length):
+    ball_number = int(ball_number)
+    axes = [[x for x in all_cx[ball_number-1] if x is not 'X'], [x for x in all_cy[ball_number-1] if x is not 'X']]
+    average_positions = [-1,-1]
+    average_duration = min(len(axes[0]), int(window_length))
+    #print('average_duration'+str(average_duration))
+    axis_num = 0
+    for axis in axes:
+        if average_duration>0:
+            average_position_of_current_axis= np.average(axis[-average_duration+1:])
+            average_positions[axis_num] = average_position_of_current_axis
+        axis_num += 1
+    '''print("average_position_of_single_ball")
+    print(axes)
+    print(average_positions)'''
+    return average_positions[0],average_positions[1]
 
-def create_audio(index,soundscape_image):
+def create_individual_ball_path_point_audio(ball_index):
     global use_override_notes,override_notes,last_note_sent
     is_ongoing = False
     if use_adjust_song_magnitude:
         adjust_song_magnitude('y',120,average_position(all_cy, 10, -1),song)
     if using_midi:
-        if path_phase[index] == 'putt':
-            override_notes = positional_selecter(index,settings.scale_to_use)
+        if path_phase[ball_index] == 'putt':
+            override_notes = positional_selecter(ball_index,settings.scale_to_use)
             use_override_notes = True
         if settings.using_soundscape:
-            soundscape_color = soundscape_image[all_cy[index][-1],all_cx[index][-1]]
+            soundscape_color = soundscape_image[all_cy[ball_index][-1],all_cx[ball_index][-1]]
             send_midi_note_from_soundscape_color(soundscape_color)
         else:
-            if path_phase[index] in midi_associations and path_type[index] in midi_associations[path_phase[index]]:
-                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
-                    modulators = get_midi_modulation(index,path_phase,path_type)
-                    send_midi_messages(channel+index, notes, magnitude, modulators)
-            elif 'all phases' in midi_associations: # i think this should be replaced with
-            #   some kind of function that makes all the associations
-                    channel, notes, magnitude, is_ongoing = get_midi_note(index,path_phase,path_type)         
-                    if last_note_sent != notes:
-                        turn_midi_note_off(channel,last_note_sent)
-                        send_midi_note_on_only(channel, notes, magnitude)
-                        last_note_sent = notes        
+            #print('ball_index '+str(ball_index))
+            if ('ball '+str(ball_index)) in midi_associations:
+                if path_phase[ball_index] in midi_associations['ball '+str(ball_index)] and path_type[ball_index] in midi_associations['ball '+str(ball_index)][path_phase[ball_index]]:
+                    #print('path_type[ball_index]')
+                    #print(path_type[ball_index])#TODO EACH BALL IS BEING GIVEN A PATH_TYPE(RELATIVE POSITION) BASED ON ITS BALL NUMBER
+                    channel, notes, magnitude, is_ongoing = get_midi_note(ball_index,path_phase,path_type)         
+                    modulators = get_midi_modulation(ball_index,path_phase,path_type)
+                    send_midi_messages(channel, notes, magnitude, modulators)                      
     else:
-        note, magnitude = get_wav_sample(index)
-        modulation = get_wav_modulation(index)
+        note, magnitude = get_wav_sample(ball_index)
+        modulation = get_wav_modulation(ball_index)
         send_wav_messages(note, magnitude, modulation)
+
+def is_valid_fade_location_input(inst_num,location_direction):
+    list_of_ball_numbers = ['1','2','3']
+    is_valid = False
+    '''print('val1')
+    print(inst_num)
+    print(fade_location_obj[inst_num])
+    print(fade_location_obj[inst_num]['balls to average'])'''
+    if fade_location_obj[inst_num]['active'] == 1:
+        if any(i in list_of_ball_numbers for i in fade_location_obj[inst_num]['balls to average']):
+            #print('val2')
+            if int(fade_location_obj[inst_num]['window size']) > 0:
+                #print('val3')
+                if str(fade_location_obj[inst_num][location_direction]['channel']).isdigit():
+                    #print('val4')
+                    if str(fade_location_obj[inst_num][location_direction]['number']).isdigit():
+                        is_valid = True
+    return is_valid
+
+def is_valid_spot_location_input(inst_num):
+    list_of_ball_numbers = ['1','2','3']
+    is_valid = False
+    if spot_location_obj[inst_num]['active'] == 1:
+        #print(spot_location_obj[inst_num]['balls to average'])
+        if any(i in list_of_ball_numbers for i in spot_location_obj[inst_num]['balls to average']):
+            if int(spot_location_obj[inst_num]['window size']) > 0:
+                if spot_location_obj[inst_num]['channel'].isdigit():
+                    is_valid = True
+    return is_valid
+
+def create_multiple_ball_audio():
+    execute_fade_location()
+    execute_spot_location()
+    execute_apart()
+    execute_movement()
+
+def execute_apart():
+    for inst_num in apart_inst_nums:
+        if apart_obj[inst_num]['active'] == 1:
+            visibile_ball_x = []
+            for ball_number in range(3):
+                if all_cx[ball_number][-1] != 'X':
+                    visibile_ball_x.append(all_cx[ball_number][-1])
+            if len(visibile_ball_x) > 0:
+                if max(visibile_ball_x)-min(visibile_ball_x)>int(apart_obj[inst_num]['distance']):
+                    if apart_obj[inst_num]['currently apart'] == False:
+                        apart_obj[inst_num]['currently apart'] = True
+                        channel = apart_obj[inst_num]['channel']
+                        number = apart_obj[inst_num]['number']
+                        send_event_messages(apart_obj,inst_num,channel,number,60)                        
+                else:
+                    apart_obj[inst_num]['currently apart'] = False
+
+def send_event_messages(event_obj,inst_num,channel,number,magnitude):
+    messages = number.split('/') #we only send the messages(either midi or instance toggles) between the commas we are currently at
+    number_of_messages = len(messages)
+    messages = messages[event_obj[inst_num]['current message index']].split(';') #seperate each of the messages between our commas
+    event_obj[inst_num]['current message index'] += 1
+    if event_obj[inst_num]['current message index'] == number_of_messages:
+        event_obj[inst_num]['current message index'] = 0
+    print(messages)
+    for message in messages: #go through them one at a time,
+        if any(c.isalpha() for c in message): #if they contain a letter, then we know they are instance toggles
+            toggle_instance_if_valid_message(message)
+        else: #if they do not contain a letter then we know they are midi signals
+            send_midi_note(int(channel),int(message),60)
+
+def toggle_instance_if_valid_message(message):
+    global midi_associations
+    inst_num = int(''.join(c for c in message if c.isdigit()))
+    if 'pp' in message:
+        if path_point_instance_obj[inst_num]['active'] == 0:
+            path_point_instance_obj[inst_num]['active'] = 1
+        elif path_point_instance_obj[inst_num]['active'] == 1:
+            path_point_instance_obj[inst_num]['active'] = 0
+        midi_associations = {}
+        create_association_object()  
+    elif 'lf' in message:
+        if fade_location_obj[inst_num]['active'] == 0:
+            fade_location_obj[inst_num]['active'] = 1
+        elif fade_location_obj[inst_num]['active'] == 1:
+            fade_location_obj[inst_num]['active'] = 0  
+    elif 'ls' in message:
+        if spot_location_obj[inst_num]['active'] == 0:
+            spot_location_obj[inst_num]['active'] = 1
+        elif spot_location_obj[inst_num]['active'] == 1:
+            spot_location_obj[inst_num]['active'] = 0        
+    elif 'sp' in message:
+        if speed_obj[inst_num]['active'] == 0:
+            speed_obj[inst_num]['active'] = 1
+        elif speed_obj[inst_num]['active'] == 1:
+            speed_obj[inst_num]['active'] = 0
+    elif 'ap' in message:
+        #print(apart_obj)
+        if apart_obj[inst_num]['active'] == 0:
+            apart_obj[inst_num]['active'] = 1
+        elif apart_obj[inst_num]['active'] == 1:
+            apart_obj[inst_num]['active'] = 0
+    elif 'mo' in message:
+        if movement_obj[inst_num]['active'] == 0:
+            movement_obj[inst_num]['active'] = 1
+        elif movement_obj[inst_num]['active'] == 1:
+            movement_obj[inst_num]['active'] = 0
+
+#things wanted for performance
+#   -ability to toggle through different event types
+#   -
+
+def average_velocity_of_single_ball(ball_number, window_length):
+    ball_number = int(ball_number)
+    #print(all_vx)
+    axes = [[x for x in all_vx[ball_number] if x is not 'X'], [x for x in all_vy[ball_number] if x is not 'X']]
+    #print('axes :')
+    #print(axes)
+    average_velocities = [-1,-1]
+    average_duration = min(len(axes[0]), int(window_length))
+    #print('average_duration'+str(average_duration))
+    axis_num = 0
+    for axis in axes:
+        if average_duration>0:
+            average_velocities[axis_num] = np.average(axis[-average_duration+1:])            
+        axis_num += 1
+    '''print("average_velocitie_of_single_ball")
+    print(axes)
+    print(average_velocities)'''
+    velocity = sqrt(average_velocities[0] * average_velocities[0] + average_velocities[1] * average_velocities[1])
+    return velocity
+
+def check_for_movement():
+    ave_velocities = []
+    at_least_one_ball_is_in_the_air = False
+    for ball_number in range(3):
+        if all_cx[ball_number][-1] != 'X':
+            #print('all_cx[ball_number][-1] :'+str(all_cx[ball_number][-1]))
+            velocity = average_velocity_of_single_ball(ball_number,2)
+            #print('velocity :'+str(velocity))
+            #print('Cx '+str(Cx))
+            ave_velocities.append(velocity)
+        if path_phase[ball_number] == 'up' or path_phase[ball_number] == 'peak' or \
+            path_phase[ball_number] == 'down' or path_phase[ball_number] == 'catch' or path_phase[ball_number] == 'throw':
+                at_least_one_ball_is_in_the_air = True
+    #print('max(ave_velocities) :'+str(max(ave_velocities)))
+    #print(at_least_one_ball_is_in_the_air)
+    #print('np.average(ave_velocities) :'+str(np.average(ave_velocities)))
+    #return (np.average(ave_velocities) > 5)
+    
+    return (max(ave_velocities) > 7 or at_least_one_ball_is_in_the_air)
+
+currently_moving = True
+def execute_movement():
+    global currently_moving
+    movement_used = False
+    for inst_num in movement_inst_nums:
+        #print(movement_obj)
+        if movement_obj[inst_num]['active'] == 1:
+            movement_used = True
+    if movement_used:
+        #print('movement_used')
+        if currently_moving:
+            #print('currently moving' )
+            currently_moving = check_for_movement()
+
+            if not currently_moving:
+                #print('STOPPED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                for inst_num in movement_inst_nums:
+                    if movement_obj[inst_num]['active'] == 1:
+                    #print(movement_obj[inst_num]['move or stop'])
+                        if movement_obj[inst_num]['move or stop'] == 'stop':
+                            channel = movement_obj[inst_num]['channel']
+                            number = movement_obj[inst_num]['number']
+                            #print('channel'+channel)
+                            #print('number'+number)
+                            send_event_messages(apart_obj,inst_num,channel,number,60)
+                            #send_midi_note(int(channel),int(number),60)
+        elif not currently_moving:
+            currently_moving = check_for_movement()
+            if currently_moving:
+                #print('MOVED@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+                for inst_num in movement_inst_nums:
+                    if movement_obj[inst_num]['active'] == 1:
+                        if movement_obj[inst_num]['move or stop'] == 'move':
+                            channel = movement_obj[inst_num]['channel']
+                            number = movement_obj[inst_num]['number']
+                            send_event_messages(apart_obj,inst_num,channel,number,60)
+                            #send_midi_note(int(channel),int(number),60)
+
+def execute_spot_location():
+    for i in range (8):
+        if is_valid_spot_location_input(i):
+            ball_numbers_to_average = spot_location_obj[i]['balls to average']
+            if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
+            #print('ball_numbers_to_average'+str(ball_numbers_to_average))
+            window_size = spot_location_obj[i]['window size']
+            channel = spot_location_obj[i]['channel']
+            number = spot_location_obj[i]['number']
+            ave_cx = []
+            ave_cy = []
+            for ball_number in ball_numbers_to_average:
+                #print('ball_number'+str(ball_number))
+                #print('window_size'+str(window_size))
+                Cx, Cy = average_position_of_single_ball(ball_number,window_size)
+                #print('Cx '+str(Cx))
+                #print('Cy '+str(Cy))
+                if spot_location_obj[i]['any or all'] == 'all':
+                    if Cx >= 0:
+                        ave_cx.append(Cx) 
+                        ave_cy.append(Cy)
+                elif spot_location_obj[i]['any or all'] == 'any':
+                    if Cx >= 0:
+                        ave_cx = []
+                        ave_cx.append(Cx) 
+                        ave_cy = []
+                        ave_cy.append(Cy)                    
+            #print( spot_location_obj[i]['location border sides'])
+            left_border = spot_location_obj[i]['location border sides']['left']
+            right_border = spot_location_obj[i]['location border sides']['right']
+            top_border = spot_location_obj[i]['location border sides']['top']
+            bottom_border = spot_location_obj[i]['location border sides']['bottom']
+            #print('np.average(ave_cx)' +str(np.average(ave_cx)))
+            #print('np.average(ave_cy)' +str(np.average(ave_cy)))
+            try:
+                if (np.average(ave_cx) > int(left_border) and np.average(ave_cx) < int(right_border) 
+                    and np.average(ave_cy) > int(top_border) and np.average(ave_cy) < int(bottom_border)):
+                    if can_send_spot_location_midi_note[i]:
+                        print('sendM')
+                        send_event_messages(apart_obj,inst_num,channel,number,60)
+                        #send_midi_note(int(channel),int(number),60)
+                        can_send_spot_location_midi_note[i] = False
+                else:
+                    can_send_spot_location_midi_note[i] = True
+            except:
+                pass
+
+def execute_fade_location():
+    for i in range (8):
+        for location_direction in location_directions:
+            if is_valid_fade_location_input(i,location_direction):
+                ball_numbers_to_average = fade_location_obj[i]['balls to average']
+                if '' in ball_numbers_to_average: ball_numbers_to_average.remove('')
+                #print('ball_numbers_to_average'+str(ball_numbers_to_average))
+                #print(fade_location_obj[i][location_direction]['channel'])
+                window_size = fade_location_obj[i]['window size']
+                channel = fade_location_obj[i][location_direction]['channel']
+                number = fade_location_obj[i][location_direction]['number']
+                ave_cx = []
+                ave_cy = []
+                for ball_number in ball_numbers_to_average:
+                    #print('ball_number'+str(int(ball_number)))
+                    Cx, Cy =average_position_of_single_ball(ball_number,window_size)
+                    #print('Cx '+str(Cx))
+                    #print('Cy '+str(Cy))
+                    if Cx >= 0:
+                        ave_cx.append(Cx) 
+                        ave_cy.append(Cy)                          
+                if location_direction == 'horizontal':
+                    first_edge = fade_location_obj[i]['location border sides']['left']
+                    second_edge = fade_location_obj[i]['location border sides']['right']
+                    send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cx),channel,number)
+                if location_direction == 'vertical':
+                    first_edge = fade_location_obj[i]['location border sides']['top']
+                    second_edge = fade_location_obj[i]['location border sides']['bottom']
+                    send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,np.average(ave_cy),channel,number)
+
+        #send_midi_cc_based_on_average_speed_while_held()
+        #send_midi_cc_based_on_average_speed() 
+
+def send_midi_cc_based_on_average_speed_while_held():
+    for i in range(3):#average all 6 velocities together over a certain amount of time and then get a low
+        print(i)#and high number to be the 0, 128 and figure it out from there
+
+def send_midi_cc_based_on_average_position(location_direction,first_edge,second_edge,average_position,channel,number):
+    value = 0
+    first_edge = int(first_edge)
+    second_edge = int(second_edge)
+    #print('all_cx[1][-1]'+str(all_cx[1][-1]))
+    #print('average_position'+str(average_position))
+
+    if location_direction == 'vertical':
+        size = settings.frame_height        
+    if location_direction == 'horizontal':
+        size = settings.frame_width
+
+    if average_position<first_edge:
+        value = 0
+
+    elif average_position>second_edge:
+        value = 126
+    else:        
+        distance_between_edges = abs(first_edge-second_edge)
+        distance_between_edge_and_average_position = abs(first_edge-average_position)
+        value = max(0,(distance_between_edge_and_average_position/distance_between_edges)*128)
+
+    #print(str(channel) +','+ str(number) +','+str(value) )
+
+    if number == '0':
+        send_midi_cc(int(channel),int(number),128-value)
+    else:
+        send_midi_cc(int(channel),int(number),value)
 
 def create_association_object():
     if settings.using_loop:
@@ -407,187 +689,37 @@ def create_association_object():
     #settings.scale_to_use = [60,62,64,66,68,74,70,74,68,66,66,64,64,62,62,60]
     cross_notes_to_use = settings.scale_to_use
     column_notes_to_use = settings.scale_to_use
-    '''midi_associations['all phases'] = {}
-    midi_associations['all phases']['all types'] = {}
-    midi_associations['all phases']['all types']['channel'] = 2
-    midi_associations['all phases']['all types']['note_selection_mode'] = 'honeycomb'
-    midi_associations['all phases']['all types']['notes'] = settings.scale_to_use
-    midi_associations['all phases']['all types']['magnitude'] = midi_magnitude  ''' 
-    '''midi_associations['throw'] = {}
-    midi_associations['throw']['mid column'] = {}
-    midi_associations['throw']['mid column']['channel'] = 2
-    midi_associations['throw']['mid column']['note_selection_mode'] = column_selection_mode
-    midi_associations['throw']['mid column']['notes'] = column_notes_to_use
-    midi_associations['throw']['mid column']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    #midi_associations['throw']['mid column'] = {}
-    #midi_associations['throw']['mid column']['channel'] = 2
-    #midi_associations['throw']['mid column']['notes']['scale_type'] = 
-    #midi_associations['throw']['mid column']['notes']['root'] = 
-    #midi_associations['throw']['mid column']['notes'][''] = chord/scale/individual   
-    midi_associations['throw']['left column'] = {}
-    midi_associations['throw']['left column']['channel'] = 2
-    midi_associations['throw']['left column']['note_selection_mode'] = column_selection_mode
-    midi_associations['throw']['left column']['notes'] = column_notes_to_use
-    midi_associations['throw']['left column']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['right column'] = {}
-    midi_associations['throw']['right column']['channel'] = 2
-    midi_associations['throw']['right column']['note_selection_mode'] = column_selection_mode
-    midi_associations['throw']['right column']['notes'] = column_notes_to_use
-    midi_associations['throw']['right column']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['mid cross'] = {}
-    midi_associations['throw']['mid cross']['channel'] = 2
-    midi_associations['throw']['mid cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['throw']['mid cross']['notes'] = cross_notes_to_use
-    midi_associations['throw']['mid cross']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['left cross'] = {}
-    midi_associations['throw']['left cross']['channel'] = 2
-    midi_associations['throw']['left cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['throw']['left cross']['notes'] = cross_notes_to_use
-    midi_associations['throw']['left cross']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['throw']['right cross'] = {}
-    midi_associations['throw']['right cross']['channel'] = 2
-    midi_associations['throw']['right cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['throw']['right cross']['notes'] = cross_notes_to_use
-    midi_associations['throw']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['throw']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
+    ball_config_index_to_use = [0,0,0]
 
+    #print(path_point_instance_obj)
 
-    midi_associations['peak'] = {}
-    midi_associations['peak']['mid column'] = {}
-    midi_associations['peak']['mid column']['channel'] = 0
-    midi_associations['peak']['mid column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['mid column']['notes'] = column_notes_to_use
-    midi_associations['peak']['mid column']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    #midi_associations['peak']['mid column'] = {}
-    #midi_associations['peak']['mid column']['channel'] = 1
-    #midi_associations['peak']['mid column']['notes']['scale_type'] = 
-    #midi_associations['peak']['mid column']['notes']['root'] = 
-    #midi_associations['peak']['mid column']['notes'][''] = chord/scale/individual   
-    midi_associations['peak']['left column'] = {}
-    midi_associations['peak']['left column']['channel'] = 0
-    midi_associations['peak']['left column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['left column']['notes'] = column_notes_to_use
-    midi_associations['peak']['left column']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['right column'] = {}
-    midi_associations['peak']['right column']['channel'] = 0
-    midi_associations['peak']['right column']['note_selection_mode'] = column_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['right column']['notes'] = column_notes_to_use
-    midi_associations['peak']['right column']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['mid cross'] = {}
-    midi_associations['peak']['mid cross']['channel'] = 0
-    midi_associations['peak']['mid cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['mid cross']['notes'] = cross_notes_to_use
-    midi_associations['peak']['mid cross']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['left cross'] = {}
-    midi_associations['peak']['left cross']['channel'] = 0
-    midi_associations['peak']['left cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['left cross']['notes'] = cross_notes_to_use
-    midi_associations['peak']['left cross']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['peak']['right cross'] = {}
-    midi_associations['peak']['right cross']['channel'] = 0
-    midi_associations['peak']['right cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['peak']['mid column']['times_position_triggered'] = [-1]*len(settings.scale_to_use)
-    midi_associations['peak']['right cross']['notes'] = cross_notes_to_use
-    midi_associations['peak']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['peak']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]
+    global show_scale_grid
 
-    '''midi_associations['chop'] = {}
-    midi_associations['chop']['mid column'] = {}
-    midi_associations['chop']['mid column']['channel'] = 0
-    midi_associations['chop']['mid column']['note_selection_mode'] = column_selection_mode
-    midi_associations['chop']['mid column']['notes'] = column_notes_to_use
-    midi_associations['chop']['mid column']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    #midi_associations['chop']['mid column'] = {}
-    #midi_associations['chop']['mid column']['channel'] = 0
-    #midi_associations['chop']['mid column']['notes']['scale_type'] = 
-    #midi_associations['chop']['mid column']['notes']['root'] = 
-    #midi_associations['chop']['mid column']['notes'][''] = chord/scale/individual   
-    midi_associations['chop']['left column'] = {}
-    midi_associations['chop']['left column']['channel'] = 0
-    midi_associations['chop']['left column']['note_selection_mode'] = column_selection_mode
-    midi_associations['chop']['left column']['notes'] = column_notes_to_use
-    midi_associations['chop']['left column']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['right column'] = {}
-    midi_associations['chop']['right column']['channel'] = 0
-    midi_associations['chop']['right column']['note_selection_mode'] = column_selection_mode
-    midi_associations['chop']['right column']['notes'] = column_notes_to_use
-    midi_associations['chop']['right column']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['mid cross'] = {}
-    midi_associations['chop']['mid cross']['channel'] = 0
-    midi_associations['chop']['mid cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['chop']['mid cross']['notes'] = cross_notes_to_use
-    midi_associations['chop']['mid cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['left cross'] = {}
-    midi_associations['chop']['left cross']['channel'] = 0
-    midi_associations['chop']['left cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['chop']['left cross']['notes'] = cross_notes_to_use
-    midi_associations['chop']['left cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['right cross'] = {}
-    midi_associations['chop']['right cross']['channel'] = 0
-    midi_associations['chop']['right cross']['note_selection_mode'] = cross_selection_mode
-    midi_associations['chop']['right cross']['notes'] = cross_notes_to_use
-    midi_associations['chop']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
+    settings.show_scale_grid = False
 
-    '''midi_associations['chop'] = {}
-    midi_associations['chop']['mid column'] = {}
-    midi_associations['chop']['mid column']['channel'] = 0
-    midi_associations['chop']['mid column']['note_selection_mode'] = 'loop'
-    midi_associations['chop']['mid column']['notes'] = 10
-    midi_associations['chop']['mid column']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    #midi_associations['chop']['mid column'] = {}
-    #midi_associations['chop']['mid column']['channel'] = 0
-    #midi_associations['chop']['mid column']['notes']['scale_type'] = 
-    #midi_associations['chop']['mid column']['notes']['root'] = 
-    #midi_associations['chop']['mid column']['notes'][''] = chord/scale/individual   
-    midi_associations['chop']['left column'] = {}
-    midi_associations['chop']['left column']['channel'] = 0
-    midi_associations['chop']['left column']['note_selection_mode'] = 'loop'
-    midi_associations['chop']['left column']['notes'] = 10
-    midi_associations['chop']['left column']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['left column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['right column'] = {}
-    midi_associations['chop']['right column']['channel'] = 0
-    midi_associations['chop']['right column']['note_selection_mode'] = 'loop'
-    midi_associations['chop']['right column']['notes'] = 10
-    midi_associations['chop']['right column']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['right column']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['mid cross'] = {}
-    midi_associations['chop']['mid cross']['channel'] = 0
-    midi_associations['chop']['mid cross']['note_selection_mode'] = 'loop'
-    midi_associations['chop']['mid cross']['notes'] = 10
-    midi_associations['chop']['mid cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['mid cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['left cross'] = {}
-    midi_associations['chop']['left cross']['channel'] = 0
-    midi_associations['chop']['left cross']['note_selection_mode'] = 'loop'
-    midi_associations['chop']['left cross']['notes'] = 10
-    midi_associations['chop']['left cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['left cross']['modulator'] = [['width',0,0], ['height',0,1]]    
-    midi_associations['chop']['right cross'] = {}
-    midi_associations['chop']['right cross']['channel'] = 2
-    midi_associations['chop']['right cross']['note_selection_mode'] = 'loop'
-    midi_associations['chop']['right cross']['notes'] = 10
-    midi_associations['chop']['right cross']['magnitude'] = midi_magnitude
-    #midi_associations['chop']['right cross']['modulator'] = [['width',0,0], ['height',0,1]]'''
+    for i in range(number_of_path_point_instances):
+        if path_point_instance_obj[i]['active'] == 1:
+            #print('active!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            ball_number = int(path_point_instance_obj[i]['ball number'])
+            ball_number = ball_number - 1
+            ball_number = str(ball_number)
+            path_config = path_point_instance_obj[i]['path config']
+            midi_channel = path_point_instance_obj[i]['midi channel']
+            midi_associations['ball '+ball_number] = {}
+            for path_phase in path_phases:
+                midi_associations['ball '+ball_number][path_phase] = {}
+                for path_type in path_types:
+                    midi_associations['ball '+ball_number][path_phase][path_type] = {}
+                    path_point_midi_index = path_point_path_obj[path_config][path_type][path_phase]
+                    if path_point_midi_index > 0:
+                        if path_point_midi_obj[path_point_midi_index]['input type'] == 'midi':
+                            settings.notes_to_use = list(map(int,path_point_midi_obj[path_point_midi_index]['input'].split(',')))
+                        midi_associations['ball '+ball_number][path_phase][path_type]['channel'] = midi_channel
+                        midi_associations['ball '+ball_number][path_phase][path_type]['note_selection_mode'] = path_point_midi_obj[path_point_midi_index]['note selection type']
+                        if 'positional' in path_point_midi_obj[path_point_midi_index]['note selection type']:
+                            settings.show_scale_grid = True
+                        midi_associations['ball '+ball_number][path_phase][path_type]['times_position_triggered'] = [-1]*len(settings.scale_to_use)
+                        midi_associations['ball '+ball_number][path_phase][path_type]['notes'] = settings.notes_to_use
+                        midi_associations['ball '+ball_number][path_phase][path_type]['magnitude'] = midi_magnitude
+
+    print(midi_associations)
